@@ -35,6 +35,7 @@ import org.apache.giraph.graph.partition.MasterGraphPartitioner;
 import org.apache.giraph.graph.partition.PartitionOwner;
 import org.apache.giraph.graph.partition.PartitionStats;
 import org.apache.giraph.graph.partition.PartitionUtils;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.master.MasterObserver;
 import org.apache.giraph.metrics.AggregatedMetrics;
 import org.apache.giraph.metrics.GiraphMetrics;
@@ -58,7 +59,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.RunningJob;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -257,11 +257,12 @@ public class BspServiceMaster<I extends WritableComparable,
    * @param inputSplitType Type of input splits (for logging purposes)
    * @return List of input splits for the given format
    */
-  private List<InputSplit> generateInputSplits(GiraphInputFormat inputFormat,
-                                               int numWorkers,
-                                               String inputSplitType) {
+  private List<GiraphInputSplit> generateInputSplits(
+      GiraphInputFormat inputFormat,
+      int numWorkers,
+      String inputSplitType) {
     String logPrefix = "generate" + inputSplitType + "InputSplits";
-    List<InputSplit> splits;
+    List<GiraphInputSplit> splits;
     try {
       splits = inputFormat.getSplits(getContext(), numWorkers);
     } catch (IOException e) {
@@ -277,7 +278,7 @@ public class BspServiceMaster<I extends WritableComparable,
     if (samplePercent !=
         GiraphConstants.INPUT_SPLIT_SAMPLE_PERCENT_DEFAULT) {
       int lastIndex = (int) (samplePercent * splits.size() / 100f);
-      List<InputSplit> sampleSplits = splits.subList(0, lastIndex);
+      List<GiraphInputSplit> sampleSplits = splits.subList(0, lastIndex);
       LOG.warn(logPrefix + ": Using sampling - Processing only " +
           sampleSplits.size() + " instead of " + splits.size() +
           " expected splits.");
@@ -565,7 +566,7 @@ public class BspServiceMaster<I extends WritableComparable,
 
     // Note that the input splits may only be a sample if
     // INPUT_SPLIT_SAMPLE_PERCENT is set to something other than 100
-    List<InputSplit> splitList = generateInputSplits(inputFormat,
+    List<GiraphInputSplit> splitList = generateInputSplits(inputFormat,
         healthyWorkerInfoList.size(), inputSplitType);
 
     if (splitList.isEmpty()) {
@@ -594,7 +595,7 @@ public class BspServiceMaster<I extends WritableComparable,
     ExecutorService taskExecutor =
         Executors.newFixedThreadPool(inputSplitThreadCount);
     for (int i = 0; i < splitList.size(); ++i) {
-      InputSplit inputSplit = splitList.get(i);
+      GiraphInputSplit inputSplit = splitList.get(i);
       taskExecutor.submit(new WriteInputSplit(inputSplit, inputSplitsPath, i));
     }
     taskExecutor.shutdown();
@@ -1792,7 +1793,7 @@ public class BspServiceMaster<I extends WritableComparable,
    */
   private class WriteInputSplit implements Callable<Void> {
     /** Input split which we are going to write */
-    private final InputSplit inputSplit;
+    private final GiraphInputSplit inputSplit;
     /** Input splits path */
     private final String inputSplitsPath;
     /** Index of the input split */
@@ -1805,7 +1806,7 @@ public class BspServiceMaster<I extends WritableComparable,
      * @param inputSplitsPath Input splits path
      * @param index Index of the input split
      */
-    public WriteInputSplit(InputSplit inputSplit,
+    public WriteInputSplit(GiraphInputSplit inputSplit,
                            String inputSplitsPath,
                            int index) {
       this.inputSplit = inputSplit;
@@ -1835,9 +1836,8 @@ public class BspServiceMaster<I extends WritableComparable,
         }
         Text.writeString(outputStream,
             locations == null ? "" : locations.toString());
-        Text.writeString(outputStream,
-            inputSplit.getClass().getName());
-        ((Writable) inputSplit).write(outputStream);
+        Text.writeString(outputStream, inputSplit.getClass().getName());
+        inputSplit.write(outputStream);
         inputSplitPath = inputSplitsPath + "/" + index;
         getZkExt().createExt(inputSplitPath,
             byteArrayOutputStream.toByteArray(),

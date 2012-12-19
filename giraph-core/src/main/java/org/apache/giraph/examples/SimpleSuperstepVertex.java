@@ -22,13 +22,13 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.EdgeListVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.io.GeneratedVertexInputFormat;
 import org.apache.giraph.io.TextVertexOutputFormat;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.log4j.Logger;
 
@@ -120,7 +120,7 @@ public class SimpleSuperstepVertex extends
         IntWritable, FloatWritable, IntWritable> {
     @Override
     public VertexReader<LongWritable, IntWritable, FloatWritable, IntWritable>
-    createVertexReader(InputSplit split, TaskAttemptContext context)
+    createVertexReader(GiraphInputSplit split, TaskAttemptContext context)
       throws IOException {
       return new SimpleSuperstepVertexReader();
     }

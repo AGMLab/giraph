@@ -18,6 +18,7 @@
 
 package org.apache.giraph.io.hcatalog;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,6 +41,8 @@ import org.apache.hcatalog.mapreduce.HCatStorageHandler;
 import org.apache.hcatalog.mapreduce.HCatUtils;
 import org.apache.hcatalog.mapreduce.InputJobInfo;
 import org.apache.hcatalog.mapreduce.PartInfo;
+
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -211,12 +214,12 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
    * @throws IOException
    * @throws InterruptedException
    */
-  private List<InputSplit> getSplits(JobContext jobContext,
+  private List<GiraphInputSplit> getSplits(JobContext jobContext,
                                      InputJobInfo inputJobInfo)
     throws IOException, InterruptedException {
     Configuration conf = jobContext.getConfiguration();
 
-    List<InputSplit> splits = new ArrayList<InputSplit>();
+    List<GiraphInputSplit> splits = Lists.newArrayList();
     List<PartInfo> partitionInfoList = inputJobInfo.getPartitions();
     if (partitionInfoList == null) {
       //No partitions match the specified partition filter
@@ -264,7 +267,7 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
           inputFormat.getSplits(jobConf, desiredNumSplits);
 
       for (org.apache.hadoop.mapred.InputSplit split : baseSplits) {
-        splits.add(new HCatSplit(partitionInfo, split, allCols));
+        splits.add(new GiraphHCatSplit(partitionInfo, split, allCols));
       }
     }
 
@@ -313,7 +316,7 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
    * @throws IOException
    * @throws InterruptedException
    */
-  public List<InputSplit> getVertexSplits(JobContext jobContext)
+  public List<GiraphInputSplit> getVertexSplits(JobContext jobContext)
     throws IOException, InterruptedException {
     return getSplits(jobContext,
         getVertexJobInfo(jobContext.getConfiguration()));
@@ -327,7 +330,7 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
    * @throws IOException
    * @throws InterruptedException
    */
-  public List<InputSplit> getEdgeSplits(JobContext jobContext)
+  public List<GiraphInputSplit> getEdgeSplits(JobContext jobContext)
     throws IOException, InterruptedException {
     return getSplits(jobContext,
         getEdgeJobInfo(jobContext.getConfiguration()));
@@ -344,7 +347,7 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
    * @throws InterruptedException
    */
   private RecordReader<WritableComparable, HCatRecord>
-  createRecordReader(InputSplit split,
+  createRecordReader(GiraphInputSplit split,
                      HCatSchema schema,
                      TaskAttemptContext taskContext)
     throws IOException, InterruptedException {
@@ -392,7 +395,7 @@ public class GiraphHCatInputFormat extends HCatBaseInputFormat {
    * @throws InterruptedException
    */
   public RecordReader<WritableComparable, HCatRecord>
-  createEdgeRecordReader(InputSplit split, TaskAttemptContext taskContext)
+  createEdgeRecordReader(GiraphInputSplit split, TaskAttemptContext taskContext)
     throws IOException, InterruptedException {
     return createRecordReader(split, getEdgeTableSchema(
         taskContext.getConfiguration()), taskContext);

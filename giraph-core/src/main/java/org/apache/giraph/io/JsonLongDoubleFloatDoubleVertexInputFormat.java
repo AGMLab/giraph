@@ -19,11 +19,11 @@ package org.apache.giraph.io;
 
 import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +44,7 @@ public class JsonLongDoubleFloatDoubleVertexInputFormat extends
   FloatWritable, DoubleWritable> {
 
   @Override
-  public TextVertexReader createVertexReader(InputSplit split,
+  public TextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context) {
     return new JsonLongDoubleFloatDoubleVertexReader();
   }

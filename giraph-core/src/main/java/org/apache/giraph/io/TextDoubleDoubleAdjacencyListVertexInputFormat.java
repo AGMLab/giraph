@@ -18,10 +18,10 @@
 package org.apache.giraph.io;
 
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
@@ -36,7 +36,7 @@ public class TextDoubleDoubleAdjacencyListVertexInputFormat<M extends Writable>
             DoubleWritable, M>  {
 
   @Override
-  public AdjacencyListTextVertexReader createVertexReader(InputSplit split,
+  public AdjacencyListTextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context) {
     return new TextDoubleDoubleAdjacencyListVertexReader(null);
   }

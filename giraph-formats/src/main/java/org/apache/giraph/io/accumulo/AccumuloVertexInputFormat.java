@@ -23,6 +23,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -160,10 +161,10 @@ public abstract class AccumuloVertexInputFormat<
    * @throws InterruptedException
    */
   @Override
-  public List<InputSplit> getSplits(
+  public List<GiraphInputSplit> getSplits(
     JobContext context, int numWorkers)
     throws IOException, InterruptedException {
-    List<InputSplit> splits = null;
+    List<GiraphInputSplit> splits = null;
     try {
       splits = accumuloInputFormat.getSplits(context);
     } catch (IOException e) {

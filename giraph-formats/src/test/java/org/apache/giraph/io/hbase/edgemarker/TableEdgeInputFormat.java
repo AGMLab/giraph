@@ -18,6 +18,10 @@
 package org.apache.giraph.io.hbase.edgemarker;
 
 import org.apache.giraph.graph.Edge;
+import com.google.common.collect.Maps;
+
+import org.apache.giraph.input.GiraphInputSplit;
+import org.apache.giraph.io.hbase.HBaseVertexInputFormat;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.io.hbase.HBaseVertexInputFormat;
@@ -45,7 +49,7 @@ public class TableEdgeInputFormat extends
     private static final Text uselessEdgeValue = new Text();
 
     public VertexReader<Text, Text, Text, Text>
-            createVertexReader(InputSplit split,
+            createVertexReader(GiraphInputSplit split,
                                TaskAttemptContext context) throws IOException {
 
         return new TableEdgeVertexReader(split, context);

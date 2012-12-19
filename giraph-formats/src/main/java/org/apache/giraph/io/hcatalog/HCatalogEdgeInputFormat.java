@@ -22,6 +22,7 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.EdgeInputFormat;
 import org.apache.giraph.graph.EdgeReader;
 import org.apache.giraph.graph.EdgeWithSource;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -49,7 +50,8 @@ public abstract class HCatalogEdgeInputFormat<
   private GiraphHCatInputFormat hCatInputFormat = new GiraphHCatInputFormat();
 
   @Override
-  public final List<InputSplit> getSplits(JobContext context, int numWorkers)
+  public final List<GiraphInputSplit> getSplits(
+      JobContext context, int numWorkers)
     throws IOException, InterruptedException {
     return hCatInputFormat.getEdgeSplits(context);
   }
@@ -64,7 +66,7 @@ public abstract class HCatalogEdgeInputFormat<
     private TaskAttemptContext context;
 
     @Override
-    public final void initialize(InputSplit inputSplit,
+    public final void initialize(GiraphInputSplit inputSplit,
                                  TaskAttemptContext context)
       throws IOException, InterruptedException {
       hCatRecordReader =
@@ -117,7 +119,7 @@ public abstract class HCatalogEdgeInputFormat<
 
   @Override
   public EdgeReader<I, E>
-  createEdgeReader(InputSplit split, TaskAttemptContext context)
+  createEdgeReader(GiraphInputSplit split, TaskAttemptContext context)
     throws IOException {
     try {
       HCatalogEdgeReader reader = createEdgeReader();

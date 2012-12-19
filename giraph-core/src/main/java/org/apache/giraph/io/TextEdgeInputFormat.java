@@ -23,6 +23,7 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.EdgeInputFormat;
 import org.apache.giraph.graph.EdgeReader;
 import org.apache.giraph.graph.EdgeWithSource;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -50,7 +51,7 @@ public abstract class TextEdgeInputFormat<I extends WritableComparable,
   protected GiraphTextInputFormat textInputFormat = new GiraphTextInputFormat();
 
   @Override
-  public List<InputSplit> getSplits(
+  public List<GiraphInputSplit> getSplits(
       JobContext context, int numWorkers) throws IOException,
       InterruptedException {
     // Ignore the hint of numWorkers here since we are using
@@ -60,7 +61,7 @@ public abstract class TextEdgeInputFormat<I extends WritableComparable,
 
   @Override
   public abstract TextEdgeReader createEdgeReader(
-      InputSplit split, TaskAttemptContext context) throws IOException;
+      GiraphInputSplit split, TaskAttemptContext context) throws IOException;
 
   /**
    * {@link EdgeReader} for {@link TextEdgeInputFormat}.

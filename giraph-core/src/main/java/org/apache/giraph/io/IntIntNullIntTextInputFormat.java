@@ -19,6 +19,7 @@
 package org.apache.giraph.io;
 
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -44,7 +45,7 @@ public class IntIntNullIntTextInputFormat extends
   private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
 
   @Override
-  public TextVertexReader createVertexReader(InputSplit split,
+  public TextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context)
     throws IOException {
     return new IntIntNullIntVertexReader();

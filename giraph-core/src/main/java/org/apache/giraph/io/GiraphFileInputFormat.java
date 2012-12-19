@@ -18,20 +18,21 @@
 
 package org.apache.giraph.io;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.InvalidInputException;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.log4j.Logger;
+
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -265,13 +266,13 @@ end[HADOOP_NON_SECURE]*/
    * @return The list of vertex/edge input splits
    * @throws IOException
    */
-  private List<InputSplit> getSplits(JobContext job, List<FileStatus> files)
+  private List<GiraphInputSplit> getSplits(JobContext job, List<FileStatus> files)
     throws IOException {
     long minSize = Math.max(getFormatMinSplitSize(), getMinSplitSize(job));
     long maxSize = getMaxSplitSize(job);
 
     // generate splits
-    List<InputSplit> splits = new ArrayList<InputSplit>();
+    List<GiraphInputSplit> splits = Lists.newArrayList();
 
     for (FileStatus file: files) {
       Path path = file.getPath();
@@ -285,21 +286,22 @@ end[HADOOP_NON_SECURE]*/
         long bytesRemaining = length;
         while (((double) bytesRemaining) / splitSize > SPLIT_SLOP) {
           int blkIndex = getBlockIndex(blkLocations, length - bytesRemaining);
-          splits.add(new FileSplit(path, length - bytesRemaining, splitSize,
+          splits.add(new GiraphFileSplit(path, length - bytesRemaining, splitSize,
               blkLocations[blkIndex].getHosts()));
           bytesRemaining -= splitSize;
         }
 
         if (bytesRemaining != 0) {
-          splits.add(new FileSplit(path, length - bytesRemaining,
+          splits.add(new GiraphFileSplit(path, length - bytesRemaining,
               bytesRemaining,
               blkLocations[blkLocations.length - 1].getHosts()));
         }
       } else if (length != 0) {
-        splits.add(new FileSplit(path, 0, length, blkLocations[0].getHosts()));
+        splits.add(new GiraphFileSplit(path, 0, length,
+            blkLocations[0].getHosts()));
       } else {
         //Create empty hosts array for zero length files
-        splits.add(new FileSplit(path, 0, length, new String[0]));
+        splits.add(new GiraphFileSplit(path, 0, length, new String[0]));
       }
     }
     return splits;
@@ -312,9 +314,10 @@ end[HADOOP_NON_SECURE]*/
    * @return The list of vertex input splits
    * @throws IOException
    */
-  public List<InputSplit> getVertexSplits(JobContext job) throws IOException {
+  public List<GiraphInputSplit> getVertexSplits(JobContext job)
+      throws IOException {
     List<FileStatus> files = listVertexStatus(job);
-    List<InputSplit> splits = getSplits(job, files);
+    List<GiraphInputSplit> splits = getSplits(job, files);
     // Save the number of input files in the job-conf
     job.getConfiguration().setLong(NUM_VERTEX_INPUT_FILES, files.size());
     LOG.debug("Total # of vertex splits: " + splits.size());
@@ -328,9 +331,9 @@ end[HADOOP_NON_SECURE]*/
    * @return The list of edge input splits
    * @throws IOException
    */
-  public List<InputSplit> getEdgeSplits(JobContext job) throws IOException {
+  public List<GiraphInputSplit> getEdgeSplits(JobContext job) throws IOException {
     List<FileStatus> files = listEdgeStatus(job);
-    List<InputSplit> splits = getSplits(job, files);
+    List<GiraphInputSplit> splits = getSplits(job, files);
     // Save the number of input files in the job-conf
     job.getConfiguration().setLong(NUM_EDGE_INPUT_FILES, files.size());
     LOG.debug("Total # of edge splits: " + splits.size());

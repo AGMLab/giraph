@@ -18,6 +18,7 @@
 
 package org.apache.giraph.io;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.graph.Edge;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -54,7 +55,7 @@ public class JsonBase64VertexInputFormat<I extends WritableComparable,
     extends TextVertexInputFormat<I, V, E, M> {
 
   @Override
-  public TextVertexReader createVertexReader(InputSplit split,
+  public TextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context) {
     return new JsonBase64VertexReader();
   }

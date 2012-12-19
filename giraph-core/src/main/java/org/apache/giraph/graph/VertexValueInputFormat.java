@@ -18,6 +18,7 @@
 
 package org.apache.giraph.graph;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -52,7 +53,7 @@ public abstract class VertexValueInputFormat<I extends WritableComparable,
 
   @Override
   public final VertexReader<I, V, E, M> createVertexReader(
-      InputSplit split, TaskAttemptContext context) throws IOException {
+      GiraphInputSplit split, TaskAttemptContext context) throws IOException {
     return createVertexValueReader(split, context);
   }
 }

@@ -20,6 +20,7 @@ package org.apache.giraph.io;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -56,7 +57,7 @@ public class SequenceFileVertexInputFormat<I extends WritableComparable,
   }
 
   @Override
-  public VertexReader<I, V, E, M> createVertexReader(InputSplit split,
+  public VertexReader<I, V, E, M> createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context) throws IOException {
     return new SequenceFileVertexReader<I, V, E, M, X>(
         sequenceFileInputFormat.createRecordReader(split, context));

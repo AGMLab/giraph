@@ -18,14 +18,13 @@
 
 package org.apache.giraph.graph;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Use this to load data for a BSP application.  Note that the InputSplit must
@@ -43,32 +42,10 @@ public abstract class VertexInputFormat<I extends WritableComparable,
     V extends Writable, E extends Writable, M extends Writable>
     implements GiraphInputFormat {
   /**
-   * Logically split the vertices for a graph processing application.
-   *
-   * Each {@link InputSplit} is then assigned to a worker for processing.
-   *
-   * <p><i>Note</i>: The split is a <i>logical</i> split of the inputs and the
-   * input files are not physically split into chunks. For e.g. a split could
-   * be <i>&lt;input-file-path, start, offset&gt;</i> tuple. The InputFormat
-   * also creates the {@link VertexReader} to read the {@link InputSplit}.
-   *
-   * Also, the number of workers is a hint given to the developer to try to
-   * intelligently determine how many splits to create (if this is
-   * adjustable) at runtime.
-   *
-   * @param context Context of the job
-   * @param numWorkers Number of workers used for this job
-   * @return an array of {@link InputSplit}s for the job.
-   */
-  @Override
-  public abstract List<InputSplit> getSplits(
-    JobContext context, int numWorkers)
-    throws IOException, InterruptedException;
-
-  /**
    * Create a vertex reader for a given split. The framework will call
    * {@link VertexReader#initialize(InputSplit, TaskAttemptContext)} before
    * the split is used.
+   *
    *
    * @param split the split to be read
    * @param context the information about the task
@@ -77,6 +54,6 @@ public abstract class VertexInputFormat<I extends WritableComparable,
    * @throws InterruptedException
    */
   public abstract VertexReader<I, V, E, M> createVertexReader(
-      InputSplit split,
+      GiraphInputSplit split,
       TaskAttemptContext context) throws IOException;
 }

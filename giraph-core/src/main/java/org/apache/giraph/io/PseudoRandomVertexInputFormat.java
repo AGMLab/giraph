@@ -24,6 +24,7 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
@@ -72,7 +73,7 @@ public class PseudoRandomVertexInputFormat<M extends Writable> extends
 
   @Override
   public VertexReader<LongWritable, DoubleWritable, DoubleWritable, M>
-  createVertexReader(InputSplit split, TaskAttemptContext context)
+  createVertexReader(GiraphInputSplit split, TaskAttemptContext context)
     throws IOException {
     return new PseudoRandomVertexReader<M>();
   }

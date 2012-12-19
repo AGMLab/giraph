@@ -20,12 +20,13 @@ package org.apache.giraph.io.accumulo.edgemarker;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.input.GiraphInputSplit;
+import org.apache.giraph.io.accumulo.AccumuloVertexInputFormat;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexReader;
 import org.apache.giraph.io.accumulo.AccumuloVertexInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
@@ -44,7 +45,7 @@ public class AccumuloEdgeInputFormat
     private static final Text uselessEdgeValue = new Text();
     private Configuration conf;
     public VertexReader<Text, Text, Text, Text>
-    createVertexReader(InputSplit split, TaskAttemptContext context)
+    createVertexReader(GiraphInputSplit split, TaskAttemptContext context)
             throws IOException {
         try {
 

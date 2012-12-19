@@ -18,6 +18,7 @@
 package org.apache.giraph.io;
 
 import org.apache.giraph.graph.Edge;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -67,7 +68,7 @@ public abstract class AdjacencyListTextVertexInputFormat<I extends
 
   @Override
   public abstract AdjacencyListTextVertexReader createVertexReader(
-      InputSplit split, TaskAttemptContext context);
+      GiraphInputSplit split, TaskAttemptContext context);
 
   /**
    * Vertex reader associated with {@link AdjacencyListTextVertexInputFormat}.

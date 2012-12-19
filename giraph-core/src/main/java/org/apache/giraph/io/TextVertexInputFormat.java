@@ -23,6 +23,7 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -65,6 +66,7 @@ public abstract class TextVertexInputFormat<I extends WritableComparable,
    * The factory method which produces the {@link TextVertexReader} used by this
    * input format.
    *
+   *
    * @param split
    *          the split to be read
    * @param context
@@ -73,7 +75,7 @@ public abstract class TextVertexInputFormat<I extends WritableComparable,
    *         the text vertex reader to be used
    */
   @Override
-  public abstract TextVertexReader createVertexReader(InputSplit split,
+  public abstract TextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context) throws IOException;
 
   /**

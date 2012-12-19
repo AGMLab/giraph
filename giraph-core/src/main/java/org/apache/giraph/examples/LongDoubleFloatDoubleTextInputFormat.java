@@ -21,11 +21,11 @@ package org.apache.giraph.examples;
 import org.apache.giraph.graph.BspUtils;
 import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.io.TextVertexInputFormat;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.google.common.collect.Lists;
@@ -45,7 +45,7 @@ public class LongDoubleFloatDoubleTextInputFormat
     FloatWritable, DoubleWritable> {
 
   @Override
-  public TextVertexReader createVertexReader(InputSplit split,
+  public TextVertexReader createVertexReader(GiraphInputSplit split,
       TaskAttemptContext context)
     throws IOException {
     return new LongDoubleFloatDoubleVertexReader();

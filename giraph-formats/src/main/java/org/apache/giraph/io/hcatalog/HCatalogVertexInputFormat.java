@@ -24,6 +24,7 @@ import org.apache.giraph.graph.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexInputFormat;
 import org.apache.giraph.graph.VertexReader;
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.utils.TimedLogger;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -169,7 +170,7 @@ public abstract class HCatalogVertexInputFormat<
 
   @Override
   public final VertexReader<I, V, E, M>
-  createVertexReader(final InputSplit split,
+  createVertexReader(final GiraphInputSplit split,
                      final TaskAttemptContext context)
     throws IOException {
     try {

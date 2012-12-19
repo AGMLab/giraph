@@ -74,14 +74,4 @@ public interface VertexReader<I extends WritableComparable,
    * @throws IOException
    */
   void close() throws IOException;
-
-  /**
-   * How much of the input has the {@link VertexReader} consumed i.e.
-   * has been processed by?
-   *
-   * @return Progress from <code>0.0</code> to <code>1.0</code>.
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  float getProgress() throws IOException, InterruptedException;
 }

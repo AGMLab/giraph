@@ -17,11 +17,11 @@
  */
 package org.apache.giraph.io;
 
+import org.apache.giraph.input.GiraphInputSplit;
 import org.apache.giraph.graph.Edge;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import com.google.common.collect.ImmutableList;
@@ -38,7 +38,7 @@ public class IntNullNullNullTextInputFormat extends TextVertexInputFormat<
     IntWritable, NullWritable, NullWritable, NullWritable> {
   @Override
   public TextVertexReader createVertexReader(
-      InputSplit split, TaskAttemptContext context) throws IOException {
+      GiraphInputSplit split, TaskAttemptContext context) throws IOException {
     return new IntNullNullNullVertexReader();
   }
 
