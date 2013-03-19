@@ -48,7 +48,4 @@ public abstract class AbstractHiveToVertexEdges<I extends WritableComparable,
   @Override public HiveTableSchema getTableSchema() {
     return tableSchema;
   }
-
-  @Override
-  public void readingPartition(Map<String, String> partitionValues) { }
 }
