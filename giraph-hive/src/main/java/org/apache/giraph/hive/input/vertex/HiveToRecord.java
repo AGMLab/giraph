@@ -18,32 +18,16 @@
 
 package org.apache.giraph.hive.input.vertex;
 
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
-
-import com.facebook.giraph.hive.HiveReadableRecord;
+import java.util.Map;
 
 /**
- * Interface for creating vertices from a Hive record.
- *
- * @param <I> Vertex ID
- * @param <V> Vertex Value
+ * Base interface for HiveTo{X} classes. Holds API common to both.
  */
-public interface HiveToVertexValue<I extends WritableComparable,
-    V extends Writable> extends HiveToRecord {
+public interface HiveToRecord {
   /**
-   * Read the Vertex's ID from the HiveRecord given.
+   * Notification that we start reading a split.
    *
-   * @param record HiveRecord to read from.
-   * @return Vertex ID
+   * @param partitionValues Map of partition data.
    */
-  I getVertexId(HiveReadableRecord record);
-
-  /**
-   * Read the Vertex's Value from the HiveRecord given.
-   *
-   * @param record HiveRecord to read from.
-   * @return Vertex Value
-   */
-  V getVertexValue(HiveReadableRecord record);
+  void readingPartition(Map<String, String> partitionValues);
 }

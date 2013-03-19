@@ -25,6 +25,7 @@ import org.apache.hadoop.io.WritableComparable;
 import com.facebook.giraph.hive.HiveReadableRecord;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Interface for creating edges for a vertex from a Hive record.
@@ -35,7 +36,7 @@ import java.util.Collections;
  * @param <E> extends Writable
  */
 public interface HiveToVertexEdges<I extends WritableComparable,
-    E extends Writable> {
+    E extends Writable> extends HiveToRecord {
   /**
    * Read Vertex's edges from the HiveRecord given.
    *
@@ -51,8 +52,8 @@ public interface HiveToVertexEdges<I extends WritableComparable,
     /** Singleton */
     private static final Empty INSTANCE = new Empty();
 
-    /** Don't construct */
-    private Empty() { }
+    /** Don't construct, allow inheritance */
+    protected Empty() { }
 
     /**
      * Get singleton instance
@@ -60,7 +61,11 @@ public interface HiveToVertexEdges<I extends WritableComparable,
      */
     public static Empty get() { return INSTANCE; }
 
-    @Override public Iterable getEdges(HiveReadableRecord record) {
+    @Override
+    public void readingPartition(Map<String, String> partitionValues) { }
+
+    @Override
+    public Iterable getEdges(HiveReadableRecord record) {
       return Collections.emptyList();
     }
   }
