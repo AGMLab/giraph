@@ -16,24 +16,31 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.edge;
+package org.apache.giraph.examples;
 
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import com.google.common.collect.Maps;
 
-/**
- * An edge whose value can be modified.
- *
- * @param <I> Vertex index
- * @param <E> Edge value
- */
-public interface MutableEdge<I extends WritableComparable, E extends Writable>
-    extends Edge<I, E> {
+import java.util.Map;
+
+public class RandomWalkTestUtils {
+
+  /** Minimum difference between doubles */
+  public static final double EPSILON = 10e-3;
+
   /**
-   * Set the value for this edge.
-   *
-   * @param value new edge value
+   * Parse steady state probabilities.
+   * @param results The steady state probabilities in text format.
+   * @return A map representation of the steady state probabilities.
    */
-  void setValue(E value);
+  public static Map<Long, Double> parseSteadyStateProbabilities(
+      Iterable<String> results) {
+    Map<Long, Double> result = Maps.newHashMap();
+    for (String s : results) {
+      String[] tokens = s.split("\\t");
+      Long id = Long.parseLong(tokens[0]);
+      Double value = Double.parseDouble(tokens[1]);
+      result.put(id, value);
+    }
+    return result;
+  }
 }
-
