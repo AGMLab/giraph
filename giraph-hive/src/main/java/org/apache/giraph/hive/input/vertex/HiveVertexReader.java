@@ -122,8 +122,6 @@ public class HiveVertexReader<I extends WritableComparable,
     if (conf.getBoolean(REUSE_VERTEX_KEY, false)) {
       vertexToReuse = conf.createVertex();
     }
-    hiveToVertexEdges.readingPartition(hiveRecordReader.getPartitionValues());
-    hiveToVertexValue.readingPartition(hiveRecordReader.getPartitionValues());
   }
 
   /**
