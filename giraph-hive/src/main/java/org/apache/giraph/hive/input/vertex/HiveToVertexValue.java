@@ -30,7 +30,7 @@ import com.facebook.giraph.hive.HiveReadableRecord;
  * @param <V> Vertex Value
  */
 public interface HiveToVertexValue<I extends WritableComparable,
-    V extends Writable> extends HiveToRecord {
+    V extends Writable> {
   /**
    * Read the Vertex's ID from the HiveRecord given.
    *
