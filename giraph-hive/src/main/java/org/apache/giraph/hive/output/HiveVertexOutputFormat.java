@@ -29,8 +29,8 @@ import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import com.facebook.giraph.hive.HiveRecord;
 import com.facebook.giraph.hive.output.HiveApiOutputFormat;
+import com.facebook.giraph.hive.record.HiveRecord;
 
 import java.io.IOException;
 

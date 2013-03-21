@@ -28,11 +28,11 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import com.facebook.giraph.hive.HiveRecord;
-import com.facebook.giraph.hive.HiveTableSchema;
-import com.facebook.giraph.hive.HiveTableSchemaAware;
-import com.facebook.giraph.hive.HiveTableSchemas;
 import com.facebook.giraph.hive.impl.input.HiveApiRecordReader;
+import com.facebook.giraph.hive.record.HiveRecord;
+import com.facebook.giraph.hive.schema.HiveTableSchema;
+import com.facebook.giraph.hive.schema.HiveTableSchemaAware;
+import com.facebook.giraph.hive.schema.HiveTableSchemas;
 
 import java.io.IOException;
 

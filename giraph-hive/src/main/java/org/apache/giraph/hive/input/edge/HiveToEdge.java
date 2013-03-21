@@ -21,7 +21,7 @@ package org.apache.giraph.hive.input.edge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import com.facebook.giraph.hive.HiveReadableRecord;
+import com.facebook.giraph.hive.record.HiveReadableRecord;
 
 /**
  * An interface used to create edges from Hive records.

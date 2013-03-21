@@ -29,10 +29,10 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.log4j.Logger;
 
-import com.facebook.giraph.hive.HiveRecord;
-import com.facebook.giraph.hive.HiveTableSchema;
-import com.facebook.giraph.hive.HiveTableSchemas;
 import com.facebook.giraph.hive.impl.HiveApiRecord;
+import com.facebook.giraph.hive.record.HiveRecord;
+import com.facebook.giraph.hive.schema.HiveTableSchema;
+import com.facebook.giraph.hive.schema.HiveTableSchemas;
 
 import java.io.IOException;
 import java.util.Collections;

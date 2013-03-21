@@ -21,8 +21,8 @@ import org.apache.giraph.conf.DefaultImmutableClassesGiraphConfigurable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import com.facebook.giraph.hive.HiveTableSchema;
-import com.facebook.giraph.hive.HiveTableSchemaAware;
+import com.facebook.giraph.hive.schema.HiveTableSchema;
+import com.facebook.giraph.hive.schema.HiveTableSchemaAware;
 
 /**
  * Base class for HiveToVertexEdges implementations
