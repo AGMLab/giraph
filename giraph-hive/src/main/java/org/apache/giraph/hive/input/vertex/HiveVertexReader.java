@@ -26,10 +26,10 @@ import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import com.facebook.giraph.hive.impl.input.HiveApiRecordReader;
-import com.facebook.giraph.hive.record.HiveRecord;
+import com.facebook.giraph.hive.record.HiveReadableRecord;
 import com.facebook.giraph.hive.schema.HiveTableSchema;
 import com.facebook.giraph.hive.schema.HiveTableSchemaAware;
 import com.facebook.giraph.hive.schema.HiveTableSchemas;
@@ -57,7 +57,7 @@ public class HiveVertexReader<I extends WritableComparable,
   public static final String REUSE_VERTEX_KEY = "giraph.hive.reuse.vertex";
 
   /** Underlying Hive RecordReader used */
-  private HiveApiRecordReader hiveRecordReader;
+  private RecordReader<WritableComparable, HiveReadableRecord> hiveRecordReader;
   /** Schema for table in Hive */
   private HiveTableSchema tableSchema;
 
@@ -80,7 +80,8 @@ public class HiveVertexReader<I extends WritableComparable,
    *
    * @return RecordReader from Hive.
    */
-  public HiveApiRecordReader getHiveRecordReader() {
+  public RecordReader<WritableComparable, HiveReadableRecord>
+  getHiveRecordReader() {
     return hiveRecordReader;
   }
 
@@ -89,7 +90,8 @@ public class HiveVertexReader<I extends WritableComparable,
    *
    * @param hiveRecordReader RecordReader to read from Hive.
    */
-  public void setHiveRecordReader(HiveApiRecordReader hiveRecordReader) {
+  public void setHiveRecordReader(
+      RecordReader<WritableComparable, HiveReadableRecord> hiveRecordReader) {
     this.hiveRecordReader = hiveRecordReader;
   }
 
@@ -172,7 +174,7 @@ public class HiveVertexReader<I extends WritableComparable,
   @Override
   public final Vertex<I, V, E, M> getCurrentVertex()
     throws IOException, InterruptedException {
-    HiveRecord hiveRecord = hiveRecordReader.getCurrentValue();
+    HiveReadableRecord hiveRecord = hiveRecordReader.getCurrentValue();
     Vertex<I, V, E, M> vertex = vertexToReuse;
     if (vertex == null) {
       vertex = conf.createVertex();

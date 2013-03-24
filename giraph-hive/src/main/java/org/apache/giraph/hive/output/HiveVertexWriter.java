@@ -29,13 +29,12 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.log4j.Logger;
 
-import com.facebook.giraph.hive.impl.HiveApiRecord;
-import com.facebook.giraph.hive.record.HiveRecord;
+import com.facebook.giraph.hive.record.HiveRecordFactory;
+import com.facebook.giraph.hive.record.HiveWritableRecord;
 import com.facebook.giraph.hive.schema.HiveTableSchema;
 import com.facebook.giraph.hive.schema.HiveTableSchemas;
 
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Vertex writer using Hive.
@@ -53,7 +52,7 @@ public class HiveVertexWriter<I extends WritableComparable, V extends Writable,
   private static final Logger LOG = Logger.getLogger(HiveVertexWriter.class);
 
   /** Underlying Hive RecordWriter used */
-  private RecordWriter<WritableComparable, HiveRecord>  hiveRecordWriter;
+  private RecordWriter<WritableComparable, HiveWritableRecord> hiveRecordWriter;
   /** Schema for table in Hive */
   private HiveTableSchema tableSchema;
 
@@ -68,7 +67,7 @@ public class HiveVertexWriter<I extends WritableComparable, V extends Writable,
    *
    * @return RecordWriter for Hive.
    */
-  public RecordWriter<WritableComparable, HiveRecord> getBaseWriter() {
+  public RecordWriter<WritableComparable, HiveWritableRecord> getBaseWriter() {
     return hiveRecordWriter;
   }
 
@@ -78,7 +77,7 @@ public class HiveVertexWriter<I extends WritableComparable, V extends Writable,
    * @param hiveRecordWriter RecordWriter to write to Hive.
    */
   public void setBaseWriter(
-      RecordWriter<WritableComparable, HiveRecord> hiveRecordWriter) {
+      RecordWriter<WritableComparable, HiveWritableRecord> hiveRecordWriter) {
     this.hiveRecordWriter = hiveRecordWriter;
   }
 
@@ -125,8 +124,8 @@ public class HiveVertexWriter<I extends WritableComparable, V extends Writable,
   @Override
   public void writeVertex(Vertex<I, V, E, ?> vertex)
     throws IOException, InterruptedException {
-    HiveRecord record = new HiveApiRecord(tableSchema.numColumns(),
-        Collections.<String>emptyList());
+    HiveWritableRecord record =
+        HiveRecordFactory.newWritableRecord(tableSchema.numColumns());
     vertexToHive.fillRecord(vertex, record);
     hiveRecordWriter.write(NullWritable.get(), record);
   }

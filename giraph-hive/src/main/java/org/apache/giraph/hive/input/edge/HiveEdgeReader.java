@@ -29,7 +29,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-import com.facebook.giraph.hive.record.HiveRecord;
+import com.facebook.giraph.hive.record.HiveReadableRecord;
 import com.facebook.giraph.hive.schema.HiveTableSchema;
 import com.facebook.giraph.hive.schema.HiveTableSchemas;
 
@@ -49,7 +49,7 @@ public class HiveEdgeReader<I extends WritableComparable, E extends Writable>
   public static final String REUSE_EDGE_KEY = "giraph.hive.reuse.edge";
 
   /** Underlying Hive RecordReader used */
-  private RecordReader<WritableComparable, HiveRecord> hiveRecordReader;
+  private RecordReader<WritableComparable, HiveReadableRecord> hiveRecordReader;
   /** Schema for table in Hive */
   private HiveTableSchema tableSchema;
 
@@ -69,7 +69,8 @@ public class HiveEdgeReader<I extends WritableComparable, E extends Writable>
    *
    * @return RecordReader from Hive
    */
-  public RecordReader<WritableComparable, HiveRecord> getHiveRecordReader() {
+  public RecordReader<WritableComparable, HiveReadableRecord>
+  getHiveRecordReader() {
     return hiveRecordReader;
   }
 
@@ -79,7 +80,7 @@ public class HiveEdgeReader<I extends WritableComparable, E extends Writable>
    * @param hiveRecordReader RecordReader to read from Hive.
    */
   public void setHiveRecordReader(
-      RecordReader<WritableComparable, HiveRecord> hiveRecordReader) {
+      RecordReader<WritableComparable, HiveReadableRecord> hiveRecordReader) {
     this.hiveRecordReader = hiveRecordReader;
   }
 
@@ -159,7 +160,7 @@ public class HiveEdgeReader<I extends WritableComparable, E extends Writable>
   @Override
   public Edge<I, E> getCurrentEdge() throws IOException,
       InterruptedException {
-    HiveRecord record = hiveRecordReader.getCurrentValue();
+    HiveReadableRecord record = hiveRecordReader.getCurrentValue();
     ReusableEdge<I, E> edge = edgeToReuse;
     if (edge == null) {
       edge = conf.createReusableEdge();

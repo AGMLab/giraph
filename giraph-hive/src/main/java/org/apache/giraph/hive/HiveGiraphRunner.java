@@ -275,13 +275,13 @@ public class HiveGiraphRunner implements Tool {
    */
   private void setupHiveInputs(GiraphConfiguration conf) throws TException {
     if (hiveToVertexClass != null) {
-      HiveApiInputFormat.initProfile(conf, hiveVertexInputDescription,
+      HiveApiInputFormat.setProfileInputDesc(conf, hiveVertexInputDescription,
           HiveProfiles.VERTEX_INPUT_PROFILE_ID);
       conf.setVertexInputFormatClass(HiveVertexInputFormat.class);
     }
 
     if (hiveToEdgeClass != null) {
-      HiveApiInputFormat.initProfile(conf, hiveEdgeInputDescription,
+      HiveApiInputFormat.setProfileInputDesc(conf, hiveEdgeInputDescription,
           HiveProfiles.EDGE_INPUT_PROFILE_ID);
       conf.setEdgeInputFormatClass(HiveEdgeInputFormat.class);
     }
