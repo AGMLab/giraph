@@ -26,19 +26,18 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.giraph.conf.GiraphClasses;
 import org.apache.giraph.conf.GiraphConfiguration;
-import org.apache.giraph.hive.common.HiveProfiles;
+import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.hive.input.edge.HiveEdgeInputFormat;
 import org.apache.giraph.hive.input.edge.HiveEdgeReader;
 import org.apache.giraph.hive.input.edge.HiveToEdge;
-import org.apache.giraph.hive.input.vertex.HiveToVertexValue;
 import org.apache.giraph.hive.input.vertex.HiveToVertexEdges;
+import org.apache.giraph.hive.input.vertex.HiveToVertexValue;
 import org.apache.giraph.hive.input.vertex.HiveVertexInputFormat;
 import org.apache.giraph.hive.input.vertex.HiveVertexReader;
 import org.apache.giraph.hive.output.HiveVertexOutputFormat;
 import org.apache.giraph.hive.output.HiveVertexWriter;
 import org.apache.giraph.hive.output.VertexToHive;
 import org.apache.giraph.job.GiraphJob;
-import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.util.Tool;
@@ -50,6 +49,7 @@ import com.facebook.giraph.hive.input.HiveApiInputFormat;
 import com.facebook.giraph.hive.input.HiveInputDescription;
 import com.facebook.giraph.hive.output.HiveApiOutputFormat;
 import com.facebook.giraph.hive.output.HiveOutputDescription;
+import com.facebook.giraph.hive.schema.HiveTableSchemas;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -59,6 +59,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.giraph.hive.common.HiveProfiles.EDGE_INPUT_PROFILE_ID;
+import static org.apache.giraph.hive.common.HiveProfiles.VERTEX_INPUT_PROFILE_ID;
+import static org.apache.giraph.hive.common.HiveProfiles.VERTEX_OUTPUT_PROFILE_ID;
 
 /**
  * Hive Giraph Runner
@@ -276,14 +280,18 @@ public class HiveGiraphRunner implements Tool {
   private void setupHiveInputs(GiraphConfiguration conf) throws TException {
     if (hiveToVertexClass != null) {
       HiveApiInputFormat.setProfileInputDesc(conf, hiveVertexInputDescription,
-          HiveProfiles.VERTEX_INPUT_PROFILE_ID);
+          VERTEX_INPUT_PROFILE_ID);
       conf.setVertexInputFormatClass(HiveVertexInputFormat.class);
+      HiveTableSchemas.put(conf, VERTEX_INPUT_PROFILE_ID,
+          hiveVertexInputDescription.hiveTableName());
     }
 
     if (hiveToEdgeClass != null) {
       HiveApiInputFormat.setProfileInputDesc(conf, hiveEdgeInputDescription,
-          HiveProfiles.EDGE_INPUT_PROFILE_ID);
+          EDGE_INPUT_PROFILE_ID);
       conf.setEdgeInputFormatClass(HiveEdgeInputFormat.class);
+      HiveTableSchemas.put(conf, EDGE_INPUT_PROFILE_ID,
+          hiveEdgeInputDescription.hiveTableName());
     }
   }
 
@@ -298,8 +306,10 @@ public class HiveGiraphRunner implements Tool {
       LOG.warn("run: Warning - Output will be skipped!");
     } else if (vertexToHiveClass != null) {
       HiveApiOutputFormat.initProfile(conf, hiveOutputDescription,
-          HiveProfiles.VERTEX_OUTPUT_PROFILE_ID);
+          VERTEX_OUTPUT_PROFILE_ID);
       conf.setVertexOutputFormatClass(HiveVertexOutputFormat.class);
+      HiveTableSchemas.put(conf, VERTEX_OUTPUT_PROFILE_ID,
+          hiveOutputDescription.hiveTableName());
     } else {
       LOG.fatal("output requested but " + VertexToHive.class.getSimpleName() +
           " not set");
