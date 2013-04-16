@@ -22,7 +22,7 @@ under the License.
   <groupId>org.apache.giraph</groupId>
   <artifactId>giraph-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.2-fb-1</version>
+  <version>0.2-SNAPSHOT</version>
 
   <name>Apache Giraph Parent</name>
   <url>http://giraph.apache.org/</url>

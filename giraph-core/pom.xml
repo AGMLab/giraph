@@ -23,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.apache.giraph</groupId>
     <artifactId>giraph-parent</artifactId>
-    <version>0.2-fb-1</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
   <artifactId>giraph-core</artifactId>
   <packaging>jar</packaging>
