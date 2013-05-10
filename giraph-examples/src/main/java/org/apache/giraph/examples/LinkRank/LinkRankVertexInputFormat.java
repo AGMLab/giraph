@@ -20,7 +20,7 @@ package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.io.VertexReader;
 import org.apache.giraph.io.formats.GeneratedVertexInputFormat;
-import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -32,9 +32,9 @@ import java.io.IOException;
  * Simple VertexInputFormat that supports {@link LinkRankVertex}
  */
 public class LinkRankVertexInputFormat extends
-        GeneratedVertexInputFormat<Text, DoubleWritable, NullWritable> {
+        GeneratedVertexInputFormat<Text, FloatWritable, NullWritable> {
     @Override
-    public VertexReader<Text, DoubleWritable,
+    public VertexReader<Text, FloatWritable,
             NullWritable> createVertexReader(InputSplit split,
                                              TaskAttemptContext context)
             throws IOException {

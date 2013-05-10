@@ -24,10 +24,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.examples.GeneratedVertexReader;
 import org.apache.giraph.graph.Vertex;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -37,7 +34,7 @@ import java.util.List;
  * Simple VertexReader that supports {@link LinkRankVertex}
  */
 public class LinkRankVertexReader extends
-        GeneratedVertexReader<Text, DoubleWritable, NullWritable> {
+        GeneratedVertexReader<Text, FloatWritable, NullWritable> {
     /**
      * Class logger
      */
@@ -50,9 +47,9 @@ public class LinkRankVertexReader extends
     }
 
     @Override
-    public Vertex<Text, DoubleWritable,
+    public Vertex<Text, FloatWritable,
             NullWritable, Writable> getCurrentVertex() throws IOException {
-        Vertex<Text, DoubleWritable, NullWritable, Writable>
+        Vertex<Text, FloatWritable, NullWritable, Writable>
                 vertex = getConf().createVertex();
 
             /*
@@ -68,7 +65,7 @@ public class LinkRankVertexReader extends
                     new FloatWritable(edgeValue)));
                     */
         Text vertexId = new Text("Hede");
-        DoubleWritable vertexValue = new DoubleWritable(1.00);
+        FloatWritable vertexValue = new FloatWritable(1.00f);
 
         Text targetVertexId = new Text("Hodo");
 
