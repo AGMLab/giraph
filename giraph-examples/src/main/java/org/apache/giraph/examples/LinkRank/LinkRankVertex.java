@@ -101,7 +101,7 @@ public class LinkRankVertex extends Vertex<Text, FloatWritable,
         log.info(String.valueOf(this.getValue()));
 
         if (superStep == 0) {
-            removeDuplicateLinks();
+            //removeDuplicateLinks();
         } else if (superStep >= 1) {
             // find the score sum received from our neighbors.
             float sum = 0;
