@@ -22,6 +22,7 @@ package org.apache.giraph.examples.LinkRank;
 import org.apache.giraph.io.formats.TextVertexValueInputFormat;
 import org.apache.giraph.utils.TextFloatPair;
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -32,8 +33,8 @@ import java.util.regex.Pattern;
 
 
 
-public class LinkRankVertexInputFormat<E extends Writable,
-        M extends Writable> extends
+public class LinkRankVertexInputFormat<E extends NullWritable,
+        M extends FloatWritable> extends
         TextVertexValueInputFormat<Text, FloatWritable, E, M> {
     /** Separator for id and value */
     private static final Pattern SEPARATOR = Pattern.compile("[\t ]");

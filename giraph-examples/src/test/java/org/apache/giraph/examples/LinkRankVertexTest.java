@@ -77,7 +77,7 @@ public class LinkRankVertexTest {
         conf.setVertexClass(LinkRankVertex.class);
         conf.setOutEdgesClass(ByteArrayEdges.class);
 
-        conf.setVertexInputFormatClass(LinkRankVertexInputFormat.class);
+        conf.setVertexInputFormatClass(LinkRankVertexInputFormat2.class);
         conf.setVertexOutputFormatClass(
                 LinkRankVertexOutputFormat.class);
         conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
