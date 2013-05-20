@@ -239,6 +239,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
                 "vertex - " + vertexValueType +
                 ", vertex input format - " + classList.get(VALUE_PARAM_INDEX));
       }
+      /*
       if (classList.get(EDGE_PARAM_INDEX) == null) {
         LOG.warn("Input format edge value type is not known");
       } else if (!edgeValueType.equals(classList.get(EDGE_PARAM_INDEX))) {
@@ -247,6 +248,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
                 "vertex - " + edgeValueType +
                 ", vertex input format - " + classList.get(EDGE_PARAM_INDEX));
       }
+      */
     }
   }
 
@@ -385,6 +387,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
           "vertex - " + vertexValueType +
           ", vertex resolver - " + classList.get(VALUE_PARAM_INDEX));
     }
+
     if (classList.get(EDGE_PARAM_INDEX) != null &&
       !edgeValueType.equals(classList.get(EDGE_PARAM_INDEX))) {
       throw new IllegalArgumentException(
@@ -392,6 +395,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
           "vertex - " + edgeValueType +
           ", vertex resolver - " + classList.get(EDGE_PARAM_INDEX));
     }
+
     if (classList.get(MSG_PARAM_INDEX) != null &&
       !messageValueType.equals(classList.get(MSG_PARAM_INDEX))) {
       throw new IllegalArgumentException(
