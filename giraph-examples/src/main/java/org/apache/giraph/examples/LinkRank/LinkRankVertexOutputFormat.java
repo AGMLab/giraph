@@ -33,24 +33,24 @@ import java.io.IOException;
  */
 public class LinkRankVertexOutputFormat extends
         TextVertexOutputFormat<Text, FloatWritable, NullWritable> {
-    @Override
-    public TextVertexWriter createVertexWriter(TaskAttemptContext context)
-            throws IOException, InterruptedException {
-        return new LinkRankVertexWriter();
-    }
+  @Override
+  public TextVertexWriter createVertexWriter(TaskAttemptContext context)
+    throws IOException, InterruptedException {
+    return new LinkRankVertexWriter();
+  }
 
-    /**
-     * Simple VertexWriter that supports {@link LinkRankVertex}
-     */
-    public class LinkRankVertexWriter extends TextVertexWriter {
-        @Override
-        public void writeVertex(
-                Vertex<Text, FloatWritable, NullWritable, ?> vertex)
-                throws IOException, InterruptedException {
-            getRecordWriter().write(
-                    new Text(vertex.getId().toString()),
-                    new Text(vertex.getValue().toString()));
-        }
+  /**
+   * Simple VertexWriter that supports {@link LinkRankVertex}
+   */
+  public class LinkRankVertexWriter extends TextVertexWriter {
+    @Override
+    public void writeVertex(
+            Vertex<Text, FloatWritable, NullWritable, ?> vertex)
+      throws IOException, InterruptedException {
+      getRecordWriter().write(
+              new Text(vertex.getId().toString()),
+              new Text(vertex.getValue().toString()));
     }
+  }
 }
 

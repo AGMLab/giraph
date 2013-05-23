@@ -33,47 +33,49 @@ import java.util.regex.Pattern;
 /**
  * Simple text-based {@link org.apache.giraph.io.EdgeInputFormat} for
  * unweighted graphs with Text ids.
- *
+ * <p/>
  * Each line consists of: source_vertex, target_vertex
  */
 public class LinkRankEdgeInputFormat extends
         TextEdgeInputFormat<Text, NullWritable> {
-    /** Splitter for endpoints */
-    private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
+  /**
+   * Splitter for endpoints
+   */
+  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
+
+  @Override
+  public EdgeReader<Text, NullWritable> createEdgeReader(
+          InputSplit split, TaskAttemptContext context) throws IOException {
+    return new TextNullTextEdgeReader();
+  }
+
+  /**
+   * {@link org.apache.giraph.io.EdgeReader} associated with
+   * {@link LinkRankEdgeInputFormat}.
+   */
+  public class TextNullTextEdgeReader extends
+          TextEdgeReaderFromEachLineProcessed<TextPair> {
+    @Override
+    protected TextPair preprocessLine(Text line) throws IOException {
+      String[] tokens = SEPARATOR.split(line.toString());
+      return new TextPair(tokens[0], tokens[1]);
+    }
 
     @Override
-    public EdgeReader<Text, NullWritable> createEdgeReader(
-            InputSplit split, TaskAttemptContext context) throws IOException {
-        return new TextNullTextEdgeReader();
+    protected Text getSourceVertexId(TextPair endpoints)
+      throws IOException {
+      return new Text(endpoints.getFirst());
     }
 
-    /**
-     * {@link org.apache.giraph.io.EdgeReader} associated with
-     * {@link LinkRankEdgeInputFormat}.
-     */
-    public class TextNullTextEdgeReader extends
-            TextEdgeReaderFromEachLineProcessed<TextPair> {
-        @Override
-        protected TextPair preprocessLine(Text line) throws IOException {
-            String[] tokens = SEPARATOR.split(line.toString());
-            return new TextPair(tokens[0], tokens[1]);
-        }
-
-        @Override
-        protected Text getSourceVertexId(TextPair endpoints)
-                throws IOException {
-            return new Text(endpoints.getFirst());
-        }
-
-        @Override
-        protected Text getTargetVertexId(TextPair endpoints)
-                throws IOException {
-            return new Text(endpoints.getSecond());
-        }
-
-        @Override
-        protected NullWritable getValue(TextPair endpoints) throws IOException {
-            return NullWritable.get();
-        }
+    @Override
+    protected Text getTargetVertexId(TextPair endpoints)
+      throws IOException {
+      return new Text(endpoints.getSecond());
     }
+
+    @Override
+    protected NullWritable getValue(TextPair endpoints) throws IOException {
+      return NullWritable.get();
+    }
+  }
 }

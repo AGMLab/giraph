@@ -30,11 +30,14 @@ import org.apache.giraph.master.DefaultMasterCompute;
  */
 public class LinkRankVertexMasterCompute extends
         DefaultMasterCompute {
-    @Override
-    public void initialize() throws InstantiationException,
-            IllegalAccessException {
-        registerAggregator(LinkRankVertex.SUM_AGG, LongSumAggregator.class);
-        registerPersistentAggregator(LinkRankVertex.MIN_AGG, DoubleMinAggregator.class);
-        registerPersistentAggregator(LinkRankVertex.MAX_AGG, DoubleMaxAggregator.class);
-    }
+  @Override
+  public void initialize() throws InstantiationException,
+          IllegalAccessException {
+    registerAggregator(
+            LinkRankVertex.SUM_AGG, LongSumAggregator.class);
+    registerPersistentAggregator(
+            LinkRankVertex.MIN_AGG, DoubleMinAggregator.class);
+    registerPersistentAggregator(
+            LinkRankVertex.MAX_AGG, DoubleMaxAggregator.class);
+  }
 }

@@ -28,69 +28,77 @@ import org.apache.log4j.Logger;
  */
 public class LinkRankVertexWorkerContext extends
         WorkerContext {
-    private static final Logger log = Logger.getLogger(LinkRankVertexWorkerContext.class);
 
-    /**
-     * Final max value for verification for local jobs
-     */
-    private static double FINAL_MAX;
-    /**
-     * Final min value for verification for local jobs
-     */
-    private static double FINAL_MIN;
-    /**
-     * Final sum value for verification for local jobs
-     */
-    private static long FINAL_SUM;
+  /**
+   * Logger.
+   */
+  private static final Logger LOG =
+          Logger.getLogger(LinkRankVertexWorkerContext.class);
 
-    public static double getFinalMax() {
-        return FINAL_MAX;
+  /**
+   * Final max value for verification for local jobs
+   */
+  private static double FINAL_MAX;
+  /**
+   * Final min value for verification for local jobs
+   */
+  private static double FINAL_MIN;
+  /**
+   * Final sum value for verification for local jobs
+   */
+  private static long FINAL_SUM;
+
+  public static double getFinalMax() {
+    return FINAL_MAX;
+  }
+
+  public static double getFinalMin() {
+    return FINAL_MIN;
+  }
+
+  public static long getFinalSum() {
+    return FINAL_SUM;
+  }
+
+  @Override
+  public void preApplication()
+    throws InstantiationException, IllegalAccessException {
+  }
+
+  @Override
+  public void postApplication() {
+    FINAL_SUM = this.<LongWritable>getAggregatedValue(
+            LinkRankVertex.SUM_AGG).get();
+    FINAL_MAX = this.<DoubleWritable>getAggregatedValue(
+            LinkRankVertex.MAX_AGG).get();
+    FINAL_MIN = this.<DoubleWritable>getAggregatedValue(
+            LinkRankVertex.MIN_AGG).get();
+
+    LOG.info("aggregatedNumVertices=" + FINAL_SUM);
+    LOG.info("aggregatedMaxPageRank=" + FINAL_MAX);
+    LOG.info("aggregatedMinPageRank=" + FINAL_MIN);
+  }
+
+  @Override
+  public void preSuperstep() {
+    if (getSuperstep() >= 3) {
+      LOG.info("aggregatedNumVertices=" +
+              getAggregatedValue(LinkRankVertex.SUM_AGG) +
+              " NumVertices=" + getTotalNumVertices());
+      if (this.<LongWritable>getAggregatedValue(LinkRankVertex.SUM_AGG).get() !=
+              getTotalNumVertices()) {
+        throw new RuntimeException("wrong value of SumAggreg: " +
+                getAggregatedValue(LinkRankVertex.SUM_AGG) + ", should be: " +
+                getTotalNumVertices());
+      }
+      DoubleWritable maxPagerank = getAggregatedValue(LinkRankVertex.MAX_AGG);
+      LOG.info("aggregatedMaxPageRank=" + maxPagerank.get());
+      DoubleWritable minPagerank = getAggregatedValue(LinkRankVertex.MIN_AGG);
+      LOG.info("aggregatedMinPageRank=" + minPagerank.get());
     }
+  }
 
-    public static double getFinalMin() {
-        return FINAL_MIN;
-    }
-
-    public static long getFinalSum() {
-        return FINAL_SUM;
-    }
-
-    @Override
-    public void preApplication()
-            throws InstantiationException, IllegalAccessException {
-    }
-
-    @Override
-    public void postApplication() {
-        FINAL_SUM = this.<LongWritable>getAggregatedValue(LinkRankVertex.SUM_AGG).get();
-        FINAL_MAX = this.<DoubleWritable>getAggregatedValue(LinkRankVertex.MAX_AGG).get();
-        FINAL_MIN = this.<DoubleWritable>getAggregatedValue(LinkRankVertex.MIN_AGG).get();
-
-        log.info("aggregatedNumVertices=" + FINAL_SUM);
-        log.info("aggregatedMaxPageRank=" + FINAL_MAX);
-        log.info("aggregatedMinPageRank=" + FINAL_MIN);
-    }
-
-    @Override
-    public void preSuperstep() {
-        if (getSuperstep() >= 3) {
-            log.info("aggregatedNumVertices=" +
-                    getAggregatedValue(LinkRankVertex.SUM_AGG) +
-                    " NumVertices=" + getTotalNumVertices());
-            if (this.<LongWritable>getAggregatedValue(LinkRankVertex.SUM_AGG).get() !=
-                    getTotalNumVertices()) {
-                throw new RuntimeException("wrong value of SumAggreg: " +
-                        getAggregatedValue(LinkRankVertex.SUM_AGG) + ", should be: " +
-                        getTotalNumVertices());
-            }
-            DoubleWritable maxPagerank = getAggregatedValue(LinkRankVertex.MAX_AGG);
-            log.info("aggregatedMaxPageRank=" + maxPagerank.get());
-            DoubleWritable minPagerank = getAggregatedValue(LinkRankVertex.MIN_AGG);
-            log.info("aggregatedMinPageRank=" + minPagerank.get());
-        }
-    }
-
-    @Override
-    public void postSuperstep() {
-    }
+  @Override
+  public void postSuperstep() {
+  }
 }

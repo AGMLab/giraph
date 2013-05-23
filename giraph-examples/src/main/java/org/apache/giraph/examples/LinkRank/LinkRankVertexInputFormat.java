@@ -30,42 +30,50 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-
-
+/**
+ * Vertex Input Format for LinkRank.
+ * Example record:
+ * http://www.site.com 1.0
+ *
+ * @param <E> Edge data format
+ * @param <M> Message data format
+ */
 public class LinkRankVertexInputFormat<E extends NullWritable,
         M extends FloatWritable> extends
         TextVertexValueInputFormat<Text, FloatWritable, E, M> {
-    /** Separator for id and value */
-    private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
+  /**
+   * Separator for id and value
+   */
+  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
+
+  @Override
+  public TextVertexValueReader createVertexValueReader(
+          InputSplit split, TaskAttemptContext context) throws IOException {
+    return new TextFloatTextVertexValueReader();
+  }
+
+  /**
+   * {@link org.apache.giraph.io.VertexValueReader} associated with
+   * {@link LinkRankVertexInputFormat}.
+   */
+  public class TextFloatTextVertexValueReader extends
+          TextVertexValueReaderFromEachLineProcessed<TextFloatPair> {
 
     @Override
-    public TextVertexValueReader createVertexValueReader(
-            InputSplit split, TaskAttemptContext context) throws IOException {
-        return new TextFloatTextVertexValueReader();
+    protected TextFloatPair preprocessLine(Text line) throws IOException {
+      String[] tokens = SEPARATOR.split(line.toString());
+      return new TextFloatPair(tokens[0],
+              Float.valueOf(tokens[1]));
     }
 
-    /**
-     * {@link org.apache.giraph.io.VertexValueReader} associated with
-     * {@link LinkRankVertexInputFormat}.
-     */
-    public class TextFloatTextVertexValueReader extends
-            TextVertexValueReaderFromEachLineProcessed<TextFloatPair> {
-
-        @Override
-        protected TextFloatPair preprocessLine(Text line) throws IOException {
-            String[] tokens = SEPARATOR.split(line.toString());
-            return new TextFloatPair(tokens[0],
-                    Float.valueOf(tokens[1]));
-        }
-
-        @Override
-        protected Text getId(TextFloatPair data) throws IOException {
-            return new Text(data.getFirst());
-        }
-
-        @Override
-        protected FloatWritable getValue(TextFloatPair data) throws IOException {
-            return new FloatWritable(data.getSecond());
-        }
+    @Override
+    protected Text getId(TextFloatPair data) throws IOException {
+      return new Text(data.getFirst());
     }
+
+    @Override
+    protected FloatWritable getValue(TextFloatPair data) throws IOException {
+      return new FloatWritable(data.getSecond());
+    }
+  }
 }
