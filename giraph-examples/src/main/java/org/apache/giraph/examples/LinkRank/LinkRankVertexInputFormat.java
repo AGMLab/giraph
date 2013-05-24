@@ -40,13 +40,12 @@ import java.util.regex.Pattern;
  */
 public class LinkRankVertexInputFormat<E extends NullWritable,
         M extends FloatWritable> extends
-        TextVertexValueInputFormat<Text, FloatWritable, E, M> {
+        TextVertexValueInputFormat<Text, FloatWritable, E> {
   /**
    * Separator for id and value
    */
   private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
 
-  @Override
   public TextVertexValueReader createVertexValueReader(
           InputSplit split, TaskAttemptContext context) throws IOException {
     return new TextFloatTextVertexValueReader();
@@ -59,19 +58,16 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
   public class TextFloatTextVertexValueReader extends
           TextVertexValueReaderFromEachLineProcessed<TextFloatPair> {
 
-    @Override
     protected TextFloatPair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
       return new TextFloatPair(tokens[0],
               Float.valueOf(tokens[1]));
     }
 
-    @Override
     protected Text getId(TextFloatPair data) throws IOException {
       return new Text(data.getFirst());
     }
 
-    @Override
     protected FloatWritable getValue(TextFloatPair data) throws IOException {
       return new FloatWritable(data.getSecond());
     }

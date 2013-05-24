@@ -46,7 +46,7 @@ import java.util.Set;
         name = "LinkRank"
 )
 public class LinkRankVertex extends Vertex<Text, FloatWritable,
-        NullWritable, FloatWritable> {
+        NullWritable> {
   /**
    * Number of supersteps this vertex will be involved in.
    */
@@ -77,114 +77,5 @@ public class LinkRankVertex extends Vertex<Text, FloatWritable,
    */
   private static final Logger LOG = Logger.getLogger(LinkRankVertex.class);
 
-
-  /**
-   * Removes duplicate outgoing links.
-   */
-  public final void removeDuplicateLinks() {
-    String targetUrl;
-    Set<String> urls = new HashSet<String>();
-
-    Iterable<Edge<Text, NullWritable>> outgoingEdges = getEdges();
-    ArrayList<Edge<Text, NullWritable>> edges =
-            new ArrayList<Edge<Text, NullWritable>>();
-
-    for (Edge<Text, NullWritable> edge : outgoingEdges) {
-      //LOG.info("Edge:" + edge);
-      targetUrl = edge.getTargetVertexId().toString();
-
-      if (!urls.contains(targetUrl)) {
-        //LOG.info("URL is not in the urls list. Adding " + targetUrl);
-        urls.add(targetUrl);
-        //LOG.info("Added to the urls list.");
-        edges.add(edge);
-        //LOG.info("Added to the edges list: " + edge);
-      }
-    }
-
-
-    ArrayList<Edge<Text, NullWritable>> newEdges =
-            new ArrayList<Edge<Text, NullWritable>>();
-    for (final String urlm : urls) {
-      newEdges.add(new Edge<Text, NullWritable>() {
-        @Override
-        public Text getTargetVertexId() {
-          return new Text(urlm);
-        }
-
-        @Override
-        public NullWritable getValue() {
-          return NullWritable.get();
-        }
-      });
-    }
-
-    LOG.info("Setting the edges below:");
-    for (Edge<Text, NullWritable> edgem : newEdges) {
-      LOG.info("List Edge: " + edgem.getTargetVertexId());
-    }
-
-    if (newEdges.size() > 0) {
-      setEdges(newEdges);
-    }
-  }
-
-
-  /**
-   * We will be receiving messages from our neighbors and process them
-   * to find our new score at the new superstep.
-   *
-   * @param messages LinkRank score messages
-   */
-  @Override
-  public void compute(Iterable<FloatWritable> messages) throws IOException {
-    // if the current superstep is valid, then compute new score.
-    long superStep = getSuperstep();
-    float dampingFactor = getConf().getFloat(DAMPING_FACTOR, 0.85f);
-    //LOG.info(String.valueOf(this.getValue()));
-    LOG.info("Superstep: " + superStep);
-    LOG.info("===========Node: " + getId() + "==============");
-    if (superStep == 0) {
-      removeDuplicateLinks();
-    } else if (superStep >= 1) {
-      // find the score sum received from our neighbors.
-      float sum = 0;
-      for (FloatWritable message : messages) {
-        sum += message.get();
-      }
-      LOG.info(getId() + " has received message sum " + sum);
-
-      FloatWritable vertexValueWritable = getValue();
-      float newValue =
-              ((1f - dampingFactor) / getTotalNumVertices()) +
-                      dampingFactor * sum;
-      vertexValueWritable.set(newValue);
-      LOG.info("New value of " + getId() + " is " + newValue);
-    }
-
-    /** If we are at a superstep that is not the last one,
-     * send messages to the neighbors.
-     *
-     *  If it's the last step, vote to halt!
-     */
-
-    if (superStep < getConf().getInt(SUPERSTEP_COUNT, 10)) {
-
-      FloatWritable message =
-              new FloatWritable(getValue().get() / getNumEdges());
-      LOG.debug(this.getId() + ": My neighbors are: ");
-      for (Edge<Text, NullWritable> edge : getEdges()) {
-        LOG.debug(edge.getTargetVertexId());
-      }
-      LOG.info("===========");
-      LOG.info(this.getId() + " Sending message: " + message);
-      sendMessageToAllEdges(
-              message
-      );
-    } else {
-      LOG.info("Halting...");
-      voteToHalt();
-    }
-  }
 
 }

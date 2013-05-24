@@ -45,7 +45,7 @@ public class LinkRankVertexOutputFormat extends
   public class LinkRankVertexWriter extends TextVertexWriter {
     @Override
     public void writeVertex(
-            Vertex<Text, FloatWritable, NullWritable, ?> vertex)
+            Vertex<Text, FloatWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
       getRecordWriter().write(
               new Text(vertex.getId().toString()),

@@ -51,7 +51,7 @@ public class LinkRankVertexTest {
     };
 
     GiraphConfiguration conf = new GiraphConfiguration();
-    conf.setVertexClass(LinkRankVertex.class);
+    conf.setComputationClass(LinkRankComputation.class);
     conf.setOutEdgesClass(ByteArrayEdges.class);
 
     conf.setVertexInputFormatClass(LinkRankVertexInputFormat.class);
@@ -69,6 +69,7 @@ public class LinkRankVertexTest {
     int i = 0;
     for (String result : results) {
       actual[i++] = result;
+      log.info(result);
     }
 
     Arrays.sort(actual);
