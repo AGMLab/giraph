@@ -33,12 +33,11 @@ import java.io.IOException;
  * @param <I> Vertex id
  * @param <V> Vertex value
  * @param <E> Edge value
- * @param <M> Message data
  */
 @SuppressWarnings("rawtypes")
 public interface CentralizedServiceMaster<I extends WritableComparable,
-    V extends Writable, E extends Writable, M extends Writable> extends
-    CentralizedService<I, V, E, M> {
+    V extends Writable, E extends Writable> extends
+    CentralizedService<I, V, E> {
   /**
    * Setup (must be called prior to any other function)
    */
@@ -58,8 +57,8 @@ public interface CentralizedServiceMaster<I extends WritableComparable,
   MasterInfo getMasterInfo();
 
   /**
-   * Create the {@link InputSplit} objects from the index range based on the
-   * user-defined VertexInputFormat.  The {@link InputSplit} objects will
+   * Create the {@link BspInputSplit} objects from the index range based on the
+   * user-defined VertexInputFormat.  The {@link BspInputSplit} objects will
    * processed by the workers later on during the INPUT_SUPERSTEP.
    *
    * @return Number of splits. Returns -1 on failure to create
@@ -68,8 +67,8 @@ public interface CentralizedServiceMaster<I extends WritableComparable,
   int createVertexInputSplits();
 
   /**
-   * Create the {@link InputSplit} objects from the index range based on the
-   * user-defined EdgeInputFormat.  The {@link InputSplit} objects will
+   * Create the {@link BspInputSplit} objects from the index range based on the
+   * user-defined EdgeInputFormat.  The {@link BspInputSplit} objects will
    * processed by the workers later on during the INPUT_SUPERSTEP.
    *
    * @return Number of splits. Returns -1 on failure to create

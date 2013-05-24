@@ -27,8 +27,8 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
- * Analogous to {@link RecordReader} for edges.  Will read the edges
- * from an input split.
+ * Analogous to {@link org.apache.giraph.bsp.BspRecordReader} for edges.
+ * Will read the edges from an input split.
  *
  * @param <I> Vertex id
  * @param <E> Edge data
@@ -36,7 +36,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @SuppressWarnings("rawtypes")
 public abstract class EdgeReader<I extends WritableComparable,
     E extends Writable> extends DefaultImmutableClassesGiraphConfigurable<
-        I, Writable, E, Writable> {
+        I, Writable, E> {
   /**
    * Use the input split and context to setup reading the edges.
    * Guaranteed to be called prior to any other function.
