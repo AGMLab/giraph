@@ -398,14 +398,6 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
           "vertex - " + edgeValueType +
           ", vertex resolver - " + classList.get(EDGE_PARAM_INDEX));
     }
-
-    if (classList.get(MSG_PARAM_INDEX) != null &&
-      !messageValueType.equals(classList.get(MSG_PARAM_INDEX))) {
-      throw new IllegalArgumentException(
-        "checkClassTypes: Message value types don't match, " +
-          "vertex - " + messageValueType +
-          ", vertex resolver - " + classList.get(MSG_PARAM_INDEX));
-    }
   }
 }
 
