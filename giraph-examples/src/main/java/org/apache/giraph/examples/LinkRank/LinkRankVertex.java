@@ -20,7 +20,7 @@ package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.examples.Algorithm;
 import org.apache.giraph.graph.Vertex;
-import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
@@ -28,9 +28,9 @@ import org.apache.log4j.Logger;
 /**
  * Vertex gets:
  * Vertex ID: Text
- * Vertex Data: FloatWritable (score)
+ * Vertex Data: DoubleWritable (score)
  * Edge Data: NullWritable (we don't use it)
- * Message Data: FloatWritable (score we get from our neighbors)
+ * Message Data: DoubleWritable (score we get from our neighbors)
  * <p/>
  * Vertex will compute its new score according to the scores it gets from its
  * neighbors.
@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 @Algorithm(
         name = "LinkRank"
 )
-public class LinkRankVertex extends Vertex<Text, FloatWritable,
+public class LinkRankVertex extends Vertex<Text, DoubleWritable,
         NullWritable> {
   /**
    * Number of supersteps this vertex will be involved in.

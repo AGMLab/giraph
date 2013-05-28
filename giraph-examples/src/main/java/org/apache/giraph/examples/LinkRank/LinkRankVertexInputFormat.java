@@ -20,8 +20,8 @@
 package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.io.formats.TextVertexValueInputFormat;
-import org.apache.giraph.utils.TextFloatPair;
-import org.apache.hadoop.io.FloatWritable;
+import org.apache.giraph.utils.TextDoublePair;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -39,8 +39,8 @@ import java.util.regex.Pattern;
  * @param <M> Message data format
  */
 public class LinkRankVertexInputFormat<E extends NullWritable,
-        M extends FloatWritable> extends
-        TextVertexValueInputFormat<Text, FloatWritable, E> {
+        M extends DoubleWritable> extends
+        TextVertexValueInputFormat<Text, DoubleWritable, E> {
   /**
    * Separator for id and value
    */
@@ -61,28 +61,28 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
    */
   public TextVertexValueReader createVertexValueReader(
           InputSplit split, TaskAttemptContext context) throws IOException {
-    return new TextFloatTextVertexValueReader();
+    return new TextDoubleTextVertexValueReader();
   }
 
   /**
    * {@link org.apache.giraph.io.VertexValueReader} associated with
    * {@link LinkRankVertexInputFormat}.
    */
-  public class TextFloatTextVertexValueReader extends
-          TextVertexValueReaderFromEachLineProcessed<TextFloatPair> {
+  public class TextDoubleTextVertexValueReader extends
+          TextVertexValueReaderFromEachLineProcessed<TextDoublePair> {
 
     /**
-     * Parses the line and creates Text-Float pair.
+     * Parses the line and creates Text-Double pair.
      * @param line the current line to be read
      *             URL-Score pair.
 
-     * @return TextFloat pair.
+     * @return TextDouble pair.
      * @throws IOException
      */
-    protected TextFloatPair preprocessLine(Text line) throws IOException {
+    protected TextDoublePair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
-      return new TextFloatPair(tokens[0],
-              Float.valueOf(tokens[1]));
+      return new TextDoublePair(tokens[0],
+              Double.valueOf(tokens[1]));
     }
 
     /**
@@ -91,7 +91,7 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
      * @return
      * @throws IOException
      */
-    protected Text getId(TextFloatPair data) throws IOException {
+    protected Text getId(TextDoublePair data) throws IOException {
       return new Text(data.getFirst());
     }
 
@@ -101,8 +101,8 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
      * @return
      * @throws IOException
      */
-    protected FloatWritable getValue(TextFloatPair data) throws IOException {
-      return new FloatWritable(data.getSecond());
+    protected DoubleWritable getValue(TextDoublePair data) throws IOException {
+      return new DoubleWritable(data.getSecond());
     }
   }
 }

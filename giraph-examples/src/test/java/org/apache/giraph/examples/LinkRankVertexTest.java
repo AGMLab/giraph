@@ -25,6 +25,7 @@ import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -34,6 +35,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class LinkRankVertexTest {
   private static final Logger log = Logger.getLogger(LinkRankVertex.class);
+  private static final double DELTA = 1e-3;
+
   @Test
   public void testToyData1() throws Exception {
 
@@ -63,18 +66,20 @@ public class LinkRankVertexTest {
     //conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
-    String[] actual = new String[3];
 
 
-    int i = 0;
+
+    HashMap<String, Double> hm = new HashMap();
     for (String result : results) {
-      actual[i++] = result;
+      String[] tokens = result.split("\t");
+      hm.put(tokens[0], Double.parseDouble(tokens[1]));
       log.info(result);
     }
 
-    Arrays.sort(actual);
-    String[] expected = new String[]{"a\t0.049999993", "b\t0.07124999", "c\t0.13181248"};
-    assertArrayEquals("Scores are not the same", expected, actual);
+    assertEquals("a scores are not the same", 0.049999993d, hm.get("a"), DELTA);
+    assertEquals("b scores are not the same", 0.07124999d, hm.get("b"), DELTA);
+    assertEquals("c scores are not the same", 0.13181248d, hm.get("c"), DELTA);
+
   }
 
   @Test
@@ -104,17 +109,15 @@ public class LinkRankVertexTest {
     //conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
-    String[] actual = new String[2];
 
-
-    int i = 0;
+    HashMap<String, Double> hm = new HashMap();
     for (String result : results) {
-      actual[i++] = result;
+      String[] tokens = result.split("\t");
+      hm.put(tokens[0], Double.parseDouble(tokens[1]));
       log.info(result);
     }
 
-    Arrays.sort(actual);
-    String[] expected = new String[]{"a\t0.5", "b\t0.5"};
-    assertArrayEquals("Scores are not the same", expected, actual);
+    assertEquals("a scores are not the same", hm.get("a"), 0.5d, DELTA);
+    assertEquals("b scores are not the same", hm.get("b"), 0.5d, DELTA);
   }
 }

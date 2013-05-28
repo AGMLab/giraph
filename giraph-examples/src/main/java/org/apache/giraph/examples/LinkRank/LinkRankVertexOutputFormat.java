@@ -21,7 +21,7 @@ package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
-import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -32,7 +32,7 @@ import java.io.IOException;
  * Simple VertexOutputFormat that supports {@link LinkRankVertex}
  */
 public class LinkRankVertexOutputFormat extends
-        TextVertexOutputFormat<Text, FloatWritable, NullWritable> {
+        TextVertexOutputFormat<Text, DoubleWritable, NullWritable> {
   @Override
   public TextVertexWriter createVertexWriter(TaskAttemptContext context)
     throws IOException, InterruptedException {
@@ -45,7 +45,7 @@ public class LinkRankVertexOutputFormat extends
   public class LinkRankVertexWriter extends TextVertexWriter {
     @Override
     public void writeVertex(
-            Vertex<Text, FloatWritable, NullWritable> vertex)
+            Vertex<Text, DoubleWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
       getRecordWriter().write(
               new Text(vertex.getId().toString()),

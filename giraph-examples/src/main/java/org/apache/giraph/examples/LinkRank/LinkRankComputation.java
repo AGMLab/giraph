@@ -21,7 +21,7 @@ package org.apache.giraph.examples.LinkRank;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
-import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
@@ -36,8 +36,8 @@ import java.util.Set;
  * We first remove duplicate edges and then perform pagerank calculation
  * for pre-defined steps (10).
  */
-public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
-        NullWritable, FloatWritable> {
+public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
+        NullWritable, DoubleWritable> {
 
   /**
    * Logger.
@@ -52,12 +52,13 @@ public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
    * @throws IOException
    */
   @Override
-  public void compute(Vertex<Text, FloatWritable, NullWritable> vertex,
-    Iterable<FloatWritable> messages)
+  public void compute(Vertex<Text, DoubleWritable, NullWritable> vertex,
+    Iterable<DoubleWritable> messages)
     throws IOException {
 
     // if the current superstep is valid, then compute new score.
     long superStep = getSuperstep();
+
     float dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
     //LOG.info(String.valueOf(this.getValue()));
@@ -67,14 +68,14 @@ public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
       removeDuplicateLinks(vertex);
     } else if (superStep >= 1) {
       // find the score sum received from our neighbors.
-      float sum = 0;
-      for (FloatWritable message : messages) {
+      double sum = 0.0d;
+      for (DoubleWritable message : messages) {
         sum += message.get();
       }
       LOG.info(vertex.getId() + " has received message sum " + sum);
 
-      FloatWritable vertexValueWritable = vertex.getValue();
-      float newValue =
+      DoubleWritable vertexValueWritable = vertex.getValue();
+      Double newValue =
               ((1f - dampingFactor) / getTotalNumVertices()) +
                       dampingFactor * sum;
       vertexValueWritable.set(newValue);
@@ -89,8 +90,8 @@ public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
 
     if (superStep < getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10)) {
 
-      FloatWritable message =
-              new FloatWritable(vertex.getValue().get() / vertex.getNumEdges());
+      DoubleWritable message =
+              new DoubleWritable(vertex.getValue().get() / vertex.getNumEdges());
       LOG.debug(vertex.getId() + ": My neighbors are: ");
       for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
         LOG.debug(edge.getTargetVertexId());
@@ -110,7 +111,7 @@ public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
    * @param vertex vertex whose duplicate outgoing edges
    *              will be removed.
    */
-  public void removeDuplicateLinks(Vertex<Text, FloatWritable,
+  public void removeDuplicateLinks(Vertex<Text, DoubleWritable,
           NullWritable> vertex) {
     String targetUrl;
     Set<String> urls = new HashSet<String>();
