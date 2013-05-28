@@ -31,6 +31,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * LinkRank Computation class. Similar to Pagerank.
+ * We first remove duplicate edges and then perform pagerank calculation
+ * for pre-defined steps (10).
+ */
 public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
         NullWritable, FloatWritable> {
 
@@ -53,7 +58,8 @@ public class LinkRankComputation extends BasicComputation<Text, FloatWritable,
 
     // if the current superstep is valid, then compute new score.
     long superStep = getSuperstep();
-    float dampingFactor = getConf().getFloat(LinkRankVertex.DAMPING_FACTOR, 0.85f);
+    float dampingFactor = getConf().getFloat(
+            LinkRankVertex.DAMPING_FACTOR, 0.85f);
     //LOG.info(String.valueOf(this.getValue()));
     LOG.info("Superstep: " + superStep);
     LOG.info("===========Node: " + vertex.getId() + "==============");

@@ -46,6 +46,19 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
    */
   private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
 
+  /**
+   * Vertex value reader reads the vertices from the input stream.
+   * Sample format:
+   *
+   * http://www.site1.com 0.33
+   * http://www.site2.com 0.33
+   * http://www.site3.com 0.33
+   *
+   * @param split
+   * @param context
+   * @return
+   * @throws IOException
+   */
   public TextVertexValueReader createVertexValueReader(
           InputSplit split, TaskAttemptContext context) throws IOException {
     return new TextFloatTextVertexValueReader();
@@ -58,16 +71,36 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
   public class TextFloatTextVertexValueReader extends
           TextVertexValueReaderFromEachLineProcessed<TextFloatPair> {
 
+    /**
+     * Parses the line and creates Text-Float pair.
+     * @param line the current line to be read
+     *             URL-Score pair.
+
+     * @return TextFloat pair.
+     * @throws IOException
+     */
     protected TextFloatPair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
       return new TextFloatPair(tokens[0],
               Float.valueOf(tokens[1]));
     }
 
+    /**
+     * Returns the ID of the vertex.
+     * @param data
+     * @return
+     * @throws IOException
+     */
     protected Text getId(TextFloatPair data) throws IOException {
       return new Text(data.getFirst());
     }
 
+    /**
+     * Returns the value of the vertex.
+     * @param data
+     * @return
+     * @throws IOException
+     */
     protected FloatWritable getValue(TextFloatPair data) throws IOException {
       return new FloatWritable(data.getSecond());
     }

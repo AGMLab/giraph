@@ -18,19 +18,12 @@
 
 package org.apache.giraph.examples.LinkRank;
 
-import org.apache.giraph.edge.Edge;
 import org.apache.giraph.examples.Algorithm;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 
 /**
  * Vertex gets:
