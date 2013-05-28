@@ -77,4 +77,44 @@ public class LinkRankVertexTest {
     assertArrayEquals("Scores are not the same", expected, actual);
   }
 
+  @Test
+  public void testToyData2() throws Exception {
+
+    // A small graph
+    String[] vertices = new String[]{
+            "a 0.5",
+            "b 0.5",
+    };
+
+    String[] edges = new String[]{
+            "a b",
+            "b a",
+    };
+
+    GiraphConfiguration conf = new GiraphConfiguration();
+    conf.setComputationClass(LinkRankComputation.class);
+    conf.setOutEdgesClass(ByteArrayEdges.class);
+
+    conf.setVertexInputFormatClass(LinkRankVertexInputFormat.class);
+    conf.setVertexOutputFormatClass(
+            LinkRankVertexOutputFormat.class);
+    conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
+    conf.setInt("giraph.pageRank.superstepCount", 10);
+    //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
+    //conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
+    // Run internally
+    Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
+    String[] actual = new String[2];
+
+
+    int i = 0;
+    for (String result : results) {
+      actual[i++] = result;
+      log.info(result);
+    }
+
+    Arrays.sort(actual);
+    String[] expected = new String[]{"a\t0.5", "b\t0.5"};
+    assertArrayEquals("Scores are not the same", expected, actual);
+  }
 }
