@@ -58,7 +58,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
 
     // if the current superstep is valid, then compute new score.
     long superStep = getSuperstep();
-
+    int edgeCount = 0;
+    double sum = 0.0d;
     float dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
     //LOG.info(String.valueOf(this.getValue()));
@@ -68,7 +69,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       removeDuplicateLinks(vertex);
     } else if (superStep >= 1) {
       // find the score sum received from our neighbors.
-      double sum = 0.0d;
+
       for (DoubleWritable message : messages) {
         sum += message.get();
       }
@@ -88,19 +89,27 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
      *  If it's the last step, vote to halt!
      */
 
+    for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
+      LOG.debug(edge.getTargetVertexId());
+      edgeCount++;
+    }
+
     if (superStep < getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10)) {
 
       DoubleWritable message =
               new DoubleWritable(vertex.getValue().get() / vertex.getNumEdges());
       LOG.debug(vertex.getId() + ": My neighbors are: ");
-      for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-        LOG.debug(edge.getTargetVertexId());
-      }
+
       LOG.info("===========");
       LOG.info(vertex.getId() + " Sending message: " + message);
       sendMessageToAllEdges(vertex, message);
+      if (edgeCount == 0){
+        aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
+        LOG.info("Dangling:" + vertex.getValue());
+      }
     } else {
       LOG.info("Halting...");
+      LOG.info("Dangling Sum: " + getAggregatedValue(LinkRankVertex.DANGLING_AGG));
       vertex.voteToHalt();
     }
   }

@@ -21,6 +21,7 @@ package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.aggregators.DoubleMaxAggregator;
 import org.apache.giraph.aggregators.DoubleMinAggregator;
+import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 
@@ -39,5 +40,7 @@ public class LinkRankVertexMasterCompute extends
             LinkRankVertex.MIN_AGG, DoubleMinAggregator.class);
     registerPersistentAggregator(
             LinkRankVertex.MAX_AGG, DoubleMaxAggregator.class);
+
+    registerPersistentAggregator(LinkRankVertex.DANGLING_AGG, DoubleSumAggregator.class);
   }
 }

@@ -64,6 +64,10 @@ public class LinkRankVertex extends Vertex<Text, DoubleWritable,
    * Max aggregator name.
    */
   protected static final String MAX_AGG = "max";
+  /**
+   * Max aggregator name.
+   */
+  protected static final String DANGLING_AGG = "dangling";
 
   /**
    * Logger.

@@ -63,7 +63,7 @@ public class LinkRankVertexTest {
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.pageRank.superstepCount", 3);
     //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
-    //conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
+    conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
 
@@ -82,7 +82,7 @@ public class LinkRankVertexTest {
 
   }
 
-  @Test
+  //  @Test
   public void testToyData2() throws Exception {
 
     // A small graph
@@ -106,7 +106,7 @@ public class LinkRankVertexTest {
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.pageRank.superstepCount", 10);
     //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
-    //conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
+    conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
 
