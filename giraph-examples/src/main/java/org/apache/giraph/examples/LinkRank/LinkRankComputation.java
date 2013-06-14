@@ -109,7 +109,10 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       }
     } else {
       LOG.info("Halting...");
-      LOG.info("Dangling Sum: " + getAggregatedValue(LinkRankVertex.DANGLING_AGG));
+      int numSupersteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10);
+      double coeff = Math.pow(dampingFactor, numSupersteps-1);
+      DoubleWritable d = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
+      LOG.info("Dangling Sum: " + d.get()*coeff);
       vertex.voteToHalt();
     }
   }
