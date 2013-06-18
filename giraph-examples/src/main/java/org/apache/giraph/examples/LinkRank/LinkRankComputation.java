@@ -58,13 +58,18 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
 
     // if the current superstep is valid, then compute new score.
     long superStep = getSuperstep();
+    int maxSupersteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10);
     int edgeCount = 0;
     double sum = 0.0d;
     float dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
-    //LOG.info(String.valueOf(this.getValue()));
+
     LOG.info("Superstep: " + superStep);
     LOG.info("===========Node: " + vertex.getId() + "==============");
+
+    /*
+      ============ RECEIVING MESSAGES PART ===========
+     */
     if (superStep == 0) {
       removeDuplicateLinks(vertex);
     } else if (superStep >= 1) {
@@ -78,10 +83,17 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       DoubleWritable vertexValueWritable = vertex.getValue();
       Double newValue =
               ((1f - dampingFactor) / getTotalNumVertices()) +
-                      dampingFactor * sum;
+                      dampingFactor * (sum + getDanglingContribution());
+
+
+      vertex.setValue(new DoubleWritable(newValue));
       vertexValueWritable.set(newValue);
       LOG.info("New value of " + vertex.getId() + " is " + newValue);
     }
+
+    /**
+      ============ SENDING MESSAGES PART ===========
+     */
 
     /** If we are at a superstep that is not the last one,
      * send messages to the neighbors.
@@ -89,34 +101,43 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
      *  If it's the last step, vote to halt!
      */
 
+    // count the number of edges.
     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
       LOG.debug(edge.getTargetVertexId());
       edgeCount++;
     }
 
-    if (superStep < getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10)) {
-
-      DoubleWritable message =
-              new DoubleWritable(vertex.getValue().get() / vertex.getNumEdges());
+    if (superStep < maxSupersteps) {
+      DoubleWritable message = new DoubleWritable(
+              vertex.getValue().get() / vertex.getNumEdges()
+      );
       LOG.debug(vertex.getId() + ": My neighbors are: ");
 
       LOG.info("===========");
       LOG.info(vertex.getId() + " Sending message: " + message);
       sendMessageToAllEdges(vertex, message);
-      if (edgeCount == 0){
+      if (edgeCount == 0) {
         aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
         LOG.info("Dangling:" + vertex.getValue());
       }
     } else {
       LOG.info("Halting...");
-      int numSupersteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10);
-      double coeff = Math.pow(dampingFactor, numSupersteps-1);
-      DoubleWritable d = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
-      LOG.info("Dangling Sum: " + d.get()*coeff);
       vertex.voteToHalt();
     }
   }
 
+  /**
+   * Calculates dangling node score contribution for each individual node.
+   * @return score to give each individual node
+   */
+  public Double getDanglingContribution() {
+    DoubleWritable d = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
+    Double danglingSum = d.get();
+    LOG.info("Dangling Sum: " + danglingSum);
+    Double contribution = danglingSum / getTotalNumVertices();
+    LOG.info("Dangling contribution:" + contribution);
+    return contribution;
+  }
 
   /**
    * Removes duplicate outgoing links.

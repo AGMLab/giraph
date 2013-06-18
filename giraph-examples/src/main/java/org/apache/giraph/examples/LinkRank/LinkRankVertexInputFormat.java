@@ -54,9 +54,9 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
    * http://www.site2.com 0.33
    * http://www.site3.com 0.33
    *
-   * @param split
-   * @param context
-   * @return
+   * @param split InputSplit
+   * @param context TaskAttemptContext
+   * @return TextDoubleTextVertexValueReader
    * @throws IOException
    */
   public TextVertexValueReader createVertexValueReader(
@@ -87,8 +87,8 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
 
     /**
      * Returns the ID of the vertex.
-     * @param data
-     * @return
+     * @param data TextDoublePair including Text ID and Double Value
+     * @return ID of the node
      * @throws IOException
      */
     protected Text getId(TextDoublePair data) throws IOException {
@@ -97,8 +97,8 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
 
     /**
      * Returns the value of the vertex.
-     * @param data
-     * @return
+     * @param data TextDoublePair including Text ID and Double Value
+     * @return Value of the node
      * @throws IOException
      */
     protected DoubleWritable getValue(TextDoublePair data) throws IOException {

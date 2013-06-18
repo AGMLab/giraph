@@ -61,7 +61,7 @@ public class LinkRankVertexTest {
     conf.setVertexOutputFormatClass(
             LinkRankVertexOutputFormat.class);
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
-    conf.setInt("giraph.pageRank.superstepCount", 3);
+    conf.setInt("giraph.pageRank.superstepCount", 40);
     //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
@@ -76,13 +76,13 @@ public class LinkRankVertexTest {
       log.info(result);
     }
 
-    assertEquals("a scores are not the same", 0.049999993d, hm.get("a"), DELTA);
-    assertEquals("b scores are not the same", 0.07124999d, hm.get("b"), DELTA);
-    assertEquals("c scores are not the same", 0.13181248d, hm.get("c"), DELTA);
+    assertEquals("a scores are not the same", 0.19757964896759084d, hm.get("a"), DELTA);
+    assertEquals("b scores are not the same", 0.28155100077907663d, hm.get("b"), DELTA);
+    assertEquals("c scores are not the same", 0.5208693502533326d, hm.get("c"), DELTA);
 
   }
 
-  //  @Test
+  @Test
   public void testToyData2() throws Exception {
 
     // A small graph
