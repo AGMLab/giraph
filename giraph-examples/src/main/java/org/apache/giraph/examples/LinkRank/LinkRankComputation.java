@@ -153,16 +153,18 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     ArrayList<Edge<Text, NullWritable>> edges =
             new ArrayList<Edge<Text, NullWritable>>();
 
+    LOG.info("Outgoing edges:");
+
     for (Edge<Text, NullWritable> edge : outgoingEdges) {
-      //LOG.info("Edge:" + edge);
+      LOG.info("Edge:" + edge);
       targetUrl = edge.getTargetVertexId().toString();
 
       if (!urls.contains(targetUrl)) {
-        //LOG.info("URL is not in the urls list. Adding " + targetUrl);
+        LOG.info("URL is not in the urls list. Adding " + targetUrl);
         urls.add(targetUrl);
-        //LOG.info("Added to the urls list.");
+        LOG.info("Added to the urls list.");
         edges.add(edge);
-        //LOG.info("Added to the edges list: " + edge);
+        LOG.info("Added to the edges list: " + edge);
       }
     }
 
@@ -170,6 +172,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     ArrayList<Edge<Text, NullWritable>> newEdges =
             new ArrayList<Edge<Text, NullWritable>>();
     for (final String urlm : urls) {
+      LOG.info(urls);
       newEdges.add(new Edge<Text, NullWritable>() {
         @Override
         public Text getTargetVertexId() {

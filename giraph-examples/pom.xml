@@ -436,6 +436,21 @@ under the License.
       <version>1.1.0-SNAPSHOT</version>
       <type>test-jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.apache.giraph</groupId>
+      <artifactId>giraph-hbase</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.giraph</groupId>
+      <artifactId>giraph-hbase</artifactId>
+      <version>1.1.0-SNAPSHOT</version>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase</artifactId>
+    </dependency>
 
     <!-- test dependencies. sorted lexicographically. -->
     <dependency>
@@ -446,6 +461,13 @@ under the License.
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
  </dependencies>
