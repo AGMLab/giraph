@@ -57,7 +57,7 @@ public class LinkRankHBaseTest extends BspCase {
 
   private final Logger LOG = Logger.getLogger(LinkRankHBaseTest.class);
 
-  private final String TABLE_NAME = "simple_graph";
+  private static final String TABLE_NAME = "simple_graph";
   private static final double DELTA = 1e-3;
 
   private HBaseTestingUtility testUtil;
@@ -114,14 +114,12 @@ public class LinkRankHBaseTest extends BspCase {
 
       final byte[] FAM_OL = Bytes.toBytes("ol");
       final byte[] FAM_S = Bytes.toBytes("s");
-      final byte[] FAM_RESULT = Bytes.toBytes("result");
       final byte[] TAB = Bytes.toBytes(TABLE_NAME);
 
       Configuration conf = cluster.getConfiguration();
       HTableDescriptor desc = new HTableDescriptor(TAB);
       desc.addFamily(new HColumnDescriptor(FAM_OL));
       desc.addFamily(new HColumnDescriptor(FAM_S));
-      desc.addFamily(new HColumnDescriptor(FAM_RESULT));
       HBaseAdmin hbaseAdmin=new HBaseAdmin(conf);
       if (hbaseAdmin.isTableAvailable(TABLE_NAME)) {
         hbaseAdmin.disableTable(TABLE_NAME);
@@ -129,12 +127,20 @@ public class LinkRankHBaseTest extends BspCase {
       }
       hbaseAdmin.createTable(desc);
 
-      // Enter the initial data
+      /**
+       * Enter the initial data
+       * (a,b), (b,c), (a,c)
+       * a = 0.33
+       * b = 0.33
+       * c = 0.33
+       */
+
       HTable table = new HTable(conf, TABLE_NAME);
       Put p1 = new Put(Bytes.toBytes("a"));
+      //ol:b
       p1.add(Bytes.toBytes("ol"), Bytes.toBytes("b"), Bytes.toBytes("ab"));
-      Put p1_s = new Put(Bytes.toBytes("a"));
-      p1_s.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      //s:S
+      p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
       Put p2 = new Put(Bytes.toBytes("a"));
       p2.add(Bytes.toBytes("ol"), Bytes.toBytes("c"), Bytes.toBytes("ac"));
@@ -147,7 +153,6 @@ public class LinkRankHBaseTest extends BspCase {
       p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
       table.put(p1);
-      table.put(p1_s);
       table.put(p2);
       table.put(p3);
       table.put(p4);
