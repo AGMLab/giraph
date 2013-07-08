@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.RecordWriter;
@@ -37,7 +38,7 @@ import java.io.IOException;
  * HBase Output Format for LinkRank Computation
  */
 public class NutchTableEdgeOutputFormat
-        extends HBaseVertexOutputFormat<Text, DoubleWritable, Text> {
+        extends HBaseVertexOutputFormat<Text, DoubleWritable, NullWritable> {
 
   /**
    * Logger
@@ -53,7 +54,7 @@ public class NutchTableEdgeOutputFormat
    * @throws IOException
    * @throws InterruptedException
    */
-  public VertexWriter<Text, DoubleWritable, Text>
+  public VertexWriter<Text, DoubleWritable, NullWritable>
   createVertexWriter(TaskAttemptContext context)
     throws IOException, InterruptedException {
     return new NutchTableEdgeVertexWriter(context);
@@ -64,13 +65,17 @@ public class NutchTableEdgeOutputFormat
    * the vertex id as the row key bytes.
    **/
   public static class NutchTableEdgeVertexWriter
-          extends HBaseVertexWriter<Text, DoubleWritable, Text> {
+          extends HBaseVertexWriter<Text, DoubleWritable, NullWritable> {
 
 
     /**
      * Score family "s"
      */
     private static final byte[] SCORE_FAMILY = Bytes.toBytes("s");
+    /**
+     * Score qualifier "pagerank". Calculated scores will be written here.
+     */
+    private static final byte[] PAGERANK_QUALIFIER = Bytes.toBytes("pagerank");
 
     /**
      * Constructor for NutchTableEdgeVertexWriter
@@ -90,7 +95,7 @@ public class NutchTableEdgeOutputFormat
      * @throws InterruptedException
      */
     public void writeVertex(
-      Vertex<Text, DoubleWritable, Text> vertex)
+      Vertex<Text, DoubleWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
       byte[] rowBytes = vertex.getId().getBytes();
@@ -100,7 +105,7 @@ public class NutchTableEdgeOutputFormat
       String valueStr = Double.toString(value);
       byte[] valueBytes = Bytes.toBytes(value);
       if (valueStr.length() > 0) {
-        put.add(SCORE_FAMILY, SCORE_FAMILY, valueBytes);
+        put.add(SCORE_FAMILY, PAGERANK_QUALIFIER, valueBytes);
         writer.write(new ImmutableBytesWritable(rowBytes), put);
       }
     }

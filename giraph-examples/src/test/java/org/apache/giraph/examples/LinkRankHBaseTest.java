@@ -114,6 +114,7 @@ public class LinkRankHBaseTest extends BspCase {
 
       final byte[] FAM_OL = Bytes.toBytes("ol");
       final byte[] FAM_S = Bytes.toBytes("s");
+      final byte[] QUALIFIER_PAGERANK = Bytes.toBytes("pagerank");
       final byte[] TAB = Bytes.toBytes(TABLE_NAME);
 
       Configuration conf = cluster.getConfiguration();
@@ -174,7 +175,7 @@ public class LinkRankHBaseTest extends BspCase {
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
       giraphConf.setVertexInputFormatClass(NutchTableEdgeInputFormat.class);
       giraphConf.setVertexOutputFormatClass(NutchTableEdgeOutputFormat.class);
-      giraphConf.setInt("giraph.pageRank.superstepCount", 40);
+      giraphConf.setInt("giraph.pageRank.superstepCount", 10);
 
       assertTrue(giraphJob.run(true));
 
@@ -189,12 +190,12 @@ public class LinkRankHBaseTest extends BspCase {
       HashMap actualValues = new HashMap<String, Double>();
       actualValues.put("a", 0.19757964896759084d);
       actualValues.put("b", 0.28155100077907663d);
-      actualValues.put("c", 0.5208693502533326d);
+      actualValues.put("c", 0.5208645820209628);
 
       for (Object keyobj : actualValues.keySet()){
         key = keyobj.toString();
         result = table.get(new Get(key.getBytes()));
-        calculatedScoreByte = result.getValue(FAM_S, FAM_S);
+        calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_PAGERANK);
         assertNotNull(calculatedScoreByte);
         assertTrue(calculatedScoreByte.length > 0);
         Assert.assertEquals("scores are not the same", (Double)actualValues.get(key), Bytes.toDouble(calculatedScoreByte), DELTA);

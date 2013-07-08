@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.NavigableMap;
 
 /**
- *  Test subclass for HBaseVertexInputFormat. Reads a simple
- *  children qualifier to create an edge.
+ *  HBase Input Format for LinkRank.
+ *  Reads edges and scores of web pages from HBase.
  */
 public class NutchTableEdgeInputFormat extends
     HBaseVertexInputFormat<Text, DoubleWritable, NullWritable> {
@@ -147,8 +147,10 @@ public class NutchTableEdgeInputFormat extends
               row.getFamilyMap(OUTLINK_FAMILY);
 
       // Get the score for SourceURL (current vertex) from s:s
-      Double score = Bytes.toDouble(row.getValue(SCORE_FAMILY, SCORE_FAMILY));
+      //byte[] scoreByteValue = row.getValue(SCORE_FAMILY, SCORE_FAMILY);
+      //Double score = Bytes.toDouble(scoreByteValue);
 
+      double score = 1.0d;
       // Create Writables for source URL and score value.
       Text vertexId = new Text(source);
       DoubleWritable vertexValue = new DoubleWritable(score);

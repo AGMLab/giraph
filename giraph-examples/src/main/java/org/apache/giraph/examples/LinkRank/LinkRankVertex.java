@@ -44,7 +44,7 @@ public class LinkRankVertex extends Vertex<Text, DoubleWritable,
    * Number of supersteps this vertex will be involved in.
    */
   public static final String SUPERSTEP_COUNT =
-          "giraph.pageRank.superstepCount";
+          "giraph.linkRank.superstepCount";
 
   /**
    * Damping factor, by default 0.85.

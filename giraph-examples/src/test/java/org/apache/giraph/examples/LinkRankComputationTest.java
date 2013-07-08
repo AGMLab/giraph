@@ -61,7 +61,7 @@ public class LinkRankComputationTest {
     conf.setVertexOutputFormatClass(
             LinkRankVertexOutputFormat.class);
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
-    conf.setInt("giraph.pageRank.superstepCount", 40);
+    conf.setInt("giraph.linkRank.superstepCount", 40);
     //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
@@ -104,7 +104,7 @@ public class LinkRankComputationTest {
     conf.setVertexOutputFormatClass(
             LinkRankVertexOutputFormat.class);
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
-    conf.setInt("giraph.pageRank.superstepCount", 10);
+    conf.setInt("giraph.linkRank.superstepCount", 10);
     //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally

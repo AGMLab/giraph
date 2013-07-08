@@ -50,6 +50,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    * @param vertex   Vertex object for computation.
    * @param messages LinkRank score messages
    * @throws IOException
+   * TODO: Consider isolated nodes.
    */
   @Override
   public void compute(Vertex<Text, DoubleWritable, NullWritable> vertex,
@@ -64,31 +65,24 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     float dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
 
-    LOG.info("Superstep: " + superStep);
-    LOG.info("===========Node: " + vertex.getId() + "==============");
-
     /*
       ============ RECEIVING MESSAGES PART ===========
-     */
+    */
     if (superStep == 0) {
       removeDuplicateLinks(vertex);
+      normalizeInitialScore(vertex);
     } else if (superStep >= 1) {
       // find the score sum received from our neighbors.
-
       for (DoubleWritable message : messages) {
         sum += message.get();
       }
-      LOG.info(vertex.getId() + " has received message sum " + sum);
-
       DoubleWritable vertexValueWritable = vertex.getValue();
       Double newValue =
               ((1f - dampingFactor) / getTotalNumVertices()) +
                       dampingFactor * (sum + getDanglingContribution());
 
-
       vertex.setValue(new DoubleWritable(newValue));
       vertexValueWritable.set(newValue);
-      LOG.info("New value of " + vertex.getId() + " is " + newValue);
     }
 
     /**
@@ -103,7 +97,6 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
 
     // count the number of edges.
     for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-      LOG.debug(edge.getTargetVertexId());
       edgeCount++;
     }
 
@@ -111,17 +104,11 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       DoubleWritable message = new DoubleWritable(
               vertex.getValue().get() / vertex.getNumEdges()
       );
-      LOG.debug(vertex.getId() + ": My neighbors are: ");
-
-      LOG.info("===========");
-      LOG.info(vertex.getId() + " Sending message: " + message);
       sendMessageToAllEdges(vertex, message);
       if (edgeCount == 0) {
         aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
-        LOG.info("Dangling:" + vertex.getValue());
       }
     } else {
-      LOG.info("Halting...");
       vertex.voteToHalt();
     }
   }
@@ -133,10 +120,23 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   public Double getDanglingContribution() {
     DoubleWritable d = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
     Double danglingSum = d.get();
-    LOG.info("Dangling Sum: " + danglingSum);
     Double contribution = danglingSum / getTotalNumVertices();
-    LOG.info("Dangling contribution:" + contribution);
     return contribution;
+  }
+
+  /**
+   * Normalizes vertex values to 1/N if the vertex's value is 1.0d.
+   * @param vertex
+   */
+  private void normalizeInitialScore(Vertex<Text, DoubleWritable, NullWritable> vertex){
+    Double score = vertex.getValue().get();
+    if (score == 1.0d){
+      // if the scores are set as 1.0 for each vertex by
+      // NutchTableEdgeInputFormat, then assign score of
+      // 1/N to each of them.
+      score /= getTotalNumVertices();
+      vertex.setValue(new DoubleWritable(score));
+    }
   }
 
   /**
@@ -150,33 +150,23 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     Set<String> urls = new HashSet<String>();
 
     Iterable<Edge<Text, NullWritable>> outgoingEdges = vertex.getEdges();
-    ArrayList<Edge<Text, NullWritable>> edges =
-            new ArrayList<Edge<Text, NullWritable>>();
-
-    LOG.info("Outgoing edges:");
 
     for (Edge<Text, NullWritable> edge : outgoingEdges) {
-      LOG.info("Edge:" + edge);
       targetUrl = edge.getTargetVertexId().toString();
-
+      // if we haven't encountered this outgoing URL,
+      // add it to urls set.
       if (!urls.contains(targetUrl)) {
-        LOG.info("URL is not in the urls list. Adding " + targetUrl);
         urls.add(targetUrl);
-        LOG.info("Added to the urls list.");
-        edges.add(edge);
-        LOG.info("Added to the edges list: " + edge);
       }
     }
 
-
     ArrayList<Edge<Text, NullWritable>> newEdges =
             new ArrayList<Edge<Text, NullWritable>>();
-    for (final String urlm : urls) {
-      LOG.info(urls);
+    for (final String url : urls) {
       newEdges.add(new Edge<Text, NullWritable>() {
         @Override
         public Text getTargetVertexId() {
-          return new Text(urlm);
+          return new Text(url);
         }
 
         @Override
@@ -184,11 +174,6 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
           return NullWritable.get();
         }
       });
-    }
-
-    LOG.info("Setting the edges below:");
-    for (Edge<Text, NullWritable> edgem : newEdges) {
-      LOG.info("List Edge: " + edgem.getTargetVertexId());
     }
 
     if (newEdges.size() > 0) {
