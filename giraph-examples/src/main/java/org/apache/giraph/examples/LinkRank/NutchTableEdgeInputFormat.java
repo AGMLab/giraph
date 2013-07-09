@@ -139,7 +139,14 @@ public class NutchTableEdgeInputFormat extends
           getConf().createVertex();
 
       // Get the source URL from the row record.
-      String source = unreverseUrl(Bytes.toString(row.getRow()));
+      String source = Bytes.toString(row.getRow());
+      int colonIndex = source.indexOf(":");
+      int dotIndex = source.indexOf(".");
+      // if it's reversed, unreverse it.
+      if (dotIndex < colonIndex) {
+        source = unreverseUrl(source);
+      }
+
       LOG.info(source);
 
       /**

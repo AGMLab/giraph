@@ -126,11 +126,12 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
 
   /**
    * Normalizes vertex values to 1/N if the vertex's value is 1.0d.
-   * @param vertex
+   * @param vertex vertex object to normalize score
    */
-  private void normalizeInitialScore(Vertex<Text, DoubleWritable, NullWritable> vertex){
+  private void normalizeInitialScore(Vertex<Text, DoubleWritable,
+          NullWritable> vertex) {
     Double score = vertex.getValue().get();
-    if (score == 1.0d){
+    if (score == 1.0d) {
       // if the scores are set as 1.0 for each vertex by
       // NutchTableEdgeInputFormat, then assign score of
       // 1/N to each of them.

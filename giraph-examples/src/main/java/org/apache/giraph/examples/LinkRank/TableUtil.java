@@ -1,12 +1,11 @@
-package org.apache.giraph.examples.LinkRank;
-
-/*******************************************************************************
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,17 +14,31 @@ package org.apache.giraph.examples.LinkRank;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ */
 
+package org.apache.giraph.examples.LinkRank;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
+/**
+ * Static util methods for reversing/unreversing urls,
+ * parsing hostnames from urls.
+ */
 public class TableUtil {
+  /**
+   * Logger
+   */
+  private static final Logger LOG =
+          Logger.getLogger(TableUtil.class);
 
-  public static final ByteBuffer YES_VAL = ByteBuffer.wrap(new byte[] { 'y' });
+  /**
+   * Private dummy constructor.
+   */
+  private TableUtil() {
+  }
 
   /**
    * Reverses a url's domain. This form is better for storing in hbase. Because
@@ -40,7 +53,7 @@ public class TableUtil {
    * @throws java.net.MalformedURLException
    */
   public static String reverseUrl(String urlString)
-          throws MalformedURLException {
+    throws MalformedURLException {
     return reverseUrl(new URL(urlString));
   }
 
@@ -85,15 +98,29 @@ public class TableUtil {
     return buf.toString();
   }
 
+  /**
+   * Unreverses a url's domain.
+   * <p>
+   * E.g. "com.foo.bar:http:8983/to/index.html?a=b" becomes
+   * "http://bar.foo.com:8983/to/index.html?a=b".
+   *
+   * @param reversedUrl
+   *          url to be unreversed
+   * @return Unreversed url
+   */
   public static String unreverseUrl(String reversedUrl) {
+    LOG.info("reversedURL:" + reversedUrl);
     StringBuilder buf = new StringBuilder(reversedUrl.length() + 2);
 
     int pathBegin = reversedUrl.indexOf('/');
-    if (pathBegin == -1)
+    if (pathBegin == -1) {
       pathBegin = reversedUrl.length();
+    }
     String sub = reversedUrl.substring(0, pathBegin);
-
-    String[] splits = StringUtils.split(sub, ':'); // {<reversed host>, <port>, <protocol>}
+    LOG.info("sub:" + sub);
+    // {<reversed host>, <port>, <protocol>}
+    String[] splits = StringUtils.split(sub, ':');
+    //LOG.info("splits:" + splits);
 
     buf.append(splits[1]); // add protocol
     buf.append("://");
@@ -119,8 +146,13 @@ public class TableUtil {
     return reversedUrl.substring(0, reversedUrl.indexOf(':'));
   }
 
+  /**
+   * Parses string according to delimiter dot (.).
+   * @param string url string
+   * @param buf string builder
+   */
   private static void reverseAppendSplits(String string, StringBuilder buf) {
-    String[] splits = StringUtils.split(string,'.');
+    String[] splits = StringUtils.split(string, '.');
     if (splits.length > 0) {
       for (int i = splits.length - 1; i > 0; i--) {
         buf.append(splits[i]);
@@ -132,12 +164,25 @@ public class TableUtil {
     }
   }
 
+  /**
+   * Reverses a given host into
+   * com.host.www format.
+   * @param hostName normal host name
+   * @return reversed host
+   */
   public static String reverseHost(String hostName) {
     StringBuilder buf = new StringBuilder();
     reverseAppendSplits(hostName, buf);
     return buf.toString();
 
   }
+
+  /**
+   * Unreverses a given host into
+   * www.host.com format.
+   * @param reversedHostName reversed host
+   * @return unreversedhost
+   */
   public static String unreverseHost(String reversedHostName) {
     return reverseHost(reversedHostName); // Reversible
   }
@@ -151,7 +196,7 @@ public class TableUtil {
    * @return string-ifed Utf8 object or null if Utf8 instance is null
    */
   public static String toString(Utf8 utf8) {
-    return (utf8 == null ? null : utf8.toString());
+    return utf8 == null ? null : utf8.toString();
   }
 
 }

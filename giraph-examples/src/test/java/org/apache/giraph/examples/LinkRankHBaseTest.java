@@ -114,7 +114,7 @@ public class LinkRankHBaseTest extends BspCase {
 
       final byte[] FAM_OL = Bytes.toBytes("ol");
       final byte[] FAM_S = Bytes.toBytes("s");
-      final byte[] QUALIFIER_PAGERANK = Bytes.toBytes("pagerank");
+      final byte[] QUALIFIER_PAGERANK = Bytes.toBytes("linkrank");
       final byte[] TAB = Bytes.toBytes(TABLE_NAME);
 
       Configuration conf = cluster.getConfiguration();
@@ -185,20 +185,20 @@ public class LinkRankHBaseTest extends BspCase {
       /** Check the results **/
 
       Result result;
-      String key, value;
+      String key;
       byte[] calculatedScoreByte;
       HashMap actualValues = new HashMap<String, Double>();
       actualValues.put("com.google.www:http/", 0.19757964896759084d);
       actualValues.put("com.yahoo.www:http/", 0.28155100077907663d);
       actualValues.put("com.bing.www:http/", 0.5208645820209628d);
 
-      for (Object keyobj : actualValues.keySet()){
-        key = keyobj.toString();
+      for (Object keyObject : actualValues.keySet()){
+        key = keyObject.toString();
         result = table.get(new Get(key.getBytes()));
         calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_PAGERANK);
         assertNotNull(calculatedScoreByte);
         assertTrue(calculatedScoreByte.length > 0);
-        Assert.assertEquals("scores are not the same", (Double)actualValues.get(key), Bytes.toDouble(calculatedScoreByte), DELTA);
+        Assert.assertEquals("Scores are not the same", (Double)actualValues.get(key), Bytes.toDouble(calculatedScoreByte), DELTA);
       }
     } finally {
       if (cluster != null) {

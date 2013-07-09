@@ -77,7 +77,7 @@ public class NutchTableEdgeOutputFormat
     /**
      * Score qualifier "pagerank". Calculated scores will be written here.
      */
-    private static final byte[] PAGERANK_QUALIFIER = Bytes.toBytes("pagerank");
+    private static final byte[] PAGERANK_QUALIFIER = Bytes.toBytes("linkrank");
 
     /**
      * Constructor for NutchTableEdgeVertexWriter
