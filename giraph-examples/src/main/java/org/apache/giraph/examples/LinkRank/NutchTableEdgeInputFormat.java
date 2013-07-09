@@ -38,6 +38,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 
+import static org.apache.giraph.examples.LinkRank.TableUtil.unreverseUrl;
+
 /**
  *  HBase Input Format for LinkRank.
  *  Reads edges and scores of web pages from HBase.
@@ -137,7 +139,8 @@ public class NutchTableEdgeInputFormat extends
           getConf().createVertex();
 
       // Get the source URL from the row record.
-      String source = Bytes.toString(row.getRow());
+      String source = unreverseUrl(Bytes.toString(row.getRow()));
+      LOG.info(source);
 
       /**
        * Get ol family map from the row.

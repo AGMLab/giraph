@@ -131,26 +131,26 @@ public class LinkRankHBaseTest extends BspCase {
       /**
        * Enter the initial data
        * (a,b), (b,c), (a,c)
-       * a = 0.33
-       * b = 0.33
-       * c = 0.33
+       * a = 0.33 - google
+       * b = 0.33 - yahoo
+       * c = 0.33 - bing
        */
 
       HTable table = new HTable(conf, TABLE_NAME);
-      Put p1 = new Put(Bytes.toBytes("a"));
+      Put p1 = new Put(Bytes.toBytes("com.google.www:http/"));
       //ol:b
-      p1.add(Bytes.toBytes("ol"), Bytes.toBytes("b"), Bytes.toBytes("ab"));
+      p1.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
       //s:S
       p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
-      Put p2 = new Put(Bytes.toBytes("a"));
-      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("c"), Bytes.toBytes("ac"));
+      Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
+      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
 
-      Put p3 = new Put(Bytes.toBytes("b"));
-      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("c"), Bytes.toBytes("bc"));
+      Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
+      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
       p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
-      Put p4 = new Put(Bytes.toBytes("c"));
+      Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
       p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
       table.put(p1);
@@ -175,7 +175,7 @@ public class LinkRankHBaseTest extends BspCase {
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
       giraphConf.setVertexInputFormatClass(NutchTableEdgeInputFormat.class);
       giraphConf.setVertexOutputFormatClass(NutchTableEdgeOutputFormat.class);
-      giraphConf.setInt("giraph.pageRank.superstepCount", 10);
+      giraphConf.setInt("giraph.linkRank.superstepCount", 10);
 
       assertTrue(giraphJob.run(true));
 
@@ -188,9 +188,9 @@ public class LinkRankHBaseTest extends BspCase {
       String key, value;
       byte[] calculatedScoreByte;
       HashMap actualValues = new HashMap<String, Double>();
-      actualValues.put("a", 0.19757964896759084d);
-      actualValues.put("b", 0.28155100077907663d);
-      actualValues.put("c", 0.5208645820209628);
+      actualValues.put("com.google.www:http/", 0.19757964896759084d);
+      actualValues.put("com.yahoo.www:http/", 0.28155100077907663d);
+      actualValues.put("com.bing.www:http/", 0.5208645820209628d);
 
       for (Object keyobj : actualValues.keySet()){
         key = keyobj.toString();

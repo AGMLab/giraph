@@ -33,6 +33,8 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
+import static org.apache.giraph.examples.LinkRank.TableUtil.reverseUrl;
+
 
 /**
  * HBase Output Format for LinkRank Computation
@@ -98,7 +100,7 @@ public class NutchTableEdgeOutputFormat
       Vertex<Text, DoubleWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
-      byte[] rowBytes = vertex.getId().getBytes();
+      byte[] rowBytes = reverseUrl(vertex.getId().toString()).getBytes();
       Put put = new Put(rowBytes);
       DoubleWritable valueWritable = vertex.getValue();
       double value = valueWritable.get();
