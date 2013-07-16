@@ -15,26 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.giraph.comm.messages;
+package org.apache.giraph.conf;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import java.io.IOException;
-
 /**
- * Message stores which has flush operation
+ * Interface for classes that are parameterized by all of the Giraph types.
+ * These classes can be used to infer the types used by {@link GiraphTypes}
  *
- * @param <I> Vertex id
- * @param <M> Message data
+ * @param <I> Vertex ID
+ * @param <V> Vertex Value
+ * @param <E> Edge Value
+ * @param <M1> Incoming Message Value
+ * @param <M2> Outgoing Message Value
  */
-public interface FlushableMessageStore<I extends WritableComparable,
-    M extends Writable> extends MessageStore<I, M> {
-  /**
-   * Flushes messages to the disk.
-   *
-   * @throws IOException
-   */
-  void flush() throws IOException;
+public interface TypesHolder<I extends WritableComparable,
+    V extends Writable, E extends Writable, M1 extends Writable,
+    M2 extends Writable> {
+  // Nothing here
 }

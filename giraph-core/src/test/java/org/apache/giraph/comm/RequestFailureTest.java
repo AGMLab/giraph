@@ -26,6 +26,7 @@ import org.apache.giraph.comm.requests.WritableRequest;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.factories.TestMessageValueFactory;
 import org.apache.giraph.utils.ByteArrayVertexIdMessages;
 import org.apache.giraph.utils.IntNoOpComputation;
 import org.apache.giraph.utils.MockUtils;
@@ -82,7 +83,7 @@ public class RequestFailureTest {
     ByteArrayVertexIdMessages<IntWritable,
             IntWritable> vertexIdMessages =
         new ByteArrayVertexIdMessages<IntWritable, IntWritable>(
-            IntWritable.class);
+            new TestMessageValueFactory<IntWritable>(IntWritable.class));
     vertexIdMessages.setConf(conf);
     vertexIdMessages.initialize();
     dataToSend.add(partitionId, vertexIdMessages);
@@ -102,7 +103,7 @@ public class RequestFailureTest {
   private void checkResult(int numRequests) throws IOException {
     // Check the output
     Iterable<IntWritable> vertices =
-        serverData.getIncomingMessageStore().getDestinationVertices();
+        serverData.getIncomingMessageStore().getPartitionDestinationVertices(0);
     int keySum = 0;
     int messageSum = 0;
     for (IntWritable vertexId : vertices) {
@@ -152,6 +153,7 @@ public class RequestFailureTest {
   private void checkSendingTwoRequests() throws IOException {
     // Start the service
     serverData = MockUtils.createNewServerData(conf, context);
+    serverData.prepareSuperstep();
     WorkerInfo workerInfo = new WorkerInfo();
     server = new NettyServer(conf,
         new WorkerRequestServerHandler.Factory(serverData), workerInfo,

@@ -17,10 +17,6 @@
  */
 package org.apache.giraph.io.accumulo.edgemarker;
 
-import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.giraph.edge.Edge;
@@ -28,16 +24,24 @@ import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexReader;
 import org.apache.giraph.io.accumulo.AccumuloVertexInputFormat;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import com.google.common.collect.Lists;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /*
  Example subclass which reads in Key/Value pairs to construct vertex objects.
  */
 public class AccumuloEdgeInputFormat
     extends AccumuloVertexInputFormat<Text, Text, Text> {
+  @Override public void checkInputSpecs(Configuration conf) { }
 
   private static final Text uselessEdgeValue = new Text();
   public VertexReader<Text, Text, Text>

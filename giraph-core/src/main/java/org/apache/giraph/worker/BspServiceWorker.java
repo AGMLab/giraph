@@ -83,6 +83,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import net.iharder.Base64;
 
@@ -95,10 +96,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -480,11 +484,15 @@ public class BspServiceWorker<I extends WritableComparable,
     workerGraphPartitioner.updatePartitionOwners(
         getWorkerInfo(), masterSetPartitionOwners, getPartitionStore());
 
-/*if[HADOOP_NON_SECURE]
-    workerClient.setup();
-else[HADOOP_NON_SECURE]*/
+    /*if[HADOOP_NON_SECURE]
+      workerClient.setup();
+    else[HADOOP_NON_SECURE]*/
     workerClient.setup(getConfiguration().authenticate());
-/*end[HADOOP_NON_SECURE]*/
+    /*end[HADOOP_NON_SECURE]*/
+
+    // Initialize aggregator at worker side during setup.
+    // Do this just before vertex and edge loading.
+    aggregatorHandler.prepareSuperstep(workerAggregatorRequestProcessor);
 
     VertexEdgeCount vertexEdgeCount;
 
@@ -916,13 +924,20 @@ else[HADOOP_NON_SECURE]*/
       return;
     }
 
+    final int numPartitions = getPartitionStore().getNumPartitions();
     int numThreads = Math.min(getConfiguration().getNumOutputThreads(),
-        getPartitionStore().getNumPartitions());
+        numPartitions);
     LoggerUtils.setStatusAndLog(getContext(), LOG, Level.INFO,
         "saveVertices: Starting to save " + numLocalVertices + " vertices " +
             "using " + numThreads + " threads");
     final VertexOutputFormat<I, V, E> vertexOutputFormat =
         getConfiguration().createWrappedVertexOutputFormat();
+
+    final Queue<Integer> partitionIdQueue =
+        (numPartitions == 0) ? new LinkedList<Integer>() :
+            new ArrayBlockingQueue<Integer>(numPartitions);
+    Iterables.addAll(partitionIdQueue, getPartitionStore().getPartitionIds());
+
     CallableFactory<Void> callableFactory = new CallableFactory<Void>() {
       @Override
       public Callable<Void> newCallable(int callableId) {
@@ -933,14 +948,19 @@ else[HADOOP_NON_SECURE]*/
                 vertexOutputFormat.createVertexWriter(getContext());
             vertexWriter.setConf(getConfiguration());
             vertexWriter.initialize(getContext());
-            long verticesWritten = 0;
             long nextPrintVertices = 0;
             long nextPrintMsecs = System.currentTimeMillis() + 15000;
             int partitionIndex = 0;
             int numPartitions = getPartitionStore().getNumPartitions();
-            for (Integer partitionId : getPartitionStore().getPartitionIds()) {
+            while (!partitionIdQueue.isEmpty()) {
+              Integer partitionId = partitionIdQueue.poll();
+              if (partitionId == null) {
+                break;
+              }
+
               Partition<I, V, E> partition =
                   getPartitionStore().getPartition(partitionId);
+              long verticesWritten = 0;
               for (Vertex<I, V, E> vertex : partition) {
                 vertexWriter.writeVertex(vertex);
                 ++verticesWritten;
@@ -957,6 +977,7 @@ else[HADOOP_NON_SECURE]*/
                   nextPrintVertices = verticesWritten + 250000;
                 }
               }
+              getPartitionStore().putPartition(partition);
               ++partitionIndex;
             }
             vertexWriter.close(getContext()); // the temp results are saved now
@@ -1205,10 +1226,8 @@ else[HADOOP_NON_SECURE]*/
                 " on " + partitionsFile);
           }
           partition.readFields(partitionsStream);
-          if (partitionsStream.readBoolean()) {
-            getServerData().getCurrentMessageStore().readFieldsForPartition(
-                partitionsStream, partitionId);
-          }
+          getServerData().getIncomingMessageStore().readFieldsForPartition(
+              partitionsStream, partitionId);
           partitionsStream.close();
           if (LOG.isInfoEnabled()) {
             LOG.info("loadCheckpoint: Loaded partition " +
@@ -1253,6 +1272,7 @@ else[HADOOP_NON_SECURE]*/
           e);
     }
 
+    getServerData().prepareSuperstep();
     // Communication service needs to setup the connections prior to
     // processing vertices
 /*if[HADOOP_NON_SECURE]
@@ -1471,7 +1491,7 @@ else[HADOOP_NON_SECURE]*/
   }
 
   @Override
-  public Integer getPartitionId(I vertexId) {
+  public int getPartitionId(I vertexId) {
     PartitionOwner partitionOwner = getVertexPartitionOwner(vertexId);
     return partitionOwner.getPartitionId();
   }

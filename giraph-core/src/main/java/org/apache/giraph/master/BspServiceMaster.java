@@ -91,6 +91,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -716,6 +717,11 @@ public class BspServiceMaster<I extends WritableComparable,
     return aggregatorHandler;
   }
 
+  @Override
+  public MasterCompute getMasterCompute() {
+    return masterCompute;
+  }
+
   /**
    * Read the finalized checkpoint file and associated metadata files for the
    * checkpoint.  Modifies the {@link PartitionOwner} objects to get the
@@ -974,7 +980,11 @@ public class BspServiceMaster<I extends WritableComparable,
     }
 
     if (conf.metricsEnabled()) {
-      aggregatedMetrics.print(superstep, System.err);
+      if (GiraphConstants.METRICS_DIRECTORY.isDefaultValue(conf)) {
+        aggregatedMetrics.print(superstep, System.err);
+      } else {
+        printAggregatedMetricsToHDFS(superstep, aggregatedMetrics);
+      }
     }
 
     if (LOG.isInfoEnabled()) {
@@ -982,6 +992,40 @@ public class BspServiceMaster<I extends WritableComparable,
           " on superstep = " + getSuperstep());
     }
     return globalStats;
+  }
+
+  /**
+   * Write superstep metrics to own file in HDFS
+   * @param superstep the current superstep
+   * @param aggregatedMetrics the aggregated metrics to write
+   */
+  private void printAggregatedMetricsToHDFS(
+      long superstep, AggregatedMetrics aggregatedMetrics) {
+    ImmutableClassesGiraphConfiguration conf = getConfiguration();
+    PrintStream out = null;
+    Path dir = new Path(GiraphConstants.METRICS_DIRECTORY.get(conf));
+    Path outFile = new Path(GiraphConstants.METRICS_DIRECTORY.get(conf) +
+        Path.SEPARATOR_CHAR + "superstep_" + superstep + ".metrics");
+    try {
+      FileSystem fs;
+      fs = FileSystem.get(conf);
+      if (!fs.exists(dir)) {
+        fs.mkdirs(dir);
+      }
+      if (fs.exists(outFile)) {
+        throw new RuntimeException(
+            "printAggregatedMetricsToHDFS: metrics file exists");
+      }
+      out = new PrintStream(fs.create(outFile));
+      aggregatedMetrics.print(superstep, out);
+    } catch (IOException e) {
+      throw new RuntimeException(
+          "printAggregatedMetricsToHDFS: error creating metrics file", e);
+    } finally {
+      if (out != null) {
+        out.close();
+      }
+    }
   }
 
   /**
@@ -1425,6 +1469,58 @@ public class BspServiceMaster<I extends WritableComparable,
     }
   }
 
+  /**
+   * Initialize aggregator at the master side
+   * before vertex/edge loading.
+   * This methods cooperates with other code
+   * to enables aggregation usage at INPUT_SUPERSTEP
+   * Other codes are:
+   *  BSPServiceWorker:
+   *  aggregatorHandler.prepareSuperstep in
+   *  setup
+   *  set aggregator usage in vertexReader and
+   *  edgeReader
+   *
+   * @throws InterruptedException
+   */
+  private void initializeAggregatorInputSuperstep()
+    throws InterruptedException {
+    aggregatorHandler.prepareSuperstep(masterClient);
+    prepareMasterCompute(getSuperstep());
+    try {
+      masterCompute.initialize();
+    } catch (InstantiationException e) {
+      LOG.fatal(
+        "initializeAggregatorInputSuperstep: Failed in instantiation", e);
+      throw new RuntimeException(
+        "initializeAggregatorInputSuperstep: Failed in instantiation", e);
+    } catch (IllegalAccessException e) {
+      LOG.fatal("initializeAggregatorInputSuperstep: Failed in access", e);
+      throw new RuntimeException(
+        "initializeAggregatorInputSuperstep: Failed in access", e);
+    }
+    aggregatorHandler.finishSuperstep(masterClient);
+  }
+
+  /**
+   * This is required before initialization
+   * and run of MasterCompute
+   *
+   * @param superstep superstep for which to run masterCompute
+   * @return Superstep classes set by masterCompute
+   */
+  private SuperstepClasses prepareMasterCompute(long superstep) {
+    GraphState graphState = new GraphState(superstep ,
+        GiraphStats.getInstance().getVertices().getValue(),
+        GiraphStats.getInstance().getEdges().getValue(),
+        getContext());
+    SuperstepClasses superstepClasses =
+      new SuperstepClasses(getConfiguration());
+    masterCompute.setGraphState(graphState);
+    masterCompute.setSuperstepClasses(superstepClasses);
+    return superstepClasses;
+  }
+
   @Override
   public SuperstepState coordinateSuperstep() throws
   KeeperException, InterruptedException {
@@ -1495,6 +1591,9 @@ public class BspServiceMaster<I extends WritableComparable,
     }
 
     if (getSuperstep() == INPUT_SUPERSTEP) {
+      // Initialize aggregators before coordinating
+      // vertex loading and edge loading
+      initializeAggregatorInputSuperstep();
       if (getConfiguration().hasVertexInputFormat()) {
         coordinateInputSplits(vertexInputSplitsPaths, vertexInputSplitsEvents,
             "Vertex");
@@ -1516,7 +1615,9 @@ public class BspServiceMaster<I extends WritableComparable,
     // Collect aggregator values, then run the master.compute() and
     // finally save the aggregator values
     aggregatorHandler.prepareSuperstep(masterClient);
-    SuperstepClasses superstepClasses = runMasterCompute(getSuperstep());
+    SuperstepClasses superstepClasses =
+      prepareMasterCompute(getSuperstep() + 1);
+    doMasterCompute();
 
     // If the master is halted or all the vertices voted to halt and there
     // are no more messages in the system, stop the computation
@@ -1540,7 +1641,13 @@ public class BspServiceMaster<I extends WritableComparable,
       globalStats.setHaltComputation(true);
     }
 
-    superstepClasses.verifyTypesMatch(getConfiguration());
+    // Superstep 0 doesn't need to have matching types (Message types may not
+    // match) and if the computation is halted, no need to check any of
+    // the types.
+    if (!globalStats.getHaltComputation()) {
+      superstepClasses.verifyTypesMatch(
+          getConfiguration(), getSuperstep() != 0);
+    }
     getConfiguration().updateSuperstepClasses(superstepClasses);
 
     // Let everyone know the aggregated application state through the
@@ -1569,39 +1676,13 @@ public class BspServiceMaster<I extends WritableComparable,
   }
 
   /**
-   * Run the master.compute() class
-   *
-   * @param superstep superstep for which to run the master.compute()
-   * @return Superstep classes set by Master compute
+   * This doMasterCompute is only called
+   * after masterCompute is initialized
    */
-  private SuperstepClasses runMasterCompute(long superstep) {
-    // The master.compute() should run logically before the workers, so
-    // increase the superstep counter it uses by one
-    GraphState graphState = new GraphState(superstep + 1,
-        GiraphStats.getInstance().getVertices().getValue(),
-        GiraphStats.getInstance().getEdges().getValue(),
-        getContext());
-    SuperstepClasses superstepClasses =
-        new SuperstepClasses(getConfiguration());
-    masterCompute.setGraphState(graphState);
-    masterCompute.setSuperstepClasses(superstepClasses);
-    if (superstep == INPUT_SUPERSTEP) {
-      try {
-        masterCompute.initialize();
-      } catch (InstantiationException e) {
-        LOG.fatal("runMasterCompute: Failed in instantiation", e);
-        throw new RuntimeException(
-            "runMasterCompute: Failed in instantiation", e);
-      } catch (IllegalAccessException e) {
-        LOG.fatal("runMasterCompute: Failed in access", e);
-        throw new RuntimeException(
-            "runMasterCompute: Failed in access", e);
-      }
-    }
+  private void doMasterCompute() {
     GiraphTimerContext timerContext = masterComputeTimer.time();
     masterCompute.compute();
     timerContext.stop();
-    return superstepClasses;
   }
 
   /**

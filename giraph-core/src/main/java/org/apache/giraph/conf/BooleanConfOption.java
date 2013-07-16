@@ -28,17 +28,29 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Constructor
+   *
    * @param key configuration key
    * @param defaultValue default value
+   * @param description configuration description
    */
-  public BooleanConfOption(String key, boolean defaultValue) {
-    super(key);
+  public BooleanConfOption(String key, boolean defaultValue,
+      String description) {
+    super(key, description);
     this.defaultValue = defaultValue;
     AllOptions.add(this);
   }
 
-  public boolean isDefaultValue() {
+  /**
+   * Get the default value of this option
+   *
+   * @return default value
+   */
+  public boolean getDefaultValue() {
     return defaultValue;
+  }
+
+  @Override public boolean isDefaultValue(Configuration conf) {
+    return get(conf) == defaultValue;
   }
 
   @Override public String getDefaultValueStr() {
@@ -51,6 +63,7 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Lookup value in Configuration
+   *
    * @param conf Configuration
    * @return value for key in conf, or defaultValue if not present
    */
@@ -60,6 +73,7 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Check if value is true
+   *
    * @param conf Configuration
    * @return true if value is set and true, false otherwise
    */
@@ -69,6 +83,7 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Check if value is false
+   *
    * @param conf Configuration
    * @return true if value is set and true, false otherwise
    */
@@ -78,6 +93,7 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Set value in configuration for this key
+   *
    * @param conf Configuration
    * @param value to set
    */
@@ -87,6 +103,7 @@ public class BooleanConfOption extends AbstractConfOption {
 
   /**
    * Set value in configuration if it hasn't been set already
+   *
    * @param conf Configuration
    * @param value to set
    */

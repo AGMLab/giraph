@@ -18,6 +18,7 @@
 
 package org.apache.giraph.comm.messages;
 
+import org.apache.giraph.factories.MessageValueFactory;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -26,18 +27,19 @@ import org.apache.hadoop.io.WritableComparable;
  *
  * @param <I> Vertex id
  * @param <M> Message data
- * @param <S> Message store
+ * @param <MS> Message store
  */
 public interface MessageStoreFactory<I extends WritableComparable,
-    M extends Writable, S extends BasicMessageStore<I, M>> {
+    M extends Writable, MS> {
   /**
    * Creates new message store.
    *
    * Note: Combiner class in Configuration can be changed,
    * this method should return MessageStore which uses current combiner
    *
-   * @param messageClass Message class held in the store
+   *
+   * @param messageValueFactory Message class held in the store
    * @return New message store
    */
-  S newStore(Class<M> messageClass);
+  MS newStore(MessageValueFactory<M> messageValueFactory);
 }

@@ -18,22 +18,15 @@
 package org.apache.giraph.hive.output;
 
 import org.apache.giraph.conf.GiraphConfiguration;
-import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.edge.ByteArrayEdges;
+import org.apache.giraph.hive.GiraphHiveTestBase;
 import org.apache.giraph.hive.Helpers;
 import org.apache.giraph.hive.common.GiraphHiveConstants;
 import org.apache.giraph.hive.computations.ComputationCountEdges;
 import org.apache.giraph.hive.output.examples.HiveOutputIntIntVertex;
 import org.apache.giraph.io.formats.IntNullTextEdgeInputFormat;
-import org.apache.giraph.io.internal.WrappedVertexOutputFormat;
 import org.apache.giraph.utils.InternalVertexRunner;
-import org.apache.hadoop.mapred.HackJobContext;
-import org.apache.hadoop.mapred.HackTaskAttemptContext;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TaskAttemptID;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.OutputCommitter;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,13 +44,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class HiveOutputTest {
-  private LocalHiveServer hiveServer = new LocalHiveServer("giraph-hive");
+import junit.framework.Assert;
 
-  @BeforeClass
-  public static void hushDatanucleusWarnings() {
-    Helpers.silenceDataNucleusLogger();
-  }
+public class HiveOutputTest extends GiraphHiveTestBase {
+  private LocalHiveServer hiveServer = new LocalHiveServer("giraph-hive");
 
   @Before
   public void setUp() throws IOException, TException {
@@ -76,7 +66,7 @@ public class HiveOutputTest {
     runJob(tableName, conf);
 
     HiveInputDescription inputDesc = new HiveInputDescription();
-    inputDesc.setTableName(tableName);
+    inputDesc.getTableDesc().setTableName(tableName);
 
     verifyRecords(inputDesc);
   }
@@ -95,8 +85,27 @@ public class HiveOutputTest {
     runJob(tableName, conf);
 
     HiveInputDescription inputDesc = new HiveInputDescription();
-    inputDesc.setTableName(tableName);
+    inputDesc.getTableDesc().setTableName(tableName);
     inputDesc.setPartitionFilter("ds='foobar'");
+
+    verifyRecords(inputDesc);
+  }
+
+  @Test
+  public void testHiveMultithreadedOutput() throws Exception
+  {
+    String tableName = "test1";
+    hiveServer.createTable("CREATE TABLE " + tableName +
+        " (i1 BIGINT, i2 BIGINT) ");
+
+    GiraphConfiguration conf = new GiraphConfiguration();
+    conf.setVertexOutputFormatThreadSafe(true);
+    conf.setNumOutputThreads(2);
+    GiraphConstants.USER_PARTITION_COUNT.set(conf, 4);
+    runJob(tableName, conf);
+
+    HiveInputDescription inputDesc = new HiveInputDescription();
+    inputDesc.getTableDesc().setTableName(tableName);
 
     verifyRecords(inputDesc);
   }
@@ -118,19 +127,7 @@ public class HiveOutputTest {
     conf.setVertexOutputFormatClass(HiveVertexOutputFormat.class);
     InternalVertexRunner.run(conf, null, edges);
 
-    commitJob(conf);
-  }
-
-  private void commitJob(GiraphConfiguration conf)
-    throws IOException, InterruptedException {
-    ImmutableClassesGiraphConfiguration iconf = new ImmutableClassesGiraphConfiguration(conf);
-    WrappedVertexOutputFormat outputFormat = iconf.createWrappedVertexOutputFormat();
-    JobConf jobConf = new JobConf(conf);
-    TaskAttemptContext taskContext = new HackTaskAttemptContext(jobConf, new TaskAttemptID());
-    OutputCommitter outputCommitter = outputFormat.getOutputCommitter(
-        taskContext);
-    JobContext jobContext = new HackJobContext(jobConf, taskContext.getJobID());
-    outputCommitter.commitJob(jobContext);
+    Helpers.commitJob(conf);
   }
 
   private void verifyRecords(HiveInputDescription inputDesc)
@@ -141,7 +138,9 @@ public class HiveOutputTest {
 
     // Records are in an unknown sort order so we grab their values here
     for (HiveReadableRecord record : records) {
-      data.put(record.getLong(0), record.getLong(1));
+      if (data.put(record.getLong(0), record.getLong(1)) != null) {
+        Assert.fail("Id " + record.getLong(0) + " appears twice in the output");
+      }
     }
 
     assertEquals(3, data.size());

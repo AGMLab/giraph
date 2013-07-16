@@ -19,12 +19,12 @@
 package org.apache.giraph.job;
 
 import org.apache.giraph.combiner.Combiner;
-import org.apache.giraph.graph.Computation;
 import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
-import org.apache.giraph.edge.OutEdges;
+import org.apache.giraph.edge.VertexEdges;
 import org.apache.giraph.graph.DefaultVertexResolver;
 import org.apache.giraph.graph.DefaultVertexValueFactory;
+import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexResolver;
 import org.apache.giraph.graph.VertexValueFactory;
 import org.apache.giraph.io.EdgeInputFormat;
@@ -51,12 +51,10 @@ import static org.apache.giraph.conf.GiraphConstants.VERTEX_RESOLVER_CLASS;
  * @param <I> the Vertex ID type
  * @param <V> the Vertex Value type
  * @param <E> the Edge Value type
- * @param <M1> the incoming Message type
- * @param <M2> the outgoing Message type
+ * @param <M> the Message type
  */
 public class GiraphConfigurationValidator<I extends WritableComparable,
-    V extends Writable, E extends Writable, M1 extends Writable,
-    M2 extends Writable> {
+  V extends Writable, E extends Writable, M extends Writable> {
   /**
    * Class logger object.
    */
@@ -69,8 +67,8 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
   private static final int VALUE_PARAM_INDEX = 1;
   /** E param vertex index in classList */
   private static final int EDGE_PARAM_INDEX = 2;
-  /** M2 param vertex index in classList */
-  private static final int OUTGOING_MSG_PARAM_INDEX = 4;
+  /** M param vertex index in classList */
+  private static final int MSG_PARAM_INDEX = 3;
   /** M param vertex combiner index in classList */
   private static final int MSG_COMBINER_PARAM_INDEX = 1;
   /** E param edge input format index in classList */
@@ -82,12 +80,12 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
 
   /** Vertex Index Type */
   private Type vertexIndexType;
-  /** Vertex Value Type */
+  /** Vertex Index Type */
   private Type vertexValueType;
-  /** Edge Value Type */
+  /** Vertex Index Type */
   private Type edgeValueType;
-  /** Outgoing Message Type */
-  private Type outgoingMessageValueType;
+  /** Vertex Index Type */
+  private Type messageValueType;
 
   /**
    * The Configuration object for use in the validation test.
@@ -112,15 +110,15 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
    */
   public void validateConfiguration() {
     checkConfiguration();
-    Class<? extends Computation<I, V, E, M1, M2>> computationClass =
-      conf.getComputationClass();
+    Class<? extends Vertex<I, V, E, M>> vertexClass =
+      conf.getVertexClass();
     List<Class<?>> classList = ReflectionUtils.getTypeArguments(
-      Computation.class, computationClass);
+      Vertex.class, vertexClass);
     vertexIndexType = classList.get(ID_PARAM_INDEX);
     vertexValueType = classList.get(VALUE_PARAM_INDEX);
     edgeValueType = classList.get(EDGE_PARAM_INDEX);
-    outgoingMessageValueType = classList.get(OUTGOING_MSG_PARAM_INDEX);
-    verifyOutEdgesGenericTypes();
+    messageValueType = classList.get(MSG_PARAM_INDEX);
+    verifyVertexEdgesGenericTypes();
     verifyVertexInputFormatGenericTypes();
     verifyEdgeInputFormatGenericTypes();
     verifyVertexOutputFormatGenericTypes();
@@ -148,9 +146,9 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
       throw new IllegalArgumentException("checkConfiguration: No valid " +
           GiraphConstants.MIN_WORKERS);
     }
-    if (conf.getComputationClass() == null) {
+    if (conf.getVertexClass() == null) {
       throw new IllegalArgumentException("checkConfiguration: Null " +
-          GiraphConstants.COMPUTATION_CLASS.getKey());
+          GiraphConstants.VERTEX_CLASS.getKey());
     }
     if (conf.getVertexInputFormatClass() == null &&
         conf.getEdgeInputFormatClass() == null) {
@@ -167,7 +165,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
             VERTEX_RESOLVER_CLASS.getDefaultClass().getCanonicalName());
       }
     }
-    if (conf.getOutEdgesClass() == null) {
+    if (conf.getVertexEdgesClass() == null) {
       if (LOG.isInfoEnabled()) {
         LOG.info("checkConfiguration: No class found for " +
             VERTEX_EDGES_CLASS.getKey() + ", defaulting to " +
@@ -177,15 +175,15 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
   }
 
   /**
-   * Verify matching generic types for a specific OutEdges class.
+   * Verify matching generic types for a specific VertexEdges class.
    *
-   * @param outEdgesClass {@link org.apache.giraph.edge.OutEdges} class to check
+   * @param vertexEdgesClass {@link VertexEdges} class to check
    */
-  private void verifyOutEdgesGenericTypesClass(
-      Class<? extends OutEdges<I, E>> outEdgesClass) {
+  private void verifyVertexEdgesGenericTypesClass(
+      Class<? extends VertexEdges<I, E>> vertexEdgesClass) {
     List<Class<?>> classList = ReflectionUtils.getTypeArguments(
-        OutEdges.class, outEdgesClass);
-    // OutEdges implementations can be generic, in which case there are no
+        VertexEdges.class, vertexEdgesClass);
+    // VertexEdges implementations can be generic, in which case there are no
     // types to check.
     if (classList.isEmpty()) {
       return;
@@ -207,14 +205,14 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
     }
   }
 
-  /** Verify matching generic types in OutEdges. */
-  private void verifyOutEdgesGenericTypes() {
-    Class<? extends OutEdges<I, E>> outEdgesClass =
-        conf.getOutEdgesClass();
-    Class<? extends OutEdges<I, E>> inputOutEdgesClass =
-        conf.getInputOutEdgesClass();
-    verifyOutEdgesGenericTypesClass(outEdgesClass);
-    verifyOutEdgesGenericTypesClass(inputOutEdgesClass);
+  /** Verify matching generic types in VertexEdges. */
+  private void verifyVertexEdgesGenericTypes() {
+    Class<? extends VertexEdges<I, E>> vertexEdgesClass =
+        conf.getVertexEdgesClass();
+    Class<? extends VertexEdges<I, E>> inputVertexEdgesClass =
+        conf.getInputVertexEdgesClass();
+    verifyVertexEdgesGenericTypesClass(vertexEdgesClass);
+    verifyVertexEdgesGenericTypesClass(inputVertexEdgesClass);
   }
 
   /** Verify matching generic types in VertexInputFormat. */
@@ -241,7 +239,6 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
                 "vertex - " + vertexValueType +
                 ", vertex input format - " + classList.get(VALUE_PARAM_INDEX));
       }
-      /*
       if (classList.get(EDGE_PARAM_INDEX) == null) {
         LOG.warn("Input format edge value type is not known");
       } else if (!edgeValueType.equals(classList.get(EDGE_PARAM_INDEX))) {
@@ -250,7 +247,6 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
                 "vertex - " + edgeValueType +
                 ", vertex input format - " + classList.get(EDGE_PARAM_INDEX));
       }
-      */
     }
   }
 
@@ -285,7 +281,7 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
 
   /** If there is a combiner type, verify its generic params match the job. */
   private void verifyVertexCombinerGenericTypes() {
-    Class<? extends Combiner<I, M2>> vertexCombinerClass =
+    Class<? extends Combiner<I, M>> vertexCombinerClass =
       conf.getCombinerClass();
     if (vertexCombinerClass != null) {
       List<Class<?>> classList =
@@ -297,11 +293,10 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
             "vertex - " + vertexIndexType +
             ", vertex combiner - " + classList.get(ID_PARAM_INDEX));
       }
-      if (!outgoingMessageValueType.equals(
-          classList.get(MSG_COMBINER_PARAM_INDEX))) {
+      if (!messageValueType.equals(classList.get(MSG_COMBINER_PARAM_INDEX))) {
         throw new IllegalArgumentException(
           "checkClassTypes: Message value types don't match, " +
-            "vertex - " + outgoingMessageValueType +
+            "vertex - " + messageValueType +
             ", vertex combiner - " + classList.get(MSG_COMBINER_PARAM_INDEX));
       }
     }
@@ -365,14 +360,14 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
   /** If there is a vertex resolver,
    * validate the generic parameter types. */
   private void verifyVertexResolverGenericTypes() {
-    Class<? extends VertexResolver<I, V, E>>
+    Class<? extends VertexResolver<I, V, E, M>>
       vrClass = conf.getVertexResolverClass();
     if (!DefaultVertexResolver.class.isAssignableFrom(vrClass)) {
       return;
     }
-    Class<? extends DefaultVertexResolver<I, V, E>>
+    Class<? extends DefaultVertexResolver<I, V, E, M>>
       dvrClass =
-        (Class<? extends DefaultVertexResolver<I, V, E>>) vrClass;
+        (Class<? extends DefaultVertexResolver<I, V, E, M>>) vrClass;
     List<Class<?>> classList =
       ReflectionUtils.getTypeArguments(
           DefaultVertexResolver.class, dvrClass);
@@ -390,13 +385,19 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
           "vertex - " + vertexValueType +
           ", vertex resolver - " + classList.get(VALUE_PARAM_INDEX));
     }
-
     if (classList.get(EDGE_PARAM_INDEX) != null &&
       !edgeValueType.equals(classList.get(EDGE_PARAM_INDEX))) {
       throw new IllegalArgumentException(
         "checkClassTypes: Edge value types don't match, " +
           "vertex - " + edgeValueType +
           ", vertex resolver - " + classList.get(EDGE_PARAM_INDEX));
+    }
+    if (classList.get(MSG_PARAM_INDEX) != null &&
+      !messageValueType.equals(classList.get(MSG_PARAM_INDEX))) {
+      throw new IllegalArgumentException(
+        "checkClassTypes: Message value types don't match, " +
+          "vertex - " + messageValueType +
+          ", vertex resolver - " + classList.get(MSG_PARAM_INDEX));
     }
   }
 }

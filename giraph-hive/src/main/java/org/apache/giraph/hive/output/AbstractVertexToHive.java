@@ -31,4 +31,7 @@ import org.apache.hadoop.io.WritableComparable;
 public abstract class AbstractVertexToHive<I extends WritableComparable,
     V extends Writable, E extends Writable>
     extends DefaultConfigurableAndTableSchemaAware<I, V, E>
-    implements VertexToHive<I, V, E> { }
+    implements VertexToHive<I, V, E> {
+  @Override
+  public void initialize() { }
+}

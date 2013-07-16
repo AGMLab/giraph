@@ -29,6 +29,7 @@ import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
+import org.apache.giraph.factories.TestMessageValueFactory;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexMutations;
 import org.apache.giraph.metrics.GiraphMetrics;
@@ -85,6 +86,7 @@ public class RequestTest {
 
     // Start the service
     serverData = MockUtils.createNewServerData(conf, context);
+    serverData.prepareSuperstep();
     workerInfo = new WorkerInfo();
     server = new NettyServer(conf,
         new WorkerRequestServerHandler.Factory(serverData), workerInfo,
@@ -145,7 +147,7 @@ public class RequestTest {
     ByteArrayVertexIdMessages<IntWritable,
             IntWritable> vertexIdMessages =
         new ByteArrayVertexIdMessages<IntWritable, IntWritable>(
-            IntWritable.class);
+            new TestMessageValueFactory<IntWritable>(IntWritable.class));
     vertexIdMessages.setConf(conf);
     vertexIdMessages.initialize();
     dataToSend.add(partitionId, vertexIdMessages);
@@ -168,7 +170,7 @@ public class RequestTest {
 
     // Check the output
     Iterable<IntWritable> vertices =
-        serverData.getIncomingMessageStore().getDestinationVertices();
+        serverData.getIncomingMessageStore().getPartitionDestinationVertices(0);
     int keySum = 0;
     int messageSum = 0;
     for (IntWritable vertexId : vertices) {

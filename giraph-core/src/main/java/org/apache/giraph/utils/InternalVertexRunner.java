@@ -73,7 +73,7 @@ public class InternalVertexRunner {
    *
    * @param conf GiraphClasses specifying which types to use
    * @param vertexInputData linewise vertex input data
-   * @return linewise output data
+   * @return linewise output data, or null if job fails
    * @throws Exception if anything goes wrong
    */
   public static Iterable<String> run(
@@ -91,7 +91,7 @@ public class InternalVertexRunner {
    * @param conf GiraphClasses specifying which types to use
    * @param vertexInputData linewise vertex input data
    * @param edgeInputData linewise edge input data
-   * @return linewise output data
+   * @return linewise output data, or null if job fails
    * @throws Exception if anything goes wrong
    */
   public static Iterable<String> run(
@@ -101,7 +101,7 @@ public class InternalVertexRunner {
     File tmpDir = null;
     try {
       // Prepare input file, output folder and temporary folders
-      tmpDir = FileUtils.createTestDir(conf.getComputationClass());
+      tmpDir = FileUtils.createTestDir(conf.getComputationName());
 
       File vertexInputFile = null;
       File edgeInputFile = null;
@@ -137,7 +137,7 @@ public class InternalVertexRunner {
       GiraphConstants.CHECKPOINT_DIRECTORY.set(conf, checkpointsDir.toString());
 
       // Create and configure the job to run the vertex
-      GiraphJob job = new GiraphJob(conf, conf.getComputationClass().getName());
+      GiraphJob job = new GiraphJob(conf, conf.getComputationName());
 
       Job internalJob = job.getInternalJob();
       if (conf.hasVertexInputFormat()) {
@@ -174,7 +174,9 @@ public class InternalVertexRunner {
         }
       });
       try {
-        job.run(true);
+        if (!job.run(true)) {
+          return null;
+        }
       } finally {
         executorService.shutdown();
         zookeeper.end();
@@ -212,7 +214,7 @@ public class InternalVertexRunner {
     File tmpDir = null;
     try {
       // Prepare temporary folders
-      tmpDir = FileUtils.createTestDir(conf.getComputationClass());
+      tmpDir = FileUtils.createTestDir(conf.getComputationName());
 
       File zkDir = FileUtils.createTempDir(tmpDir, "_bspZooKeeper");
       File zkMgrDir = FileUtils.createTempDir(tmpDir, "_defaultZkManagerDir");
@@ -221,7 +223,7 @@ public class InternalVertexRunner {
       conf.setVertexInputFormatClass(InMemoryVertexInputFormat.class);
 
       // Create and configure the job to run the vertex
-      GiraphJob job = new GiraphJob(conf, conf.getComputationClass().getName());
+      GiraphJob job = new GiraphJob(conf, conf.getComputationName());
 
       InMemoryVertexInputFormat.setGraph(graph);
 

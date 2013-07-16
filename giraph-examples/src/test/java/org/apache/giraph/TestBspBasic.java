@@ -54,7 +54,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.zookeeper.KeeperException;
 import org.junit.Test;
 
@@ -152,8 +151,9 @@ public class
         immutableClassesGiraphConfiguration.createVertexValue();
     NullWritable edgeValue =
         immutableClassesGiraphConfiguration.createEdgeValue();
-    NullWritable messageValue =
-        immutableClassesGiraphConfiguration.createOutgoingMessageValue();
+    Writable messageValue =
+        immutableClassesGiraphConfiguration.getOutgoingMessageValueFactory()
+            .createMessageValue();
     assertSame(vertexValue.getClass(), NullWritable.class);
     assertSame(vertexValue, edgeValue);
     assertSame(edgeValue, messageValue);
@@ -244,7 +244,7 @@ public class
     GiraphJob job = prepareJob(callingMethod, conf, outputPath);
     Configuration configuration = job.getConfiguration();
     // GeneratedInputSplit will generate 10 vertices
-    configuration.setLong(GeneratedVertexReader.READER_VERTICES, 10);
+    GeneratedVertexReader.READER_VERTICES.set(configuration, 10);
     assertTrue(job.run(true));
     if (!runningInDistributedMode()) {
       FileStatus fileStatus = getSinglePartFileStatus(configuration, outputPath);
@@ -285,7 +285,7 @@ public class
     conf.setComputationClass(SimpleMsgComputation.class);
     conf.setVertexInputFormatClass(SimpleSuperstepVertexInputFormat.class);
     GiraphJob job = prepareJob(getCallingMethodName(), conf);
-    job.getConfiguration().setLong(GeneratedVertexReader.READER_VERTICES, 0);
+    GeneratedVertexReader.READER_VERTICES.set(job.getConfiguration(), 0);
     assertTrue(job.run(true));
   }
 
@@ -494,5 +494,19 @@ public class
       System.out.println("testBspMasterCompute: finalSum=" + finalSum);
       assertEquals(32.5, finalSum, 0d);
     }
+  }
+
+  /**
+   * Test halting at superstep 0
+   */
+  @Test
+  public void testHaltSuperstep0()
+      throws IOException, InterruptedException, ClassNotFoundException {
+    GiraphConfiguration conf = new GiraphConfiguration();
+    GiraphConstants.MAX_NUMBER_OF_SUPERSTEPS.set(conf, 0);
+    conf.setComputationClass(SimpleMsgComputation.class);
+    conf.setVertexInputFormatClass(SimpleSuperstepVertexInputFormat.class);
+    GiraphJob job = prepareJob(getCallingMethodName(), conf);
+    assertTrue(job.run(true));
   }
 }

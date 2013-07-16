@@ -20,11 +20,12 @@ package org.apache.giraph.conf;
 
 import org.apache.giraph.aggregators.AggregatorWriter;
 import org.apache.giraph.combiner.Combiner;
-import org.apache.giraph.graph.Computation;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.edge.ReuseObjectsOutEdges;
+import org.apache.giraph.graph.Computation;
+import org.apache.giraph.factories.ComputationFactory;
 import org.apache.giraph.graph.VertexResolver;
-import org.apache.giraph.graph.VertexValueFactory;
+import org.apache.giraph.factories.VertexValueFactory;
 import org.apache.giraph.io.EdgeInputFormat;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexOutputFormat;
@@ -36,6 +37,7 @@ import org.apache.giraph.master.MasterObserver;
 import org.apache.giraph.partition.GraphPartitionerFactory;
 import org.apache.giraph.partition.Partition;
 import org.apache.giraph.partition.ReusesObjectsPartition;
+import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
 import org.apache.hadoop.conf.Configuration;
@@ -43,7 +45,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.net.DNS;
 
 import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
  * Adds user methods specific to Giraph.  This will be put into an
@@ -55,14 +56,10 @@ import java.util.Map;
  */
 public class GiraphConfiguration extends Configuration
     implements GiraphConstants {
-  /** Configuration with parameters which were set in Giraph */
-  private final Configuration giraphSetParameters;
-
   /**
    * Constructor that creates the configuration
    */
   public GiraphConfiguration() {
-    giraphSetParameters = new Configuration(false);
     configureHadoopSecurity();
   }
 
@@ -73,8 +70,28 @@ public class GiraphConfiguration extends Configuration
    */
   public GiraphConfiguration(Configuration conf) {
     super(conf);
-    giraphSetParameters = new Configuration(false);
     configureHadoopSecurity();
+  }
+
+  /**
+   * Get name of computation being run. We leave this up to the
+   * {@link ComputationFactory} to decide what to return.
+   *
+   * @return Name of computation being run
+   */
+  public String getComputationName() {
+    ComputationFactory compFactory = ReflectionUtils.newInstance(
+        getComputationFactoryClass());
+    return compFactory.computationName(this);
+  }
+
+  /**
+   * Get the user's subclassed {@link ComputationFactory}
+   *
+   * @return User's computation factory class
+   */
+  public Class<? extends ComputationFactory> getComputationFactoryClass() {
+    return COMPUTATION_FACTORY_CLASS.get(this);
   }
 
   /**
@@ -525,6 +542,7 @@ public class GiraphConfiguration extends Configuration
 
   /**
    * Getter for SPLIT_MASTER_WORKER flag.
+   *
    * @return boolean flag value.
    */
   public final boolean getSplitMasterWorker() {
@@ -570,6 +588,7 @@ public class GiraphConfiguration extends Configuration
   /**
    * Is this a "pure YARN" Giraph job, or is a MapReduce layer (v1 or v2)
    * actually managing our cluster nodes, i.e. each task is a Mapper.
+   *
    * @return TRUE if this is a pure YARN job.
    */
   public boolean isPureYarnJob() {
@@ -579,6 +598,7 @@ public class GiraphConfiguration extends Configuration
   /**
    * Jars required in "Pure YARN" jobs (names only, no paths) should
    * be listed here in full, including Giraph framework jar(s).
+   *
    * @return the comma-separated list of jar names for export to cluster.
    */
   public String getYarnLibJars() {
@@ -587,6 +607,7 @@ public class GiraphConfiguration extends Configuration
 
   /**
    * Populate jar list for Pure YARN jobs.
+   *
    * @param jarList a comma-separated list of jar names
    */
   public void setYarnLibJars(String jarList) {
@@ -596,6 +617,7 @@ public class GiraphConfiguration extends Configuration
   /**
    * Get heap size (in MB) for each task in our Giraph job run,
    * assuming this job will run on the "pure YARN" profile.
+   *
    * @return the heap size for all tasks, in MB
    */
   public int getYarnTaskHeapMb() {
@@ -605,6 +627,7 @@ public class GiraphConfiguration extends Configuration
   /**
    * Set heap size for Giraph tasks in our job run, assuming
    * the job will run on the "pure YARN" profile.
+   *
    * @param heapMb the heap size for all tasks
    */
   public void setYarnTaskHeapMb(int heapMb) {
@@ -635,6 +658,7 @@ public class GiraphConfiguration extends Configuration
 
   /**
    * is this job run a local test?
+   *
    * @return the test status as recorded in the Configuration
    */
   public boolean getLocalTestMode() {
@@ -643,6 +667,7 @@ public class GiraphConfiguration extends Configuration
 
   /**
    * Flag this job as a local test run.
+   *
    * @param flag the test status for this job
    */
   public void setLocalTestMode(boolean flag) {
@@ -652,6 +677,7 @@ public class GiraphConfiguration extends Configuration
   /**
    * The number of server tasks in our ZK quorum for
    * this job run.
+   *
    * @return the number of ZK servers in the quorum
    */
   public int getZooKeeperServerCount() {
@@ -952,68 +978,8 @@ public class GiraphConfiguration extends Configuration
   }
 
   /**
-   * Put all parameters set in Giraph to another configuration
-   *
-   * @param conf Configuration
-   */
-  public void updateConfiguration(Configuration conf) {
-    if (this != conf) {
-      for (Map.Entry<String, String> parameter : giraphSetParameters) {
-        conf.set(parameter.getKey(), parameter.getValue());
-      }
-    }
-  }
-
-  @Override
-  public void set(String name, String value) {
-    super.set(name, value);
-    giraphSetParameters.set(name, value);
-  }
-
-  @Override
-  public void setIfUnset(String name, String value) {
-    super.setIfUnset(name, value);
-    giraphSetParameters.set(name, get(name, value));
-  }
-
-  @Override
-  public void setInt(String name, int value) {
-    super.setInt(name, value);
-    giraphSetParameters.setInt(name, value);
-  }
-
-  @Override
-  public void setLong(String name, long value) {
-    super.setLong(name, value);
-    giraphSetParameters.setLong(name, value);
-  }
-
-  @Override
-  public void setFloat(String name, float value) {
-    super.setFloat(name, value);
-    giraphSetParameters.setFloat(name, value);
-  }
-
-  @Override
-  public void setBoolean(String name, boolean value) {
-    super.setBoolean(name, value);
-    giraphSetParameters.setBoolean(name, value);
-  }
-
-  @Override
-  public void setBooleanIfUnset(String name, boolean value) {
-    super.setBooleanIfUnset(name, value);
-    giraphSetParameters.setBoolean(name, getBoolean(name, value));
-  }
-
-  @Override
-  public void setClass(String name, Class<?> theClass, Class<?> xface) {
-    super.setClass(name, theClass, xface);
-    giraphSetParameters.setClass(name, theClass, xface);
-  }
-
-  /**
    * Get the output directory to write YourKit snapshots to
+   *
    * @param context Map context
    * @return output directory
    */

@@ -19,7 +19,17 @@
 package org.apache.giraph.comm.messages;
 
 import org.apache.giraph.bsp.CentralizedServiceWorker;
+import org.apache.giraph.combiner.Combiner;
+import org.apache.giraph.comm.messages.primitives.IntByteArrayMessageStore;
+import org.apache.giraph.comm.messages.primitives.IntFloatMessageStore;
+import org.apache.giraph.comm.messages.primitives.LongByteArrayMessageStore;
+import org.apache.giraph.comm.messages.primitives.LongDoubleMessageStore;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.factories.MessageValueFactory;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
@@ -35,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class InMemoryMessageStoreFactory<I extends WritableComparable,
     M extends Writable>
-    implements MessageStoreFactory<I, M, MessageStoreByPartition<I, M>> {
+    implements MessageStoreFactory<I, M, MessageStore<I, M>> {
   /** Class logger */
   private static final Logger LOG =
       Logger.getLogger(InMemoryMessageStoreFactory.class);
@@ -56,21 +66,51 @@ public class InMemoryMessageStoreFactory<I extends WritableComparable,
   }
 
   @Override
-  public MessageStoreByPartition<I, M> newStore(Class<M> messageClass) {
+  public MessageStore<I, M> newStore(
+      MessageValueFactory<M> messageValueFactory) {
+    Class<M> messageClass = messageValueFactory.getMessageValueClass();
+    MessageStore messageStore;
     if (conf.useCombiner()) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("newStore: " +
-            "Using OneMessagePerVertexStore with " + conf.getCombinerClass());
+      Class<I> vertexIdClass = conf.getVertexIdClass();
+      if (vertexIdClass.equals(IntWritable.class) &&
+          messageClass.equals(FloatWritable.class)) {
+        messageStore = new IntFloatMessageStore(
+            (CentralizedServiceWorker<IntWritable, ?, ?>) service,
+            (Combiner<IntWritable, FloatWritable>)
+                conf.<FloatWritable>createCombiner());
+      } else if (vertexIdClass.equals(LongWritable.class) &&
+          messageClass.equals(DoubleWritable.class)) {
+        messageStore = new LongDoubleMessageStore(
+            (CentralizedServiceWorker<LongWritable, ?, ?>) service,
+            (Combiner<LongWritable, DoubleWritable>)
+                conf.<DoubleWritable>createCombiner());
+      } else {
+        messageStore = new OneMessagePerVertexStore<I, M>(messageValueFactory,
+          service, conf.<M>createCombiner(), conf);
       }
-      return new OneMessagePerVertexStore<I, M>(
-          messageClass, service, conf.<M>createCombiner(), conf);
     } else {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("newStore: " +
-            "Using ByteArrayMessagesPerVertexStore since there is no combiner");
+      Class<I> vertexIdClass = conf.getVertexIdClass();
+      if (vertexIdClass.equals(IntWritable.class)) {
+        messageStore = new IntByteArrayMessageStore<M>(messageValueFactory,
+            (CentralizedServiceWorker<IntWritable, ?, ?>) service,
+            (ImmutableClassesGiraphConfiguration<IntWritable, ?, ?>) conf);
+      } else if (vertexIdClass.equals(LongWritable.class)) {
+        messageStore = new LongByteArrayMessageStore<M>(messageValueFactory,
+            (CentralizedServiceWorker<LongWritable, ?, ?>) service,
+            (ImmutableClassesGiraphConfiguration<LongWritable, ?, ?>) conf);
+      } else {
+        messageStore = new ByteArrayMessagesPerVertexStore<I, M>(
+          messageValueFactory, service, conf);
       }
-      return new ByteArrayMessagesPerVertexStore<I, M>(
-          messageClass, service, conf);
     }
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("newStore: Created " + messageStore.getClass() +
+          " for vertex id " + conf.getVertexIdClass() +
+          " and message value " + messageClass + " and" +
+          (conf.useCombiner() ? " combiner " + conf.getCombinerClass() :
+              " no combiner"));
+    }
+    return (MessageStore<I, M>) messageStore;
   }
 }

@@ -18,19 +18,21 @@
 
 package org.apache.giraph.utils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.apache.giraph.bsp.BspInputSplit;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * An input format that reads the input graph in memory. Used for unit tests.
@@ -52,6 +54,8 @@ public class InMemoryVertexInputFormat<I extends WritableComparable,
   public static TestGraph getGraph() {
     return GRAPH;
   }
+
+  @Override public void checkInputSpecs(Configuration conf) { }
 
   @Override
   public List<InputSplit> getSplits(JobContext context, int minSplitCountHint)

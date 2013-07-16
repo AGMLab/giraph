@@ -1,6 +1,72 @@
 Giraph Change Log
 
 Release 1.1.0 - unreleased
+  GIRAPH-718: Output all per-superstep metrics per superstep (majakabiljo)
+
+  GIRAPH-716: Stop modifying Configuration since it's not thread-safe (majakabiljo)
+
+  GIRAPH-715: Fix MessageValueFactory performance regression (nitay)
+
+  GIRAPH-709: More flexible Jython script loading (nitay)
+
+  GIRAPH-708: Factories for creation of all IVEM types (nitay)
+
+  GIRAPH-710: Define zookeeper version in a property to allow build time
+  override (apurtell via nitay)
+
+  GIRAPH-705: Type converters and giraph-hive cleanup (nitay)
+
+  GIRAPH-704: Specialized message stores (majakabiljo)
+
+  GIRAPH-703: create an appropriate way to generate the options.html page using maven.
+  (armax00 via claudio)
+
+  GIRAPH-702: Fix multithreaded output (majakabiljo)
+
+  GIRAPH-676: A short tutorial on getting started with Giraph (boshmaf via claudio)
+
+  GIRAPH-698: Expose Computation to a user (aching)
+
+  GIRAPH-311: Master halting in superstep 0 is ignored by workers (majakabiljo)
+
+  GIRAPH-688: Make sure Giraph builds against all compatible YARN-enabled Hadoop versions,
+  warns if none set, works w/new 1.1.0 line (ereisman)
+
+  GIRAPH-693: Giraph-Hive check user code as soon as possible (nitay)
+
+  GIRAPH-697: Clean up message stores (majakabiljo)
+
+  GIRAPH-696: Should be able to spill giraph metrics to a specified 
+  directory on HDFS (claudio)
+
+  GIRAPH-695: Add getCombiner and getComputation methods for 
+  MasterCompute (aching)
+
+  GIRAPH-623: Website Documentation: table of parameters (armax00 via nitay)
+
+  GIRAPH-694: Setting configuration in GiraphConfiguration causes 
+  non thread safe copies (aching)
+
+  GIRAPH-683: Jython for Computation (nitay)
+
+  GIRAPH-673: Input superstep should support aggregators like any 
+  other superstep (Bingjing via aching)
+
+  GIRAPH-686: DiskBackedPartitionStore does not saveVertex after edges 
+  are loaded (claudio)
+
+  GIRAPH-681: Graphviz Output Format (nitay)
+
+  GIRAPH-468: Make Vertex an Interface (nitay)
+
+  GIRAPH-667: all workers suspended at 'saveVertices' when use 
+  out of core (claudio)
+
+  GIRAPH-670: [easy] Example Max Computation (nitay)
+
+  GIRAPH-675: Mutable edge iterator gets corrupted by calling
+  vertex.getNumEdges() during iteration (apresta)
+
   GIRAPH-512: JavaDoc warnings (emre.aladag via nitay)
 
   GIRAPH-620: Website Documentation: How to use Hive I/O with Giraph (nitay)

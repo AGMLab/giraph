@@ -21,9 +21,10 @@ package org.apache.giraph.graph;
 import org.apache.giraph.bsp.BspService;
 import org.apache.giraph.bsp.CentralizedServiceMaster;
 import org.apache.giraph.bsp.CentralizedServiceWorker;
-import org.apache.giraph.comm.messages.MessageStoreByPartition;
+import org.apache.giraph.comm.messages.MessageStore;
 import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.scripting.ScriptLoader;
 import org.apache.giraph.master.BspServiceMaster;
 import org.apache.giraph.master.MasterAggregatorUsage;
 import org.apache.giraph.master.MasterThread;
@@ -40,7 +41,6 @@ import org.apache.giraph.time.Time;
 import org.apache.giraph.utils.CallableFactory;
 import org.apache.giraph.utils.MemoryUtils;
 import org.apache.giraph.utils.ProgressableUtils;
-import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.worker.BspServiceWorker;
 import org.apache.giraph.worker.InputSplitsCallable;
 import org.apache.giraph.worker.WorkerContext;
@@ -58,7 +58,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -69,12 +68,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.giraph.conf.GiraphConstants.EDGE_VALUE_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.INCOMING_MESSAGE_VALUE_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_ID_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_VALUE_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.OUTGOING_MESSAGE_VALUE_CLASS;
 
 /**
  * The Giraph-specific business logic for a single BSP
@@ -169,19 +162,41 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
   }
 
   /**
+   * Run the user's input checking code.
+   */
+  private void checkInput() {
+    if (conf.hasEdgeInputFormat()) {
+      conf.createWrappedEdgeInputFormat().checkInputSpecs(conf);
+    }
+    if (conf.hasVertexInputFormat()) {
+      conf.createWrappedVertexInputFormat().checkInputSpecs(conf);
+    }
+  }
+
+  /**
    * Called by owner of this GraphTaskManager on each compute node
+   *
    * @param zkPathList the path to the ZK jars we need to run the job
    */
   public void setup(Path[] zkPathList)
     throws IOException, InterruptedException {
     context.setStatus("setup: Beginning worker setup.");
-    conf = new ImmutableClassesGiraphConfiguration<I, V, E>(
-      context.getConfiguration());
-    determineClassTypes(conf);
+    Configuration hadoopConf = context.getConfiguration();
+    conf = new ImmutableClassesGiraphConfiguration<I, V, E>(hadoopConf);
+    // Write user's graph types (I,V,E,M) back to configuration parameters so
+    // that they are set for quicker access later. These types are often
+    // inferred from the Computation class used.
+    conf.getGiraphTypes().writeIfUnset(conf);
     // configure global logging level for Giraph job
     initializeAndConfigureLogging();
     // init the metrics objects
     setupAndInitializeGiraphMetrics();
+    // Check input
+    checkInput();
+    // Load any scripts that were deployed
+    ScriptLoader.loadScripts(conf);
+    // One time setup for computation factory
+    conf.createComputationFactory().initialize(conf);
     // Do some task setup (possibly starting up a Zookeeper service)
     context.setStatus("setup: Initializing Zookeeper services.");
     locateZookeeperClasspath(zkPathList);
@@ -237,7 +252,7 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
     int numComputeThreads = conf.getNumComputeThreads();
 
     // main superstep processing loop
-    do {
+    while (!finishedSuperstepStats.allVerticesHalted()) {
       final long superstep = serviceWorker.getSuperstep();
       GiraphTimerContext superstepTimerContext =
         getTimerForThisSuperstep(superstep);
@@ -256,7 +271,7 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
       graphState = checkSuperstepRestarted(superstep, graphState);
       prepareForSuperstep(graphState);
       context.progress();
-      MessageStoreByPartition<I, Writable> messageStore =
+      MessageStore<I, Writable> messageStore =
         serviceWorker.getServerData().getCurrentMessageStore();
       int numPartitions = serviceWorker.getPartitionStore().getNumPartitions();
       int numThreads = Math.min(numComputeThreads, numPartitions);
@@ -274,7 +289,7 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
       finishedSuperstepStats = completeSuperstepAndCollectStats(
         partitionStatsList, superstepTimerContext);
       // END of superstep compute loop
-    } while (!finishedSuperstepStats.allVerticesHalted());
+    }
 
     if (LOG.isInfoEnabled()) {
       LOG.info("execute: BSP application done (global vertices marked done)");
@@ -435,32 +450,6 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
 
   public final WorkerContext getWorkerContext() {
     return serviceWorker.getWorkerContext();
-  }
-
- /**
-   * Set the concrete, user-defined choices about generic methods
-   * (validated earlier in GiraphRunner) into the Configuration.
-   * @param conf the Configuration object for this job run.
-   */
-  public void determineClassTypes(Configuration conf) {
-    ImmutableClassesGiraphConfiguration giraphConf =
-        new ImmutableClassesGiraphConfiguration(conf);
-    Class<? extends Computation<I, V, E, Writable, Writable>> computationClass =
-        giraphConf.getComputationClass();
-    List<Class<?>> classList = ReflectionUtils.<Computation>getTypeArguments(
-        Computation.class, computationClass);
-    Type vertexIndexType = classList.get(0);
-    Type vertexValueType = classList.get(1);
-    Type edgeValueType = classList.get(2);
-    Type incomingMessageValueType = classList.get(3);
-    Type outgoingMessageValueType = classList.get(4);
-    VERTEX_ID_CLASS.set(conf, (Class<WritableComparable>) vertexIndexType);
-    VERTEX_VALUE_CLASS.set(conf, (Class<Writable>) vertexValueType);
-    EDGE_VALUE_CLASS.set(conf, (Class<Writable>) edgeValueType);
-    INCOMING_MESSAGE_VALUE_CLASS.set(conf,
-        (Class<Writable>) incomingMessageValueType);
-    OUTGOING_MESSAGE_VALUE_CLASS.set(conf,
-        (Class<Writable>) outgoingMessageValueType);
   }
 
   /**
@@ -720,7 +709,7 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
   private void processGraphPartitions(final Mapper<?, ?, ?, ?>.Context context,
       List<PartitionStats> partitionStatsList,
       final GraphState graphState,
-      final MessageStoreByPartition<I, Writable> messageStore,
+      final MessageStore<I, Writable> messageStore,
       int numPartitions,
       int numThreads) {
     final BlockingQueue<Integer> computePartitionIdQueue =
@@ -800,6 +789,9 @@ public class GraphTaskManager<I extends WritableComparable, V extends Writable,
         !inputSuperstepStats.mustLoadCheckpoint()) {
       LOG.warn("map: No vertices in the graph, exiting.");
       return true;
+    }
+    if (conf.metricsEnabled()) {
+      GiraphMetrics.get().perSuperstep().printSummary(System.err);
     }
     return false;
   }
