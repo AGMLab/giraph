@@ -31,7 +31,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link org.apache.giraph.examples.LinkRank.LinkRankVertex}
+ * Tests for {@link org.apache.giraph.examples.LinkRank.LinkRankComputation}
  */
 public class LinkRankComputationTest {
   private static final Logger log = Logger.getLogger(LinkRankVertex.class);
@@ -61,8 +61,9 @@ public class LinkRankComputationTest {
     conf.setVertexOutputFormatClass(
             LinkRankVertexOutputFormat.class);
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
-    conf.setInt("giraph.linkRank.superstepCount", 40);
-    //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
+    conf.setInt("giraph.linkRank.superstepCount", 10);
+    conf.setInt("giraph.linkRank.scale", 10);
+    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
@@ -76,9 +77,9 @@ public class LinkRankComputationTest {
       log.info(result);
     }
 
-    assertEquals("a scores are not the same", 0.19757964896759084d, hm.get("a"), DELTA);
-    assertEquals("b scores are not the same", 0.28155100077907663d, hm.get("b"), DELTA);
-    assertEquals("c scores are not the same", 0.5208693502533326d, hm.get("c"), DELTA);
+    assertEquals("a scores are not the same", 1.3532697878967404d, hm.get("a"), DELTA);
+    assertEquals("b scores are not the same", 4.139916964074876d, hm.get("b"), DELTA);
+    assertEquals("c scores are not the same", 9.06389778197704d, hm.get("c"), DELTA);
 
   }
 
@@ -105,7 +106,8 @@ public class LinkRankComputationTest {
             LinkRankVertexOutputFormat.class);
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.linkRank.superstepCount", 10);
-    //conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
+    conf.setInt("giraph.linkRank.scale", 10);
+    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
@@ -117,7 +119,7 @@ public class LinkRankComputationTest {
       log.info(result);
     }
 
-    assertEquals("a scores are not the same", hm.get("a"), 0.5d, DELTA);
-    assertEquals("b scores are not the same", hm.get("b"), 0.5d, DELTA);
+    assertEquals("a scores are not the same", hm.get("a"), 5.0d, DELTA);
+    assertEquals("b scores are not the same", hm.get("b"), 5.0d, DELTA);
   }
 }
