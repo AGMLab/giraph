@@ -22,10 +22,7 @@ package org.apache.giraph.examples;
 import org.apache.giraph.BspCase;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.edge.ByteArrayEdges;
-import org.apache.giraph.examples.LinkRank.LinkRankComputation;
-import org.apache.giraph.examples.LinkRank.LinkRankVertexMasterCompute;
-import org.apache.giraph.examples.LinkRank.NutchTableEdgeInputFormat;
-import org.apache.giraph.examples.LinkRank.NutchTableEdgeOutputFormat;
+import org.apache.giraph.examples.LinkRank.*;
 import org.apache.giraph.job.GiraphJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -172,10 +169,12 @@ public class LinkRankHBaseTest extends BspCase {
       setupConfiguration(giraphJob);
       giraphConf.setComputationClass(LinkRankComputation.class);
       giraphConf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
+      giraphConf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
       giraphConf.setVertexInputFormatClass(NutchTableEdgeInputFormat.class);
       giraphConf.setVertexOutputFormatClass(NutchTableEdgeOutputFormat.class);
       giraphConf.setInt("giraph.linkRank.superstepCount", 10);
+      giraphConf.setInt("giraph.linkRank.scale", 10);
 
       assertTrue(giraphJob.run(true));
 
@@ -188,9 +187,9 @@ public class LinkRankHBaseTest extends BspCase {
       String key;
       byte[] calculatedScoreByte;
       HashMap actualValues = new HashMap<String, Double>();
-      actualValues.put("com.google.www:http/", 0.19757964896759084d);
-      actualValues.put("com.yahoo.www:http/", 0.28155100077907663d);
-      actualValues.put("com.bing.www:http/", 0.5208645820209628d);
+      actualValues.put("com.google.www:http/", 1.3532596387335916d);
+      actualValues.put("com.yahoo.www:http/", 4.139945614575113d);
+      actualValues.put("com.bing.www:http/", 9.063893290511482d);
 
       for (Object keyObject : actualValues.keySet()){
         key = keyObject.toString();

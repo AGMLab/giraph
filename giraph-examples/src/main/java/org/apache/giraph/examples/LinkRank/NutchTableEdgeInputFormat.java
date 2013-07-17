@@ -24,6 +24,7 @@ import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexReader;
 import org.apache.giraph.io.hbase.HBaseVertexInputFormat;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
@@ -72,6 +73,10 @@ public class NutchTableEdgeInputFormat extends
 
     return new NutchTableEdgeVertexReader(split, context);
 
+  }
+
+  @Override
+  public void checkInputSpecs(Configuration conf) {
   }
 
   /**

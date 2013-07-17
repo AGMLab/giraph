@@ -19,7 +19,7 @@
 package org.apache.giraph.examples.LinkRank;
 
 import org.apache.giraph.examples.Algorithm;
-import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.graph.DefaultVertex;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 @Algorithm(
         name = "LinkRank"
 )
-public class LinkRankVertex extends Vertex<Text, DoubleWritable,
+public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
         NullWritable> {
   /**
    * Number of supersteps this vertex will be involved in.
@@ -50,7 +50,7 @@ public class LinkRankVertex extends Vertex<Text, DoubleWritable,
    * Damping factor, by default 0.85.
    */
   public static final String DAMPING_FACTOR =
-          "giraph.pageRank.dampingFactor";
+          "giraph.linkRank.dampingFactor";
 
   /**
    * Sum aggregator name.
@@ -68,6 +68,28 @@ public class LinkRankVertex extends Vertex<Text, DoubleWritable,
    * Max aggregator name.
    */
   protected static final String DANGLING_AGG = "dangling";
+
+  /**
+   * Sum of log(vertex.value)
+   */
+  protected static final String LOG_SUM = "logsum";
+  /**
+  * Sum of deviation of scores from mean.
+  */
+  protected static final String DEV_SUM = "devsum";
+  /**
+  * Standard deviation
+  */
+  protected static final String STDEV = "stdev";
+  /**
+   * Average of log scores.
+   */
+  protected static final String LOG_AVG = "logavg";
+
+  /**
+   * Scale of the score. If set to 10, score will be in range [0, 10].
+   */
+  protected static final String SCALE = "giraph.linkRank.scale";
 
   /**
    * Logger.

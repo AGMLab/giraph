@@ -41,6 +41,15 @@ public class LinkRankVertexMasterCompute extends
     registerPersistentAggregator(
             LinkRankVertex.MAX_AGG, DoubleMaxAggregator.class);
 
+    registerPersistentAggregator(
+            LinkRankVertex.LOG_SUM, DoubleSumAggregator.class);
+    registerPersistentAggregator(
+            LinkRankVertex.DEV_SUM, DoubleSumAggregator.class);
+    registerPersistentAggregator(
+            LinkRankVertex.LOG_AVG, DoubleSumAggregator.class);
+    registerPersistentAggregator(
+            LinkRankVertex.STDEV, DoubleSumAggregator.class);
+
     registerAggregator(LinkRankVertex.DANGLING_AGG, DoubleSumAggregator.class);
   }
 }
