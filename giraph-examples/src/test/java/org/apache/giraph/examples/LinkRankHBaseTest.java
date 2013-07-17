@@ -187,8 +187,8 @@ public class LinkRankHBaseTest extends BspCase {
       String key;
       byte[] calculatedScoreByte;
       HashMap actualValues = new HashMap<String, Double>();
-      actualValues.put("com.google.www:http/", 1.3532596387335916d);
-      actualValues.put("com.yahoo.www:http/", 4.139945614575113d);
+      actualValues.put("com.google.www:http/", 1.3515060339386287d);
+      actualValues.put("com.yahoo.www:http/", 4.144902009567587d);
       actualValues.put("com.bing.www:http/", 9.063893290511482d);
 
       for (Object keyObject : actualValues.keySet()){

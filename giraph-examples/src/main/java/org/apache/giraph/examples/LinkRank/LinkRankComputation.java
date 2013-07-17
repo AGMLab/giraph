@@ -72,7 +72,6 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     */
     if (superStep == 0) {
       removeDuplicateLinks(vertex);
-      normalizeInitialScore(vertex);
     } else if (1 <= superStep && superStep <= maxSteps - 4) {
       // find the score sum received from our neighbors.
       for (DoubleWritable message : messages) {
@@ -175,23 +174,6 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     Double danglingSum = d.get();
     Double contribution = danglingSum / getTotalNumVertices();
     return contribution;
-  }
-
-  /**
-   * Normalizes vertex values to 1/N if the vertex's value is 1.0d.
-   *
-   * @param vertex vertex object to normalize score
-   */
-  private void normalizeInitialScore(Vertex<Text, DoubleWritable,
-          NullWritable> vertex) {
-    Double score = vertex.getValue().get();
-    if (score == 1.0d) {
-      // if the scores are set as 1.0 for each vertex by
-      // NutchTableEdgeInputFormat, then assign score of
-      // 1/N to each of them.
-      score /= getTotalNumVertices();
-      vertex.setValue(new DoubleWritable(score));
-    }
   }
 
   /**
