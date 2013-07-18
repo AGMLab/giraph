@@ -134,21 +134,19 @@ public class HostRankHBaseTest extends BspCase {
        */
 
       HTable table = new HTable(conf, TABLE_NAME);
-      Put p1 = new Put(Bytes.toBytes("com.google.www:http/"));
+      Put p1 = new Put(Bytes.toBytes("com.google.www:http/test0/"));
       //ol:b
       p1.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
       //s:S
-      p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
-      Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
+      Put p2 = new Put(Bytes.toBytes("com.google.www:http/test0/"));
       p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/test2"), Bytes.toBytes("ac"));
 
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/test"), Bytes.toBytes("bc"));
-      p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
-      p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
 
       table.put(p1);
       table.put(p2);
