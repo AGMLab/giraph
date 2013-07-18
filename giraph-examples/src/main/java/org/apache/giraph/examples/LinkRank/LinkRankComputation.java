@@ -71,7 +71,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       ============ RECEIVING MESSAGES PART ===========
     */
     if (superStep == 0) {
-      removeDuplicateLinks(vertex);
+      //removeDuplicateLinks(vertex);
     } else if (1 <= superStep && superStep <= maxSteps - 4) {
       // find the score sum received from our neighbors.
       for (DoubleWritable message : messages) {
@@ -160,6 +160,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
         aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
       }
     } else {
+      LOG.info("[Score] " + vertex.getId() + "=" + vertex.getValue().get());
       vertex.voteToHalt();
     }
   }
