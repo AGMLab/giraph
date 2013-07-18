@@ -119,11 +119,11 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       DoubleWritable stdev = getAggregatedValue(LinkRankVertex.STDEV);
       double newValue = 1.0d;
       double stdevValue = stdev.get();
-      if (stdevValue == 0.0d){
+      if (stdevValue == 0.0d) {
         stdevValue = 1e-10;
       }
       NormalDistribution dist = new NormalDistributionImpl(
-              logAvg.get(), stdevValue );
+              logAvg.get(), stdevValue);
       try {
         double cdf = dist.cumulativeProbability(logValueDouble);
         newValue = cdf * scale;

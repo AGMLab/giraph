@@ -18,29 +18,25 @@
 
 
 package org.apache.giraph.examples.LinkRank;
-
-import org.apache.giraph.io.formats.TextVertexValueInputFormat;
 import org.apache.giraph.utils.TextDoublePair;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 /**
  * Vertex Input Format for LinkRank.
+ * Reads only URLs, not scores.
+ * Assigns a default score of 1 to each URL.
  * Example record:
- * http://www.site.com 1.0
+ * http://www.site.com
  *
  * @param <E> Edge data format
  * @param <M> Message data format
  */
 public class LinkRankVertexUniformInputFormat<E extends NullWritable,
-        M extends DoubleWritable> extends
-        LinkRankVertexInputFormat {
+   M extends DoubleWritable> extends
+   LinkRankVertexInputFormat {
    /**
      * Returns the value of the vertex.
      * @param data TextDoublePair including Text ID and Double Value
