@@ -62,6 +62,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     long superStep = getSuperstep();
     int maxSteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
     int scale = getConf().getInt(LinkRankVertex.SCALE, 10);
+    boolean removeDuplicates = getConf().getBoolean(
+            LinkRankVertex.REMOVE_DUPLICATES, false);
     int edgeCount = 0;
     double sum = 0.0d;
     float dampingFactor = getConf().getFloat(
@@ -71,10 +73,12 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       ============ RECEIVING MESSAGES PART ===========
     */
     if (superStep == 0) {
-      //removeDuplicateLinks(vertex);
       LOG.info("=============" + vertex.getId());
       for (Edge e: vertex.getEdges()){
           LOG.info("=== edge: " + e.getTargetVertexId());
+      }
+      if (removeDuplicates){
+        removeDuplicateLinks(vertex);
       }
     } else if (1 <= superStep && superStep <= maxSteps - 4) {
       // find the score sum received from our neighbors.

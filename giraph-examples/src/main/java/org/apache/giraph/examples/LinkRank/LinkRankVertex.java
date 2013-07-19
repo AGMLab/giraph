@@ -92,6 +92,11 @@ public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
   protected static final String SCALE = "giraph.linkRank.scale";
 
   /**
+   * Whether to attempt duplicate links or not.
+   */
+  protected static final String REMOVE_DUPLICATES = "giraph.linkRank.removeDuplicates";
+
+  /**
    * Logger.
    */
   private static final Logger LOG = Logger.getLogger(LinkRankVertex.class);
