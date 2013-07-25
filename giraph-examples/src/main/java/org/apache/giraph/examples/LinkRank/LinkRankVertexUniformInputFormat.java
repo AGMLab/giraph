@@ -35,15 +35,15 @@ import java.io.IOException;
  * @param <M> Message data format
  */
 public class LinkRankVertexUniformInputFormat<E extends NullWritable,
-   M extends DoubleWritable> extends
-   LinkRankVertexInputFormat {
-   /**
-     * Returns the value of the vertex.
-     * @param data TextDoublePair including Text ID and Double Value
-     * @return Value of the node
-     * @throws java.io.IOException
-     */
-    protected DoubleWritable getValue(TextDoublePair data) throws IOException {
-      return new DoubleWritable(1.0d);
-    }
+  M extends DoubleWritable> extends
+  LinkRankVertexInputFormat {
+  /**
+    * Returns the value of the vertex.
+    * @param data TextDoublePair including Text ID and Double Value
+    * @return Value of the node
+    * @throws java.io.IOException
+    */
+  protected DoubleWritable getValue(TextDoublePair data) throws IOException {
+    return new DoubleWritable(1.0d);
+  }
 }

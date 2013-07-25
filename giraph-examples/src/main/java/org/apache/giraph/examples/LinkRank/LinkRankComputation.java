@@ -74,10 +74,10 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     */
     if (superStep == 0) {
       LOG.info("=============" + vertex.getId());
-      for (Edge e: vertex.getEdges()){
-          LOG.info("=== edge: " + e.getTargetVertexId());
+      for (Edge e: vertex.getEdges()) {
+        LOG.info("=== edge: " + e.getTargetVertexId());
       }
-      if (removeDuplicates){
+      if (removeDuplicates) {
         removeDuplicateLinks(vertex);
       }
     } else if (1 <= superStep && superStep <= maxSteps - 4) {

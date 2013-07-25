@@ -20,6 +20,7 @@ package org.apache.giraph.examples.LinkRank;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexWriter;
 import org.apache.giraph.io.hbase.HBaseVertexOutputFormat;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -73,11 +74,11 @@ public class NutchTableEdgeOutputFormat
     /**
      * Score family "s"
      */
-    private static final byte[] SCORE_FAMILY = Bytes.toBytes("s");
+    private static byte[] SCORE_FAMILY = Bytes.toBytes("s");
     /**
      * Score qualifier "pagerank". Calculated scores will be written here.
      */
-    private static final byte[] PAGERANK_QUALIFIER = Bytes.toBytes("linkrank");
+    private static byte[] LINKRANK_QUALIFIER = Bytes.toBytes("linkrank");
 
     /**
      * Constructor for NutchTableEdgeVertexWriter
@@ -88,6 +89,12 @@ public class NutchTableEdgeOutputFormat
     public NutchTableEdgeVertexWriter(TaskAttemptContext context)
       throws IOException, InterruptedException {
       super(context);
+      Configuration conf = context.getConfiguration();
+      String fStr = conf.get("giraph.linkRank.family", "s");
+      SCORE_FAMILY = Bytes.toBytes(fStr);
+
+      String qStr = conf.get("giraph.linkRank.qualifier", "linkrank");
+      LINKRANK_QUALIFIER = Bytes.toBytes(qStr);
     }
 
     /**
@@ -107,7 +114,7 @@ public class NutchTableEdgeOutputFormat
       String valueStr = Double.toString(value);
       byte[] valueBytes = Bytes.toBytes(value);
       if (valueStr.length() > 0) {
-        put.add(SCORE_FAMILY, PAGERANK_QUALIFIER, valueBytes);
+        put.add(SCORE_FAMILY, LINKRANK_QUALIFIER, valueBytes);
         writer.write(new ImmutableBytesWritable(rowBytes), put);
       }
     }
