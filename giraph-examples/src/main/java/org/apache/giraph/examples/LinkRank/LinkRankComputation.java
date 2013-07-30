@@ -24,6 +24,7 @@ import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -63,7 +64,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     int maxSteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
     int scale = getConf().getInt(LinkRankVertex.SCALE, 10);
     boolean removeDuplicates = getConf().getBoolean(
-            LinkRankVertex.REMOVE_DUPLICATES, false);
+            LinkRankVertex.REMOVE_DUPLICATES, true);
     int edgeCount = 0;
     double sum = 0.0d;
     float dampingFactor = getConf().getFloat(
@@ -85,6 +86,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       for (DoubleWritable message : messages) {
         sum += message.get();
       }
+
       DoubleWritable vertexValueWritable = vertex.getValue();
       Double newValue =
               ((1f - dampingFactor) / getTotalNumVertices()) +
@@ -130,6 +132,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       if (stdevValue == 0.0d) {
         stdevValue = 1e-10;
       }
+
       NormalDistribution dist = new NormalDistributionImpl(
               logAvg.get(), stdevValue);
       try {
@@ -193,16 +196,18 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   public void removeDuplicateLinks(Vertex<Text, DoubleWritable,
           NullWritable> vertex) {
+    LOG.info("Duplicate Link Removal starts...");
+    String sourceUrl = Bytes.toString(vertex.getId().getBytes()).trim();
+    LOG.info("Source:" + sourceUrl);
     String targetUrl;
     Set<String> urls = new HashSet<String>();
 
     Iterable<Edge<Text, NullWritable>> outgoingEdges = vertex.getEdges();
 
     for (Edge<Text, NullWritable> edge : outgoingEdges) {
-      targetUrl = edge.getTargetVertexId().toString();
-      // if we haven't encountered this outgoing URL,
-      // add it to urls set.
-      if (!urls.contains(targetUrl)) {
+      targetUrl = edge.getTargetVertexId().toString().trim();
+      // if source != target (avoid self-links)
+      if (!targetUrl.equalsIgnoreCase(sourceUrl)) {
         urls.add(targetUrl);
       }
     }

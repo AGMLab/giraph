@@ -18,7 +18,6 @@
 package org.apache.giraph.examples.LinkRank;
 
 import com.google.common.collect.Lists;
-
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
@@ -45,14 +44,14 @@ import static org.apache.giraph.examples.LinkRank.TableUtil.unreverseUrl;
  *  HBase Input Format for LinkRank.
  *  Reads edges and scores of web pages from HBase.
  */
-public class NutchTableEdgeInputFormat extends
+public class NutchHostEdgeInputFormat extends
     HBaseVertexInputFormat<Text, DoubleWritable, NullWritable> {
 
   /**
    * Logger
    */
   private static final Logger LOG =
-      Logger.getLogger(NutchTableEdgeInputFormat.class);
+      Logger.getLogger(NutchHostEdgeInputFormat.class);
 
   /**
    * Reusable NullWritable for edge value.
@@ -65,7 +64,7 @@ public class NutchTableEdgeInputFormat extends
    * @param split the split to be read
    * @param context the information about the task
    * @return VertexReader for LinkRank
-   * @throws IOException
+   * @throws java.io.IOException
    */
   public VertexReader<Text, DoubleWritable, NullWritable>
   createVertexReader(InputSplit split,
@@ -105,7 +104,7 @@ public class NutchTableEdgeInputFormat extends
      * VertexReader for LinkRank
      * @param split InputSplit
      * @param context Context
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public NutchTableEdgeVertexReader(InputSplit split,
                                       TaskAttemptContext context)
@@ -116,7 +115,7 @@ public class NutchTableEdgeInputFormat extends
     /**
      * Returns if any vertex is remaining in the db.
      * @return if there still exists a remaining vertex.
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws InterruptedException
      */
     @Override
@@ -133,10 +132,16 @@ public class NutchTableEdgeInputFormat extends
     public String getSource(String hostname) {
       int colonIndex = hostname.indexOf(":");
       int dotIndex = hostname.indexOf(".");
+      if (colonIndex == -1) {
+        // it does not have http in it.
+        hostname += ":http/";
+        colonIndex = hostname.indexOf(":");
+      }
       // if it's reversed, unreverse it.
       if (dotIndex < colonIndex) {
         hostname = unreverseUrl(hostname);
       }
+      LOG.info(hostname);
       return hostname;
     }
 
@@ -144,7 +149,7 @@ public class NutchTableEdgeInputFormat extends
      * For each row, create a vertex with the row ID as a text,
      * and it's 'children' qualifier as a single edge.
      * @return current vertex read in the database.
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws InterruptedException
      */
     @Override
@@ -187,7 +192,8 @@ public class NutchTableEdgeInputFormat extends
         // Extract targetURL (key), Weight (value) from the key, value pair.
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
         // Convert targetURL into Text format and add to edges list.
-        String target = Bytes.toString((byte[]) pair.getKey());
+        String target = "http://" + Bytes.toString((byte[]) pair.getKey()) +
+                "/";
         Text edgeId = new Text(target);
         edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
       }

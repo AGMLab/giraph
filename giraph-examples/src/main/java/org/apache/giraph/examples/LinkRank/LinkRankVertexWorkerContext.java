@@ -69,7 +69,9 @@ public class LinkRankVertexWorkerContext extends
       DoubleWritable logsum = getAggregatedValue(LinkRankVertex.LOG_SUM);
       DoubleWritable d = new DoubleWritable(
               logsum.get() / getTotalNumVertices());
+
       aggregate(LinkRankVertex.LOG_AVG, d);
+
     } else if (superstep == maxSteps - 1) {
       /**
        * Calculate standart deviation with deviation sums DEV_SUM.
