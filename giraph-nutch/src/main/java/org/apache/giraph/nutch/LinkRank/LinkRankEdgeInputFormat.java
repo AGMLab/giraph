@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 
 import org.apache.giraph.io.EdgeReader;
 import org.apache.giraph.io.formats.TextEdgeInputFormat;

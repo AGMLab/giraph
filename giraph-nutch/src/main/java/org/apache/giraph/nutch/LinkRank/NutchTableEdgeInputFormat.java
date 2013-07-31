@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 
 import com.google.common.collect.Lists;
 
@@ -38,8 +38,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
-
-import static org.apache.giraph.examples.LinkRank.TableUtil.unreverseUrl;
 
 /**
  *  HBase Input Format for LinkRank.
@@ -135,7 +133,7 @@ public class NutchTableEdgeInputFormat extends
       int dotIndex = hostname.indexOf(".");
       // if it's reversed, unreverse it.
       if (dotIndex < colonIndex) {
-        hostname = unreverseUrl(hostname);
+        hostname = TableUtil.unreverseUrl(hostname);
       }
       return hostname;
     }

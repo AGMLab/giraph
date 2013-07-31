@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 
-import org.apache.giraph.examples.Algorithm;
+import org.apache.giraph.Algorithm;
 import org.apache.giraph.graph.DefaultVertex;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;

@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.examples;
+package org.apache.giraph.nutch;
 
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.edge.ByteArrayEdges;
-import org.apache.giraph.examples.LinkRank.*;
+import org.apache.giraph.nutch.LinkRank.*;
 import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link org.apache.giraph.examples.LinkRank.LinkRankComputation}
+ * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
  */
 public class LinkRankComputationTest {
   private static final Logger log = Logger.getLogger(LinkRankVertex.class);

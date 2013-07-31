@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 import org.apache.giraph.utils.TextDoublePair;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;

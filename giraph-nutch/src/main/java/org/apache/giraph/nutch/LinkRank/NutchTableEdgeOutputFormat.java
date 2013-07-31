@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexWriter;
@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-import static org.apache.giraph.examples.LinkRank.TableUtil.reverseUrl;
+import static org.apache.giraph.nutch.LinkRank.TableUtil.reverseUrl;
 
 
 /**

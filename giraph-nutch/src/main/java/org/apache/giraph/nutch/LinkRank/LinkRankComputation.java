@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.examples.LinkRank;
+package org.apache.giraph.nutch.LinkRank;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.NormalDistribution;
