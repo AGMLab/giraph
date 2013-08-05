@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * Simple text-based {@link org.apache.giraph.io.EdgeInputFormat} for
  * unweighted graphs with Text ids.
  * <p/>
- * Each line consists of: source_vertex, target_vertex
+ * Each line consists of (tab delimited): source_vertex target_vertex
  */
 public class LinkRankEdgeInputFormat extends
         TextEdgeInputFormat<Text, NullWritable> {

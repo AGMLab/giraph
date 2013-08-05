@@ -42,6 +42,7 @@ import java.util.NavigableMap;
 /**
  *  HBase Input Format for LinkRank.
  *  Reads edges and scores of web pages from HBase.
+ *  By default, table name should be given as 'webpage'.
  */
 public class Nutch2WebpageInputFormat extends
     HBaseVertexInputFormat<Text, DoubleWritable, NullWritable> {
@@ -56,7 +57,6 @@ public class Nutch2WebpageInputFormat extends
    * Reusable NullWritable for edge value.
    */
   private static final NullWritable USELESS_EDGE_VALUE = NullWritable.get();
-  //public static final String INPUT_TABLE = "giraph";
 
   /**
    * Creates a new VertexReader
@@ -90,14 +90,6 @@ public class Nutch2WebpageInputFormat extends
      *                       - ...
      */
     private static final byte[] OUTLINK_FAMILY = Bytes.toBytes("ol");
-
-    /**
-     * Score Family representative in HBase.
-     * http://www.source1.com - s:s 0.321403993
-     * http://www.source2.com - s:s 0.531403993
-     * ...
-     */
-    private static final byte[] SCORE_FAMILY = Bytes.toBytes("s");
 
     /**
      * VertexReader for LinkRank
@@ -165,10 +157,6 @@ public class Nutch2WebpageInputFormat extends
        */
       NavigableMap<byte[], byte[]> outlinkMap =
               row.getFamilyMap(OUTLINK_FAMILY);
-
-      // Get the score for SourceURL (current vertex) from s:s
-      //byte[] scoreByteValue = row.getValue(SCORE_FAMILY, SCORE_FAMILY);
-      //Double score = Bytes.toDouble(scoreByteValue);
 
       double score = 1.0d;
       // Create Writables for source URL and score value.

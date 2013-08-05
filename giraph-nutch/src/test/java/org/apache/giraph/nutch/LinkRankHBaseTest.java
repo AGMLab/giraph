@@ -45,6 +45,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 /**
+ * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
  * Test case for LinkRank reading edges and vertex scores
  * from HBase, calculates new scores and updates the HBase
  * Table again.
@@ -128,17 +129,15 @@ public class LinkRankHBaseTest extends BspCase {
       /**
        * Enter the initial data
        * (a,b), (b,c), (a,c)
-       * a = 0.33 - google
-       * b = 0.33 - yahoo
-       * c = 0.33 - bing
+       * a = 1.0 - google
+       * b = 1.0 - yahoo
+       * c = 1.0 - bing
        */
 
       HTable table = new HTable(conf, TABLE_NAME);
       Put p1 = new Put(Bytes.toBytes("com.google.www:http/"));
-      //ol:b
       p1.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
-      //s:S
-      p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
 
       Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
       p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
@@ -146,10 +145,10 @@ public class LinkRankHBaseTest extends BspCase {
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake"));
-      p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
-      p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
       p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake2"));
 
       Put p5 = new Put(Bytes.toBytes("afekomafke"));
@@ -160,7 +159,6 @@ public class LinkRankHBaseTest extends BspCase {
       table.put(p3);
       table.put(p4);
       table.put(p5);
-
 
       // Set Giraph configuration
       //now operate over HBase using Vertex I/O formats
@@ -204,7 +202,9 @@ public class LinkRankHBaseTest extends BspCase {
         calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_PAGERANK);
         assertNotNull(calculatedScoreByte);
         assertTrue(calculatedScoreByte.length > 0);
-        Assert.assertEquals("Scores are not the same", (Double)actualValues.get(key), Bytes.toDouble(calculatedScoreByte), DELTA);
+        Assert.assertEquals("Scores are not the same",
+                (Double)actualValues.get(key),
+                Bytes.toDouble(calculatedScoreByte), DELTA);
       }
     } finally {
       if (cluster != null) {

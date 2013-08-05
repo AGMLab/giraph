@@ -39,8 +39,9 @@ import java.util.List;
 import java.util.NavigableMap;
 
 /**
- *  HBase Input Format for LinkRank.
- *  Reads edges and scores of web pages from HBase.
+ *  HBase Input Format for HostRank.
+ *  Reads edges from HBase
+ *  Default table is "host" created by Nutch 2.x
  */
 public class Nutch2HostInputFormat extends
     HBaseVertexInputFormat<Text, DoubleWritable, NullWritable> {
@@ -55,7 +56,6 @@ public class Nutch2HostInputFormat extends
    * Reusable NullWritable for edge value.
    */
   private static final NullWritable USELESS_EDGE_VALUE = NullWritable.get();
-  //public static final String INPUT_TABLE = "giraph";
 
   /**
    * Creates a new VertexReader
@@ -89,14 +89,6 @@ public class Nutch2HostInputFormat extends
      *                       - ...
      */
     private static final byte[] OUTLINK_FAMILY = Bytes.toBytes("ol");
-
-    /**
-     * Score Family representative in HBase.
-     * http://www.source1.com - s:s 0.321403993
-     * http://www.source2.com - s:s 0.531403993
-     * ...
-     */
-    private static final byte[] SCORE_FAMILY = Bytes.toBytes("s");
 
     /**
      * VertexReader for LinkRank

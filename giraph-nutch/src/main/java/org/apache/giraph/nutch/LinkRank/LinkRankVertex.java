@@ -23,7 +23,6 @@ import org.apache.giraph.graph.DefaultVertex;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.log4j.Logger;
 
 /**
  * Vertex gets:
@@ -53,19 +52,7 @@ public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
           "giraph.linkRank.dampingFactor";
 
   /**
-   * Sum aggregator name.
-   */
-  protected static final String SUM_AGG = "sum";
-  /**
-   * Min aggregator name.
-   */
-  protected static final String MIN_AGG = "min";
-  /**
-   * Max aggregator name.
-   */
-  protected static final String MAX_AGG = "max";
-  /**
-   * Max aggregator name.
+   * Dangling score aggregator.
    */
   protected static final String DANGLING_AGG = "dangling";
 
@@ -73,18 +60,22 @@ public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
    * Sum of log(vertex.value)
    */
   protected static final String LOG_SUM = "logsum";
-  /**
-  * Sum of deviation of scores from mean.
-  */
-  protected static final String DEV_SUM = "devsum";
-  /**
-  * Standard deviation
-  */
-  protected static final String STDEV = "stdev";
+
   /**
    * Average of log scores.
    */
   protected static final String LOG_AVG = "logavg";
+
+  /**
+  * Sum of deviation of log scores from logs' mean.
+  */
+  protected static final String DEV_SUM = "devsum";
+
+  /**
+  * Standard deviation
+  */
+  protected static final String STDEV = "stdev";
+
 
   /**
    * Scale of the score. If set to 10, score will be in range [0, 10].
@@ -96,11 +87,5 @@ public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
    */
   protected static final String REMOVE_DUPLICATES =
           "giraph.linkRank.removeDuplicates";
-
-  /**
-   * Logger.
-   */
-  private static final Logger LOG = Logger.getLogger(LinkRankVertex.class);
-
 
 }

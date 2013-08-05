@@ -96,8 +96,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       vertexValueWritable.set(newValue);
     }
 
-    /*
-      =========== NORMALIZATION ==================
+    /**
+      =========== NORMALIZATION STARTS ==================
      */
 
     double logValueDouble = Math.log(vertex.getValue().get());
@@ -144,8 +144,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       vertex.setValue(new DoubleWritable(newValue));
     }
 
-    /*
-    ============= NORMALIZATION ENDS =====================
+    /**
+      =========== NORMALIZATION ENDS =====================
      */
     /**
      ============ SENDING MESSAGES PART ===========
@@ -157,14 +157,11 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
      *  If it's the last step, vote to halt!
      */
 
-    // count the number of edges.
-    for (Edge<Text, NullWritable> edge : vertex.getEdges()) {
-      edgeCount++;
-    }
+    edgeCount = vertex.getNumEdges();
 
     if (superStep < maxSteps) {
       DoubleWritable message = new DoubleWritable(
-              vertex.getValue().get() / vertex.getNumEdges()
+              vertex.getValue().get() / edgeCount
       );
       sendMessageToAllEdges(vertex, message);
       if (edgeCount == 0) {

@@ -38,7 +38,9 @@ import static org.apache.giraph.nutch.LinkRank.TableUtil.reverseUrl;
 
 
 /**
- * HBase Output Format for LinkRank Computation
+ * HBase Output Format for LinkRank Computation.
+ * Writes scores for each URL on the table.
+ * By default, table name should be given as 'webpage'.
  */
 public class Nutch2WebpageOutputFormat
         extends HBaseVertexOutputFormat<Text, DoubleWritable, NullWritable> {
@@ -48,7 +50,6 @@ public class Nutch2WebpageOutputFormat
    */
   private static final Logger LOG =
           Logger.getLogger(Nutch2WebpageOutputFormat.class);
-  //public final static String OUTPUT_TABLE = "giraphout";
 
   /**
    * HBase Vertex Writer for LinkRank
@@ -107,12 +108,18 @@ public class Nutch2WebpageOutputFormat
       Vertex<Text, DoubleWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
+      // get the byte representation of current vertex ID.
       byte[] rowBytes = reverseUrl(vertex.getId().toString()).getBytes();
+      // create a new Put operation with vertex value in it.
       Put put = new Put(rowBytes);
+
+      // prepare value.
       DoubleWritable valueWritable = vertex.getValue();
       double value = valueWritable.get();
       String valueStr = Double.toString(value);
       byte[] valueBytes = Bytes.toBytes(value);
+
+      // write the vertex, score pair.
       if (valueStr.length() > 0) {
         put.add(SCORE_FAMILY, LINKRANK_QUALIFIER, valueBytes);
         writer.write(new ImmutableBytesWritable(rowBytes), put);

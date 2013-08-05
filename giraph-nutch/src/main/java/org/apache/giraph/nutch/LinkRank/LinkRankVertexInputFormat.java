@@ -49,9 +49,9 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
    * Vertex value reader reads the vertices from the input stream.
    * Sample format:
    *
-   * http://www.site1.com 0.33
-   * http://www.site2.com 0.33
-   * http://www.site3.com 0.33
+   * http://www.site1.com 1.0
+   * http://www.site2.com 1.0
+   * http://www.site3.com 1.0
    *
    * @param split InputSplit
    * @param context TaskAttemptContext

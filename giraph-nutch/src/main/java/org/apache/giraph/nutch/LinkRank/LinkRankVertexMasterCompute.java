@@ -18,11 +18,7 @@
 
 package org.apache.giraph.nutch.LinkRank;
 
-
-import org.apache.giraph.aggregators.DoubleMaxAggregator;
-import org.apache.giraph.aggregators.DoubleMinAggregator;
 import org.apache.giraph.aggregators.DoubleSumAggregator;
-import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 
 /**
@@ -34,13 +30,6 @@ public class LinkRankVertexMasterCompute extends
   @Override
   public void initialize() throws InstantiationException,
           IllegalAccessException {
-    registerAggregator(
-            LinkRankVertex.SUM_AGG, LongSumAggregator.class);
-    registerPersistentAggregator(
-            LinkRankVertex.MIN_AGG, DoubleMinAggregator.class);
-    registerPersistentAggregator(
-            LinkRankVertex.MAX_AGG, DoubleMaxAggregator.class);
-
     registerPersistentAggregator(
             LinkRankVertex.LOG_SUM, DoubleSumAggregator.class);
     registerPersistentAggregator(

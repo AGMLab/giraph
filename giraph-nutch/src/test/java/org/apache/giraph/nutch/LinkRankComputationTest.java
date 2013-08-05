@@ -24,10 +24,8 @@ import org.apache.giraph.nutch.LinkRank.*;
 import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -42,9 +40,9 @@ public class LinkRankComputationTest {
 
     // A small graph
     String[] vertices = new String[]{
-            "a 0.33",
-            "b 0.33",
-            "c 0.33",
+            "a 1.0",
+            "b 1.0",
+            "c 1.0",
     };
 
     String[] edges = new String[]{
@@ -77,8 +75,54 @@ public class LinkRankComputationTest {
       log.info(result);
     }
 
-    assertEquals("a scores are not the same", 1.3532697878967404d, hm.get("a"), DELTA);
-    assertEquals("b scores are not the same", 4.139916964074876d, hm.get("b"), DELTA);
+    assertEquals("a scores are not the same", 1.3515060339386287d, hm.get("a"), DELTA);
+    assertEquals("b scores are not the same", 4.144902009567587d, hm.get("b"), DELTA);
+    assertEquals("c scores are not the same", 9.06389778197704d, hm.get("c"), DELTA);
+
+  }
+
+  @Test
+  public void testUniformToyData1() throws Exception {
+
+    // A small graph
+    String[] vertices = new String[]{
+            "a",
+            "b",
+            "c",
+    };
+
+    String[] edges = new String[]{
+            "a b",
+            "b c",
+            "a c",
+    };
+
+    GiraphConfiguration conf = new GiraphConfiguration();
+    conf.setComputationClass(LinkRankComputation.class);
+    conf.setOutEdgesClass(ByteArrayEdges.class);
+
+    conf.setVertexInputFormatClass(LinkRankVertexUniformInputFormat.class);
+    conf.setVertexOutputFormatClass(
+            LinkRankVertexOutputFormat.class);
+    conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
+    conf.setInt("giraph.linkRank.superstepCount", 10);
+    conf.setInt("giraph.linkRank.scale", 10);
+    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
+    conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
+    // Run internally
+    Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
+
+
+
+    HashMap<String, Double> hm = new HashMap();
+    for (String result : results) {
+      String[] tokens = result.split("\t");
+      hm.put(tokens[0], Double.parseDouble(tokens[1]));
+      log.info(result);
+    }
+
+    assertEquals("a scores are not the same", 1.3515060339386287d, hm.get("a"), DELTA);
+    assertEquals("b scores are not the same", 4.144902009567587d, hm.get("b"), DELTA);
     assertEquals("c scores are not the same", 9.06389778197704d, hm.get("c"), DELTA);
 
   }
@@ -88,8 +132,8 @@ public class LinkRankComputationTest {
 
     // A small graph
     String[] vertices = new String[]{
-            "a 0.5",
-            "b 0.5",
+            "a 1",
+            "b 1",
     };
 
     String[] edges = new String[]{
@@ -122,4 +166,6 @@ public class LinkRankComputationTest {
     assertEquals("a scores are not the same", hm.get("a"), 5.0d, DELTA);
     assertEquals("b scores are not the same", hm.get("b"), 5.0d, DELTA);
   }
+
+
 }
