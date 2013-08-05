@@ -145,15 +145,21 @@ public class LinkRankHBaseTest extends BspCase {
 
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
+      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake"));
       p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
       p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(0.33d));
+      p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake2"));
+
+      Put p5 = new Put(Bytes.toBytes("afekomafke"));
+      p5.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(10.0d));
 
       table.put(p1);
       table.put(p2);
       table.put(p3);
       table.put(p4);
+      table.put(p5);
 
 
       // Set Giraph configuration
@@ -171,10 +177,11 @@ public class LinkRankHBaseTest extends BspCase {
       giraphConf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
       giraphConf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
-      giraphConf.setVertexInputFormatClass(NutchTableEdgeInputFormat.class);
-      giraphConf.setVertexOutputFormatClass(NutchTableEdgeOutputFormat.class);
+      giraphConf.setVertexInputFormatClass(Nutch2WebpageInputFormat.class);
+      giraphConf.setVertexOutputFormatClass(Nutch2WebpageOutputFormat.class);
       giraphConf.setInt("giraph.linkRank.superstepCount", 10);
       giraphConf.setInt("giraph.linkRank.scale", 10);
+      giraphConf.setVertexInputFilterClass(LinkRankVertexFilter.class);
 
       assertTrue(giraphJob.run(true));
 

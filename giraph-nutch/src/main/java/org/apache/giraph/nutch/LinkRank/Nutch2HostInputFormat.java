@@ -42,14 +42,14 @@ import java.util.NavigableMap;
  *  HBase Input Format for LinkRank.
  *  Reads edges and scores of web pages from HBase.
  */
-public class NutchHostEdgeInputFormat extends
+public class Nutch2HostInputFormat extends
     HBaseVertexInputFormat<Text, DoubleWritable, NullWritable> {
 
   /**
    * Logger
    */
   private static final Logger LOG =
-      Logger.getLogger(NutchHostEdgeInputFormat.class);
+      Logger.getLogger(Nutch2HostInputFormat.class);
 
   /**
    * Reusable NullWritable for edge value.

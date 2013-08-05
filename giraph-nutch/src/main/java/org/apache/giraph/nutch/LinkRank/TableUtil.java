@@ -199,4 +199,25 @@ public class TableUtil {
     return utf8 == null ? null : utf8.toString();
   }
 
+  /**
+   * Checks if the URL is valid or not.
+   * @param url url to validate.
+   * @return true if url is valid. false if invalid.
+   */
+  public static boolean isValidURL(String url) {
+    try {
+      URL urlObj = new URL(url);
+      String host = urlObj.getHost();
+      assert !host.isEmpty();
+      assert host.contains(".");
+    } catch (MalformedURLException e) {
+      // invalid url
+      return false;
+    } catch (AssertionError e) {
+      // empty host
+      return false;
+    }
+    return true;
+  }
+
 }

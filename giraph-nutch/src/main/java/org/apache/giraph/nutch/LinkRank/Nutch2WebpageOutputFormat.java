@@ -40,14 +40,14 @@ import static org.apache.giraph.nutch.LinkRank.TableUtil.reverseUrl;
 /**
  * HBase Output Format for LinkRank Computation
  */
-public class NutchTableEdgeOutputFormat
+public class Nutch2WebpageOutputFormat
         extends HBaseVertexOutputFormat<Text, DoubleWritable, NullWritable> {
 
   /**
    * Logger
    */
   private static final Logger LOG =
-          Logger.getLogger(NutchTableEdgeOutputFormat.class);
+          Logger.getLogger(Nutch2WebpageOutputFormat.class);
   //public final static String OUTPUT_TABLE = "giraphout";
 
   /**
