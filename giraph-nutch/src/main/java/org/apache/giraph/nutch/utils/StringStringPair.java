@@ -16,23 +16,23 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.utils;
+package org.apache.giraph.nutch.utils;
 
 /**
- * A pair of integers.
+ * A pair of Strings.
  */
-public class TextFloatPair {
+public class StringStringPair {
   /** First element. */
   private String first;
   /** Second element. */
-  private float second;
+  private String second;
 
   /** Constructor.
    *
    * @param fst First element
    * @param snd Second element
    */
-  public TextFloatPair(String fst, float snd) {
+  public StringStringPair(String fst, String snd) {
     first = fst;
     second = snd;
   }
@@ -60,7 +60,7 @@ public class TextFloatPair {
    *
    * @return The second element
    */
-  public float getSecond() {
+  public String getSecond() {
     return second;
   }
 
@@ -69,7 +69,7 @@ public class TextFloatPair {
    *
    * @param second The second element
    */
-  public void setSecond(float second) {
+  public void setSecond(String second) {
     this.second = second;
   }
 }

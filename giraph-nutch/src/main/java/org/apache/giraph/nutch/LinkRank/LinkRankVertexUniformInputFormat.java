@@ -19,7 +19,7 @@
 
 package org.apache.giraph.nutch.LinkRank;
 import org.apache.giraph.io.formats.TextVertexValueInputFormat;
-import org.apache.giraph.utils.TextDoublePair;
+import org.apache.giraph.nutch.utils.StringDoublePair;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -67,7 +67,7 @@ public class LinkRankVertexUniformInputFormat<E extends NullWritable,
    * {@link LinkRankVertexInputFormat}.
    */
   public class TextDoubleTextVertexValueReader extends
-          TextVertexValueReaderFromEachLineProcessed<TextDoublePair> {
+          TextVertexValueReaderFromEachLineProcessed<StringDoublePair> {
 
     /**
      * Parses the line and creates Text-Double pair.
@@ -77,8 +77,8 @@ public class LinkRankVertexUniformInputFormat<E extends NullWritable,
      * @return TextDouble pair.
      * @throws IOException
      */
-    protected TextDoublePair preprocessLine(Text line) throws IOException {
-      return new TextDoublePair(line.toString(), UNIFORM_VALUE);
+    protected StringDoublePair preprocessLine(Text line) throws IOException {
+      return new StringDoublePair(line.toString(), UNIFORM_VALUE);
     }
 
     /**
@@ -87,7 +87,7 @@ public class LinkRankVertexUniformInputFormat<E extends NullWritable,
      * @return ID of the node
      * @throws IOException
      */
-    protected Text getId(TextDoublePair data) throws IOException {
+    protected Text getId(StringDoublePair data) throws IOException {
       return new Text(data.getFirst());
     }
 
@@ -97,7 +97,7 @@ public class LinkRankVertexUniformInputFormat<E extends NullWritable,
      * @return Value of the node
      * @throws IOException
      */
-    protected DoubleWritable getValue(TextDoublePair data) throws IOException {
+    protected DoubleWritable getValue(StringDoublePair data) throws IOException {
       return new DoubleWritable(data.getSecond());
     }
   }

@@ -21,7 +21,7 @@ package org.apache.giraph.nutch.LinkRank;
 
 import org.apache.giraph.io.EdgeReader;
 import org.apache.giraph.io.formats.TextEdgeInputFormat;
-import org.apache.giraph.utils.TextPair;
+import org.apache.giraph.nutch.utils.StringStringPair;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -54,27 +54,27 @@ public class LinkRankEdgeInputFormat extends
    * {@link LinkRankEdgeInputFormat}.
    */
   public class TextNullTextEdgeReader extends
-          TextEdgeReaderFromEachLineProcessed<TextPair> {
+          TextEdgeReaderFromEachLineProcessed<StringStringPair> {
     @Override
-    protected TextPair preprocessLine(Text line) throws IOException {
+    protected StringStringPair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
-      return new TextPair(tokens[0], tokens[1]);
+      return new StringStringPair(tokens[0], tokens[1]);
     }
 
     @Override
-    protected Text getSourceVertexId(TextPair endpoints)
+    protected Text getSourceVertexId(StringStringPair endpoints)
       throws IOException {
       return new Text(endpoints.getFirst());
     }
 
     @Override
-    protected Text getTargetVertexId(TextPair endpoints)
+    protected Text getTargetVertexId(StringStringPair endpoints)
       throws IOException {
       return new Text(endpoints.getSecond());
     }
 
     @Override
-    protected NullWritable getValue(TextPair endpoints) throws IOException {
+    protected NullWritable getValue(StringStringPair endpoints) throws IOException {
       return NullWritable.get();
     }
   }
