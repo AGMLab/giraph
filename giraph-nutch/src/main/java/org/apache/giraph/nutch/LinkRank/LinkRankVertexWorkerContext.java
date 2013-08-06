@@ -62,22 +62,22 @@ public class LinkRankVertexWorkerContext extends
     long superstep = getSuperstep();
     if (superstep == maxSteps - 3) {
       /**
-       * We should have log values of the scores aggregated in LOG_SUM.
+       * We should have log values of the scores aggregated in SUM_OF_LOGS.
        * Divide this sum by total number of vertices and aggragate in
-       * LOG_AVG.
+       * AVG_OF_LOGS.
        */
-      DoubleWritable logsum = getAggregatedValue(LinkRankVertex.LOG_SUM);
+      DoubleWritable logsum = getAggregatedValue(LinkRankVertex.SUM_OF_LOGS);
       DoubleWritable d = new DoubleWritable(
               logsum.get() / getTotalNumVertices());
 
-      aggregate(LinkRankVertex.LOG_AVG, d);
+      aggregate(LinkRankVertex.AVG_OF_LOGS, d);
 
     } else if (superstep == maxSteps - 1) {
       /**
-       * Calculate standart deviation with deviation sums DEV_SUM.
+       * Calculate standart deviation with deviation sums SUM_OF_DEVS.
        * Aggregate result to STDEV.
        */
-      DoubleWritable devsum = getAggregatedValue(LinkRankVertex.DEV_SUM);
+      DoubleWritable devsum = getAggregatedValue(LinkRankVertex.SUM_OF_DEVS);
       double ratio = devsum.get() / getTotalNumVertices();
       DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
       aggregate(LinkRankVertex.STDEV, stdev);

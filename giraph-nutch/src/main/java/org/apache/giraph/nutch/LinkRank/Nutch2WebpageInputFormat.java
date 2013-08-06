@@ -125,7 +125,7 @@ public class Nutch2WebpageInputFormat extends
       int dotIndex = hostname.indexOf(".");
       // if it's reversed, unreverse it.
       if (dotIndex < colonIndex) {
-        hostname = TableUtil.unreverseUrl(hostname);
+        hostname = NutchUtil.unreverseUrl(hostname);
       }
       return hostname;
     }
@@ -175,7 +175,7 @@ public class Nutch2WebpageInputFormat extends
         // Convert targetURL into Text format and add to edges list.
         String target = Bytes.toString((byte[]) pair.getKey());
 
-        if (!TableUtil.isValidURL(target)) {
+        if (!NutchUtil.isValidURL(target)) {
           continue;
         }
 

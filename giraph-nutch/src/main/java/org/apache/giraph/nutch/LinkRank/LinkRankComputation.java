@@ -49,34 +49,76 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   private static final Logger LOG = Logger.getLogger(LinkRankComputation.class);
 
   /**
+   * Maximum number of supersteps.
+   */
+  private int maxSteps;
+
+  /**
+   * Current superstep.
+   */
+  private long superStep;
+
+  /**
+   * Score scale, by default 10.
+   * Meaning score will be in range [0, 10].
+   */
+  private int scale;
+
+  /**
+   * Damping factor, by default 0.85.
+   */
+  private float dampingFactor;
+
+  /**
+   * Whether to remove duplicate links.
+   * By default true.
+   */
+  private boolean removeDuplicates;
+
+
+  /**
    * We will be receiving messages from our neighbors and process them
    * to find our new score at the new superstep.
    *
    * @param vertex   Vertex object for computation.
    * @param messages LinkRank score messages
-   * @throws IOException TODO: Consider isolated nodes.
+   * @throws IOException
    */
   @Override
   public void compute(Vertex<Text, DoubleWritable, NullWritable> vertex,
                       Iterable<DoubleWritable> messages)
     throws IOException {
-    long superStep = getSuperstep();
-    int maxSteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
-    int scale = getConf().getInt(LinkRankVertex.SCALE, 10);
-    boolean removeDuplicates = getConf().getBoolean(
-            LinkRankVertex.REMOVE_DUPLICATES, true);
-    int edgeCount = 0;
-    double sum = 0.0d;
-    float dampingFactor = getConf().getFloat(
+    // Read configuration
+    maxSteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
+    scale = getConf().getInt(LinkRankVertex.SCALE, 10);
+    dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
+    removeDuplicates = getConf().getBoolean(
+            LinkRankVertex.REMOVE_DUPLICATES, true);
+    superStep = getSuperstep();
 
-    /*
-      ============ RECEIVING MESSAGES PART ===========
-    */
+    // Start computation
+    receiveMessages(vertex, messages);
+    distributeScores(vertex);
+    if (superStep >= maxSteps - 4) {
+      normalizeVertexScore(vertex);
+    }
+  }
+
+  /**
+   * Receives messages from neighbors and sets new score.
+   * @param vertex current vertex
+   * @param messages messages from neighbors
+   */
+  private void receiveMessages(
+    Vertex<Text, DoubleWritable, NullWritable> vertex,
+    Iterable<DoubleWritable> messages) {
+    double sum = 0.0d;
+
     if (superStep == 0) {
-      LOG.info("=============" + vertex.getId());
+      LOG.info("==" + vertex.getId());
       for (Edge e: vertex.getEdges()) {
-        LOG.info("=== edge: " + e.getTargetVertexId());
+        LOG.info("==== edge: " + e.getTargetVertexId());
       }
       if (removeDuplicates) {
         removeDuplicateLinks(vertex);
@@ -87,45 +129,48 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
         sum += message.get();
       }
 
-      DoubleWritable vertexValueWritable = vertex.getValue();
       Double newValue =
-              ((1f - dampingFactor) / getTotalNumVertices()) +
-                      dampingFactor * (sum + getDanglingContribution());
+        ((1f - dampingFactor) / getTotalNumVertices()) +
+                dampingFactor * (sum + getDanglingContribution());
 
       vertex.setValue(new DoubleWritable(newValue));
-      vertexValueWritable.set(newValue);
     }
+  }
 
-    /**
-      =========== NORMALIZATION STARTS ==================
-     */
+  /**
+   * Normalize the vertex scores.
+   * Uses log scale and cumulative probability distribution.
+   * @param vertex current vertex
+   */
+  private void normalizeVertexScore(
+    Vertex<Text, DoubleWritable, NullWritable> vertex) {
 
     double logValueDouble = Math.log(vertex.getValue().get());
     if (superStep == maxSteps - 4) {
       /**
-       * Calculate LOG(value) and aggregate to LOG_SUM.
+       * Calculate LOG(value) and aggregate to SUM_OF_LOGS.
        */
       DoubleWritable logValue = new DoubleWritable(logValueDouble);
-      aggregate(LinkRankVertex.LOG_SUM, logValue);
+      aggregate(LinkRankVertex.SUM_OF_LOGS, logValue);
     } else if (superStep == maxSteps - 2) {
-      /** Pass previous superstep since WorkerContext will need LOG_SUM
+      /** Pass previous superstep since WorkerContext will need SUM_OF_LOGS
        *  to be aggregated.
-       *  In this step, get LOG_AVG (calculated by WorkerContext)
-       *  and calculate meanSquareError, aggregate to DEV_SUM.
-       *  WorkerContext will use DEV_SUM to calculate stdev
+       *  In this step, get AVG_OF_LOGS (calculated by WorkerContext)
+       *  and calculate meanSquareError, aggregate it to SUM_OF_DEVS.
+       *  WorkerContext will use SUM_OF_DEVS to calculate stdev
        *  in maxsupersteps-1 step.
        */
-      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.LOG_AVG);
+      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.AVG_OF_LOGS);
       double meanSquareError = Math.pow(logValueDouble - logAvg.get(), 2);
       DoubleWritable mseWritable = new DoubleWritable(meanSquareError);
-      aggregate(LinkRankVertex.DEV_SUM, mseWritable);
+      aggregate(LinkRankVertex.SUM_OF_DEVS, mseWritable);
     } else if (superStep == maxSteps) {
       /**
        * Pass maxsupersteps-1 step since WorkerContext will calculate stdev.
-       * Use stdev and LOG_AVG to create a Normal Distribution.
+       * Use stdev and AVG_OF_LOGS to create a Normal Distribution.
        * Calculate CDF, scale it and set the new value.
        */
-      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.LOG_AVG);
+      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.AVG_OF_LOGS);
       DoubleWritable stdev = getAggregatedValue(LinkRankVertex.STDEV);
       double newValue = 1.0d;
       double stdevValue = stdev.get();
@@ -143,21 +188,19 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       }
       vertex.setValue(new DoubleWritable(newValue));
     }
+  }
 
-    /**
-      =========== NORMALIZATION ENDS =====================
-     */
-    /**
-     ============ SENDING MESSAGES PART ===========
-     */
 
-    /** If we are at a superstep that is not the last one,
-     * send messages to the neighbors.
-     *
-     *  If it's the last step, vote to halt!
-     */
-
-    edgeCount = vertex.getNumEdges();
+  /**
+   * If we are at a superstep that is not the last one,
+   * send messages to the neighbors.
+   * If it's the last step, vote to halt!
+   *
+   * @param vertex will distribute vertex's score to its neighbors.
+   */
+  private void distributeScores(
+    Vertex<Text, DoubleWritable, NullWritable> vertex) {
+    int edgeCount = vertex.getNumEdges();
 
     if (superStep < maxSteps) {
       DoubleWritable message = new DoubleWritable(
@@ -202,7 +245,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     Iterable<Edge<Text, NullWritable>> outgoingEdges = vertex.getEdges();
 
     for (Edge<Text, NullWritable> edge : outgoingEdges) {
-      targetUrl = edge.getTargetVertexId().toString().trim();
+      targetUrl = edge.getTargetVertexId().toString().trim().split("#")[0];
       // if source != target (avoid self-links)
       if (!targetUrl.equalsIgnoreCase(sourceUrl)) {
         urls.add(targetUrl);

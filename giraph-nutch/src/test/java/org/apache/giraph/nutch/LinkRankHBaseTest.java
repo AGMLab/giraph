@@ -112,7 +112,7 @@ public class LinkRankHBaseTest extends BspCase {
 
       final byte[] FAM_OL = Bytes.toBytes("ol");
       final byte[] FAM_S = Bytes.toBytes("s");
-      final byte[] QUALIFIER_PAGERANK = Bytes.toBytes("linkrank");
+      final byte[] QUALIFIER_LINKRANK = Bytes.toBytes("linkrank");
       final byte[] TAB = Bytes.toBytes(TABLE_NAME);
 
       Configuration conf = cluster.getConfiguration();
@@ -137,7 +137,6 @@ public class LinkRankHBaseTest extends BspCase {
       HTable table = new HTable(conf, TABLE_NAME);
       Put p1 = new Put(Bytes.toBytes("com.google.www:http/"));
       p1.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
-      p1.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
 
       Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
       p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
@@ -145,10 +144,8 @@ public class LinkRankHBaseTest extends BspCase {
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake"));
-      p3.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
-      p4.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(1.0d));
       p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake2"));
 
       Put p5 = new Put(Bytes.toBytes("afekomafke"));
@@ -191,19 +188,19 @@ public class LinkRankHBaseTest extends BspCase {
       Result result;
       String key;
       byte[] calculatedScoreByte;
-      HashMap actualValues = new HashMap<String, Double>();
-      actualValues.put("com.google.www:http/", 1.3515060339386287d);
-      actualValues.put("com.yahoo.www:http/", 4.144902009567587d);
-      actualValues.put("com.bing.www:http/", 9.063893290511482d);
+      HashMap expectedValues = new HashMap<String, Double>();
+      expectedValues.put("com.google.www:http/", 1.3515060339386287d);
+      expectedValues.put("com.yahoo.www:http/", 4.144902009567587d);
+      expectedValues.put("com.bing.www:http/", 9.063893290511482d);
 
-      for (Object keyObject : actualValues.keySet()){
+      for (Object keyObject : expectedValues.keySet()){
         key = keyObject.toString();
         result = table.get(new Get(key.getBytes()));
-        calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_PAGERANK);
+        calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_LINKRANK);
         assertNotNull(calculatedScoreByte);
         assertTrue(calculatedScoreByte.length > 0);
         Assert.assertEquals("Scores are not the same",
-                (Double)actualValues.get(key),
+                (Double)expectedValues.get(key),
                 Bytes.toDouble(calculatedScoreByte), DELTA);
       }
     } finally {

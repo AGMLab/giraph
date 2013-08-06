@@ -31,11 +31,11 @@ public class LinkRankVertexMasterCompute extends
   public void initialize() throws InstantiationException,
           IllegalAccessException {
     registerPersistentAggregator(
-            LinkRankVertex.LOG_SUM, DoubleSumAggregator.class);
+            LinkRankVertex.SUM_OF_LOGS, DoubleSumAggregator.class);
     registerPersistentAggregator(
-            LinkRankVertex.DEV_SUM, DoubleSumAggregator.class);
+            LinkRankVertex.SUM_OF_DEVS, DoubleSumAggregator.class);
     registerPersistentAggregator(
-            LinkRankVertex.LOG_AVG, DoubleSumAggregator.class);
+            LinkRankVertex.AVG_OF_LOGS, DoubleSumAggregator.class);
     registerPersistentAggregator(
             LinkRankVertex.STDEV, DoubleSumAggregator.class);
 

@@ -27,17 +27,17 @@ import org.apache.log4j.Logger;
  * Static util methods for reversing/unreversing urls,
  * parsing hostnames from urls.
  */
-public class TableUtil {
+public class NutchUtil {
   /**
    * Logger
    */
   private static final Logger LOG =
-          Logger.getLogger(TableUtil.class);
+          Logger.getLogger(NutchUtil.class);
 
   /**
    * Private dummy constructor.
    */
-  private TableUtil() {
+  private NutchUtil() {
   }
 
   /**

@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-import static org.apache.giraph.nutch.LinkRank.TableUtil.reverseUrl;
+import static org.apache.giraph.nutch.LinkRank.NutchUtil.reverseUrl;
 
 
 /**

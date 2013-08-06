@@ -129,7 +129,7 @@ public class Nutch2HostInputFormat extends
       }
       // if it's reversed, unreverse it.
       if (dotIndex < colonIndex) {
-        hostname = TableUtil.unreverseUrl(hostname);
+        hostname = NutchUtil.unreverseUrl(hostname);
       }
       LOG.info(hostname);
       return hostname;

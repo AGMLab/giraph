@@ -97,7 +97,8 @@ public class LinkRankVertexUniformInputFormat<E extends NullWritable,
      * @return Value of the node
      * @throws IOException
      */
-    protected DoubleWritable getValue(StringDoublePair data) throws IOException {
+    protected DoubleWritable getValue(StringDoublePair data)
+      throws IOException {
       return new DoubleWritable(data.getSecond());
     }
   }

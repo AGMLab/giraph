@@ -28,6 +28,6 @@ public class LinkRankVertexFilter implements VertexInputFilter {
   @Override
   public boolean dropVertex(Vertex vertex) {
     String source = vertex.getId().toString();
-    return !TableUtil.isValidURL(source);
+    return !NutchUtil.isValidURL(source);
   }
 }

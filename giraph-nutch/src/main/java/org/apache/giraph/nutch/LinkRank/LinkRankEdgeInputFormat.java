@@ -74,7 +74,8 @@ public class LinkRankEdgeInputFormat extends
     }
 
     @Override
-    protected NullWritable getValue(StringStringPair endpoints) throws IOException {
+    protected NullWritable getValue(StringStringPair endpoints)
+      throws IOException {
       return NullWritable.get();
     }
   }

@@ -59,17 +59,17 @@ public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
   /**
    * Sum of log(vertex.value)
    */
-  protected static final String LOG_SUM = "logsum";
+  protected static final String SUM_OF_LOGS = "sumoflogs";
 
   /**
    * Average of log scores.
    */
-  protected static final String LOG_AVG = "logavg";
+  protected static final String AVG_OF_LOGS = "avgoflogs";
 
   /**
   * Sum of deviation of log scores from logs' mean.
   */
-  protected static final String DEV_SUM = "devsum";
+  protected static final String SUM_OF_DEVS = "sumofdevs";
 
   /**
   * Standard deviation
