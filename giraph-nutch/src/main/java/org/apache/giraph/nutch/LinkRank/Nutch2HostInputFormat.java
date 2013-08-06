@@ -131,7 +131,6 @@ public class Nutch2HostInputFormat extends
       if (dotIndex < colonIndex) {
         hostname = NutchUtil.unreverseUrl(hostname);
       }
-      LOG.info(hostname);
       return hostname;
     }
 

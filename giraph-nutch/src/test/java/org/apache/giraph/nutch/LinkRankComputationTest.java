@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
  */
 public class LinkRankComputationTest {
-  private static final Logger log = Logger.getLogger(LinkRankVertex.class);
+  private static final Logger LOG = Logger.getLogger(LinkRankVertex.class);
   private static final double DELTA = 1e-3;
 
   @Test
@@ -72,7 +72,7 @@ public class LinkRankComputationTest {
     for (String result : results) {
       String[] tokens = result.split("\t");
       hm.put(tokens[0], Double.parseDouble(tokens[1]));
-      log.info(result);
+      LOG.info(result);
     }
 
     assertEquals("a scores are not the same", 1.3515060339386287d, hm.get("a"), DELTA);
@@ -118,7 +118,7 @@ public class LinkRankComputationTest {
     for (String result : results) {
       String[] tokens = result.split("\t");
       hm.put(tokens[0], Double.parseDouble(tokens[1]));
-      log.info(result);
+      LOG.info(result);
     }
 
     assertEquals("a scores are not the same", 1.3515060339386287d, hm.get("a"), DELTA);
@@ -160,7 +160,7 @@ public class LinkRankComputationTest {
     for (String result : results) {
       String[] tokens = result.split("\t");
       hm.put(tokens[0], Double.parseDouble(tokens[1]));
-      log.info(result);
+      LOG.info(result);
     }
 
     assertEquals("a scores are not the same", hm.get("a"), 5.0d, DELTA);

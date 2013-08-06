@@ -108,7 +108,6 @@ public class NutchUtil {
    * @return Unreversed url
    */
   public static String unreverseUrl(String reversedUrl) {
-    LOG.info("reversedURL:" + reversedUrl);
     StringBuilder buf = new StringBuilder(reversedUrl.length() + 2);
 
     int pathBegin = reversedUrl.indexOf('/');
@@ -116,11 +115,8 @@ public class NutchUtil {
       pathBegin = reversedUrl.length();
     }
     String sub = reversedUrl.substring(0, pathBegin);
-    LOG.info("sub:" + sub);
     // {<reversed host>, <port>, <protocol>}
     String[] splits = StringUtils.split(sub, ':');
-    //LOG.info("splits:" + splits);
-
     buf.append(splits[1]); // add protocol
     buf.append("://");
     reverseAppendSplits(splits[0], buf); // splits[0] is reversed
