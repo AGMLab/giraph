@@ -231,9 +231,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   public void removeDuplicateLinks(Vertex<Text, DoubleWritable,
           NullWritable> vertex) {
-    LOG.info("Duplicate Link Removal starts...");
     String sourceUrl = Bytes.toString(vertex.getId().getBytes()).trim();
-    LOG.info("Source:" + sourceUrl);
     String targetUrl;
     Set<String> urls = new HashSet<String>();
 
