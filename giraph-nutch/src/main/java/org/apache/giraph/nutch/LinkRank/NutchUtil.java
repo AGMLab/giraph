@@ -47,8 +47,7 @@ public class NutchUtil {
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:8983:http/to/index.html?a=b".
    *
-   * @param urlString
-   *          url to be reversed
+   * @param urlString url to be reversed
    * @return Reversed url
    * @throws java.net.MalformedURLException
    */

@@ -22,7 +22,7 @@ import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.master.DefaultMasterCompute;
 
 /**
- * Master compute associated with {@link LinkRankVertex}.
+ * Master compute associated with {@link LinkRankComputation}.
  * It registers required aggregators.
  */
 public class LinkRankVertexMasterCompute extends

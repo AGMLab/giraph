@@ -67,18 +67,18 @@ public class LinkRankVertexWorkerContext extends
        * AVG_OF_LOGS.
        */
       DoubleWritable logsum = getAggregatedValue(LinkRankVertex.SUM_OF_LOGS);
-      DoubleWritable d = new DoubleWritable(
+      DoubleWritable avg = new DoubleWritable(
               logsum.get() / getTotalNumVertices());
 
-      aggregate(LinkRankVertex.AVG_OF_LOGS, d);
+      aggregate(LinkRankVertex.AVG_OF_LOGS, avg);
 
     } else if (superstep == maxSteps - 1) {
       /**
        * Calculate standart deviation with deviation sums SUM_OF_DEVS.
        * Aggregate result to STDEV.
        */
-      DoubleWritable devsum = getAggregatedValue(LinkRankVertex.SUM_OF_DEVS);
-      double ratio = devsum.get() / getTotalNumVertices();
+      DoubleWritable devSum = getAggregatedValue(LinkRankVertex.SUM_OF_DEVS);
+      double ratio = devSum.get() / getTotalNumVertices();
       DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
       aggregate(LinkRankVertex.STDEV, stdev);
     }

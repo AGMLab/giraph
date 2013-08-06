@@ -30,6 +30,7 @@ import java.io.IOException;
 
 /**
  * Uniform Vertex Input Format for LinkRank.
+ * Default value is 1.0d.
  * Example vertex record:
  * http://www.site.com
  *
