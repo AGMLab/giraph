@@ -91,10 +91,10 @@ public class Nutch2WebpageOutputFormat
       throws IOException, InterruptedException {
       super(context);
       Configuration conf = context.getConfiguration();
-      String fStr = conf.get("giraph.linkRank.family", "s");
+      String fStr = conf.get("giraph.linkRank.family", "mtdt");
       SCORE_FAMILY = Bytes.toBytes(fStr);
 
-      String qStr = conf.get("giraph.linkRank.qualifier", "linkrank");
+      String qStr = conf.get("giraph.linkRank.qualifier", "_lr_");
       LINKRANK_QUALIFIER = Bytes.toBytes(qStr);
     }
 

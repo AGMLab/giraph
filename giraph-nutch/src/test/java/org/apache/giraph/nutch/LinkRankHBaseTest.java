@@ -110,15 +110,17 @@ public class LinkRankHBaseTest extends BspCase {
       testUtil.restartHBaseCluster(2);
       cluster = testUtil.getMiniHBaseCluster();
 
-      final byte[] FAM_OL = Bytes.toBytes("ol");
-      final byte[] FAM_S = Bytes.toBytes("s");
-      final byte[] QUALIFIER_LINKRANK = Bytes.toBytes("linkrank");
+      final byte[] OL_BYTES = Bytes.toBytes("ol");
+      final byte[] S_BYTES = Bytes.toBytes("s");
+      final byte[] METADATA_BYTES = Bytes.toBytes("mtdt");
+      final byte[] LR_BYTES = Bytes.toBytes("_lr_");
       final byte[] TAB = Bytes.toBytes(TABLE_NAME);
 
       Configuration conf = cluster.getConfiguration();
       HTableDescriptor desc = new HTableDescriptor(TAB);
-      desc.addFamily(new HColumnDescriptor(FAM_OL));
-      desc.addFamily(new HColumnDescriptor(FAM_S));
+      desc.addFamily(new HColumnDescriptor(OL_BYTES));
+      desc.addFamily(new HColumnDescriptor(S_BYTES));
+      desc.addFamily(new HColumnDescriptor(METADATA_BYTES));
       HBaseAdmin hbaseAdmin=new HBaseAdmin(conf);
       if (hbaseAdmin.isTableAvailable(TABLE_NAME)) {
         hbaseAdmin.disableTable(TABLE_NAME);
@@ -135,27 +137,28 @@ public class LinkRankHBaseTest extends BspCase {
        */
 
       HTable table = new HTable(conf, TABLE_NAME);
+
       Put p1 = new Put(Bytes.toBytes("com.google.www:http/"));
-      p1.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
+      p1.add(OL_BYTES, Bytes.toBytes("http://www.yahoo.com/"), Bytes.toBytes("ab"));
 
       Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
-      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
-      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/#test"),
-              Bytes.toBytes("fake1"));
-      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.google.com/"),
-              Bytes.toBytes("fake2"));
-      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.google.com/#test"),
-              Bytes.toBytes("fake3"));
+      p2.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
+      p2.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/#test"),
+              Bytes.toBytes("invalid1"));
+      p2.add(OL_BYTES, Bytes.toBytes("http://www.google.com/"),
+              Bytes.toBytes("invalid2"));
+      p2.add(OL_BYTES, Bytes.toBytes("http://www.google.com/#test"),
+              Bytes.toBytes("invalid3"));
 
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
-      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
-      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake4"));
+      p3.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
+      p3.add(OL_BYTES, Bytes.toBytes("http://"), Bytes.toBytes("invalid4"));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
-      p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake5"));
+      p4.add(OL_BYTES, Bytes.toBytes("http://invalidurl"), Bytes.toBytes("invalid5"));
 
-      Put p5 = new Put(Bytes.toBytes("afekomafke"));
-      p5.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(10.0d));
+      Put p5 = new Put(Bytes.toBytes("dummy"));
+      p5.add(S_BYTES, S_BYTES, Bytes.toBytes(10.0d));
 
       table.put(p1);
       table.put(p2);
@@ -182,6 +185,8 @@ public class LinkRankHBaseTest extends BspCase {
       giraphConf.setVertexOutputFormatClass(Nutch2WebpageOutputFormat.class);
       giraphConf.setInt("giraph.linkRank.superstepCount", 10);
       giraphConf.setInt("giraph.linkRank.scale", 10);
+      giraphConf.set("giraph.linkRank.family", "mtdt");
+      giraphConf.set("giraph.linkRank.qualifier", "_lr_");
       giraphConf.setVertexInputFilterClass(LinkRankVertexFilter.class);
 
       assertTrue(giraphJob.run(true));
@@ -202,7 +207,7 @@ public class LinkRankHBaseTest extends BspCase {
       for (Object keyObject : expectedValues.keySet()){
         key = keyObject.toString();
         result = table.get(new Get(key.getBytes()));
-        calculatedScoreByte = result.getValue(FAM_S, QUALIFIER_LINKRANK);
+        calculatedScoreByte = result.getValue(METADATA_BYTES, LR_BYTES);
         assertNotNull(calculatedScoreByte);
         assertTrue(calculatedScoreByte.length > 0);
         Assert.assertEquals("Scores are not the same",
