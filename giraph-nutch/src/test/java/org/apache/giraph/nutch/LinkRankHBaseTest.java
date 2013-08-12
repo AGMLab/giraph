@@ -140,13 +140,19 @@ public class LinkRankHBaseTest extends BspCase {
 
       Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
       p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
+      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/#test"),
+              Bytes.toBytes("fake1"));
+      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.google.com/"),
+              Bytes.toBytes("fake2"));
+      p2.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.google.com/#test"),
+              Bytes.toBytes("fake3"));
 
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
-      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake"));
+      p3.add(Bytes.toBytes("ol"), Bytes.toBytes("http://"), Bytes.toBytes("fake4"));
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www:http/"));
-      p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake2"));
+      p4.add(Bytes.toBytes("ol"), Bytes.toBytes("http://aefaef"), Bytes.toBytes("fake5"));
 
       Put p5 = new Put(Bytes.toBytes("afekomafke"));
       p5.add(Bytes.toBytes("s"), Bytes.toBytes("s"), Bytes.toBytes(10.0d));
