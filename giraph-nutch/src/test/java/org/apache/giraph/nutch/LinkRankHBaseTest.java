@@ -24,6 +24,7 @@ import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.edge.ByteArrayEdges;
 import org.apache.giraph.nutch.LinkRank.*;
 import org.apache.giraph.job.GiraphJob;
+import org.apache.giraph.nutch.LinkRank.io.filters.LinkRankVertexFilter;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2WebpageInputFormat;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2WebpageOutputFormat;
 import org.apache.hadoop.conf.Configuration;

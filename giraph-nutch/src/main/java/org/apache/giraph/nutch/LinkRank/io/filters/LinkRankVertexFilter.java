@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.LinkRank;
+package org.apache.giraph.nutch.LinkRank.io.filters;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.filters.VertexInputFilter;
