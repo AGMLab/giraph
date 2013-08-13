@@ -15,20 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.giraph.nutch.LinkRank;
-
-import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.io.filters.VertexInputFilter;
-import org.apache.giraph.nutch.utils.NutchUtil;
-
 /**
- * Vertex filter for skipping malformed URLs.
+ * Package of LinkRank Analysis.
  */
-public class LinkRankVertexFilter implements VertexInputFilter {
-  @Override
-  public boolean dropVertex(Vertex vertex) {
-    String source = vertex.getId().toString();
-    return !NutchUtil.isValidURL(source);
-  }
-}
+package org.apache.giraph.nutch.LinkRank.io;

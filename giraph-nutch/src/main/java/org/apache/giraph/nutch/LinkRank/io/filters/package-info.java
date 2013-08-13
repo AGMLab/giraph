@@ -15,25 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.giraph.nutch.LinkRank;
-
-import org.apache.giraph.edge.Edge;
-import org.apache.giraph.io.filters.EdgeInputFilter;
-import org.apache.hadoop.io.WritableComparable;
-
 /**
- * Edge filter for skipping malformed URLs.
+ * Package of LinkRank Analysis.
  */
-public class LinkRankEdgeFilter implements EdgeInputFilter {
-  @Override
-  public boolean dropEdge(WritableComparable sourceId, Edge edge) {
-    if (!NutchUtil.isValidURL(sourceId.toString())) {
-      return true;
-    }
-    if (!NutchUtil.isValidURL(edge.getTargetVertexId().toString())) {
-      return true;
-    }
-    return false;
-  }
-}
+package org.apache.giraph.nutch.LinkRank.io.filters;

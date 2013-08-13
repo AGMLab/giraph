@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.giraph.nutch.LinkRank;
+package org.apache.giraph.nutch.LinkRank.io.formats;
 import org.apache.giraph.io.formats.TextVertexValueInputFormat;
 import org.apache.giraph.nutch.utils.StringDoublePair;
 import org.apache.hadoop.io.DoubleWritable;
@@ -27,31 +27,31 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 /**
- * Vertex Input Format for LinkRank.
- * Example record:
- * http://www.site.com 1.0
+ * Uniform Vertex Input Format for LinkRank.
+ * Default value is 1.0d.
+ * Example vertex record:
+ * http://www.site.com
  *
  * @param <E> Edge data format
  * @param <M> Message data format
  */
-public class LinkRankVertexInputFormat<E extends NullWritable,
+public class LinkRankVertexUniformInputFormat<E extends NullWritable,
         M extends DoubleWritable> extends
         TextVertexValueInputFormat<Text, DoubleWritable, E> {
   /**
    * Separator for id and value
    */
-  private static final Pattern SEPARATOR = Pattern.compile("[\t ]");
+  private static final double UNIFORM_VALUE = 1.0d;
 
   /**
    * Vertex value reader reads the vertices from the input stream.
    * Sample format:
    *
-   * http://www.site1.com 1.0
-   * http://www.site2.com 1.0
-   * http://www.site3.com 1.0
+   * http://www.site1.com
+   * http://www.site2.com
+   * http://www.site3.com
    *
    * @param split InputSplit
    * @param context TaskAttemptContext
@@ -79,9 +79,7 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
      * @throws IOException
      */
     protected StringDoublePair preprocessLine(Text line) throws IOException {
-      String[] tokens = SEPARATOR.split(line.toString());
-      return new StringDoublePair(tokens[0],
-              Double.valueOf(tokens[1]));
+      return new StringDoublePair(line.toString(), UNIFORM_VALUE);
     }
 
     /**

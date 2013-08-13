@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.LinkRank;
+package org.apache.giraph.nutch.utils;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.avro.util.Utf8;
