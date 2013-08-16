@@ -116,26 +116,6 @@ public class Nutch2HostInputFormat extends
     }
 
     /**
-     * Perform reversing operations.
-     * @param hostname hostname given.
-     * @return source URL in unreversed form.
-     */
-    public String getSource(String hostname) {
-      int colonIndex = hostname.indexOf(":");
-      int dotIndex = hostname.indexOf(".");
-      if (colonIndex == -1) {
-        // it does not have http in it.
-        hostname += ":http/";
-        colonIndex = hostname.indexOf(":");
-      }
-      // if it's reversed, unreverse it.
-      if (dotIndex < colonIndex) {
-        hostname = NutchUtil.unreverseUrl(hostname);
-      }
-      return hostname;
-    }
-
-    /**
      * For each row, create a vertex with the row ID as a text,
      * and it's 'children' qualifier as a single edge.
      * @return current vertex read in the database.
@@ -153,8 +133,7 @@ public class Nutch2HostInputFormat extends
       Vertex<Text, DoubleWritable, NullWritable> vertex =
           getConf().createVertex();
 
-      String key = Bytes.toString(row.getRow());
-      String source = getSource(key);
+      String source = NutchUtil.reverseHost(Bytes.toString(row.getRow()));
 
       /**
        * Get ol family map from the row.
@@ -170,6 +149,7 @@ public class Nutch2HostInputFormat extends
       double score = 1.0d;
       // Create Writables for source URL and score value.
       Text vertexId = new Text(source);
+      LOG.info("source=================" + source);
       DoubleWritable vertexValue = new DoubleWritable(score);
 
       // Create edge list by looking at the outlinkMap.
@@ -182,8 +162,8 @@ public class Nutch2HostInputFormat extends
         // Extract targetURL (key), Weight (value) from the key, value pair.
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
         // Convert targetURL into Text format and add to edges list.
-        String target = "http://" + Bytes.toString((byte[]) pair.getKey()) +
-                "/";
+        String target = Bytes.toString((byte[]) pair.getKey());
+        LOG.info("target============" + target);
         Text edgeId = new Text(target);
         edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
       }

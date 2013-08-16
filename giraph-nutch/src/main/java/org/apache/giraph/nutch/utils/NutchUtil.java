@@ -23,6 +23,8 @@ import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import static com.google.common.net.InternetDomainName.isValid;
+
 /**
  * Static util methods for reversing/unreversing urls,
  * parsing hostnames from urls.
@@ -214,5 +216,6 @@ public class NutchUtil {
     }
     return true;
   }
+
 
 }
