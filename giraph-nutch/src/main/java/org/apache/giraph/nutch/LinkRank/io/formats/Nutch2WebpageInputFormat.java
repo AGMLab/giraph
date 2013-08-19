@@ -118,17 +118,17 @@ public class Nutch2WebpageInputFormat extends
 
     /**
      * Perform reversing operations.
-     * @param hostname hostname given.
+     * @param url url given.
      * @return source URL in unreversed form.
      */
-    public String getSource(String hostname) {
-      int colonIndex = hostname.indexOf(":");
-      int dotIndex = hostname.indexOf(".");
+    public String getSource(String url) {
+      int colonIndex = url.indexOf(":");
+      int dotIndex = url.indexOf(".");
       // if it's reversed, unreverse it.
       if (dotIndex < colonIndex) {
-        hostname = NutchUtil.unreverseUrl(hostname);
+        url = NutchUtil.unreverseUrl(url);
       }
-      return hostname;
+      return url;
     }
 
     /**

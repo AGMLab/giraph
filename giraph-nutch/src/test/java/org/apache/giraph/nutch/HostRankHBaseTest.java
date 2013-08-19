@@ -26,7 +26,6 @@ import org.apache.giraph.job.GiraphJob;
 import org.apache.giraph.nutch.LinkRank.LinkRankComputation;
 import org.apache.giraph.nutch.LinkRank.LinkRankVertexMasterCompute;
 import org.apache.giraph.nutch.LinkRank.LinkRankVertexWorkerContext;
-import org.apache.giraph.nutch.LinkRank.io.filters.HostRankEdgeFilter;
 import org.apache.giraph.nutch.LinkRank.io.filters.HostRankVertexFilter;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostInputFormat;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostOutputFormat;
@@ -160,18 +159,18 @@ public class HostRankHBaseTest extends BspCase {
 
       Put p4 = new Put(Bytes.toBytes("com.bing.www"));
       // TODO: Handle below case. use apache isValid method.
-      //p4.add(OL_BYTES, Bytes.toBytes("http://invalidurl"), Bytes.toBytes("invalid5"));
+      p4.add(OL_BYTES, Bytes.toBytes("http://invalidurl"), Bytes.toBytes("invalid5"));
       p4.add(S_BYTES, S_BYTES, Bytes.toBytes(10.0d));
 
 
-      /*Put p5 = new Put(Bytes.toBytes("dummy"));
-      p5.add(S_BYTES, S_BYTES, Bytes.toBytes(10.0d));*/
+      Put p5 = new Put(Bytes.toBytes("dummy"));
+      p5.add(S_BYTES, S_BYTES, Bytes.toBytes(10.0d));
 
       table.put(p1);
       table.put(p2);
       table.put(p3);
       table.put(p4);
-      //table.put(p5);
+      table.put(p5);
 
       // Set Giraph configuration
       //now operate over HBase using Vertex I/O formats
@@ -195,7 +194,6 @@ public class HostRankHBaseTest extends BspCase {
       giraphConf.set("giraph.linkRank.family", "mtdt");
       giraphConf.set("giraph.linkRank.qualifier", "_hr_");
       giraphConf.setVertexInputFilterClass(HostRankVertexFilter.class);
-      giraphConf.setEdgeInputFilterClass(HostRankEdgeFilter.class);
       assertTrue(giraphJob.run(true));
 
       if(LOG.isInfoEnabled())

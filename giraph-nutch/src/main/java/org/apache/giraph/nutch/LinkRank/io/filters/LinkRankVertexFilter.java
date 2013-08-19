@@ -26,6 +26,11 @@ import org.apache.giraph.nutch.utils.NutchUtil;
  * Vertex filter for skipping malformed URLs.
  */
 public class LinkRankVertexFilter implements VertexInputFilter {
+  /**
+   * Defines which vertices to drop.
+   * @param vertex to check
+   * @return true if vertex has to be dropped.
+   */
   @Override
   public boolean dropVertex(Vertex vertex) {
     String source = vertex.getId().toString();

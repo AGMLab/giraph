@@ -21,24 +21,19 @@ package org.apache.giraph.nutch.LinkRank.io.filters;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.filters.VertexInputFilter;
 import org.apache.giraph.nutch.utils.NutchUtil;
-import org.apache.log4j.Logger;
 
 /**
  * Vertex filter for skipping malformed URLs.
  */
 public class HostRankVertexFilter implements VertexInputFilter {
   /**
-   * Logger
+   * Defines which vertices to drop.
+   * @param vertex to check
+   * @return true if vertex has to be dropped.
    */
-  private static final Logger LOG =
-          Logger.getLogger(NutchUtil.class);
-
   @Override
   public boolean dropVertex(Vertex vertex) {
     String source = "http://" + vertex.getId().toString();
-    boolean shouldDrop = !NutchUtil.isValidURL(source);
-    LOG.info("should drop " + source + " ========= > " + shouldDrop);
-    return shouldDrop;
-
+    return !NutchUtil.isValidURL(source);
   }
 }

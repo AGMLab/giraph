@@ -163,9 +163,12 @@ public class Nutch2HostInputFormat extends
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
         // Convert targetURL into Text format and add to edges list.
         String target = Bytes.toString((byte[]) pair.getKey());
+        // If target is valid, add it to edges.
         LOG.info("target============" + target);
-        Text edgeId = new Text(target);
-        edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
+        if (NutchUtil.isValidURL("http://" + target)) {
+          Text edgeId = new Text(target);
+          edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
+        }
       }
 
       /** With the edge list, initialize vertex with
