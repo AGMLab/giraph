@@ -33,6 +33,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import static org.apache.giraph.nutch.utils.NutchUtil.reverseUrl;
 
@@ -109,7 +110,8 @@ public class Nutch2WebpageOutputFormat
       throws IOException, InterruptedException {
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
       // get the byte representation of current vertex ID.
-      byte[] rowBytes = reverseUrl(vertex.getId().toString()).getBytes();
+      byte[] rowBytes = reverseUrl(vertex.getId().toString())
+              .getBytes(Charset.forName("UTF-8"));
       // create a new Put operation with vertex value in it.
       Put put = new Put(rowBytes);
 

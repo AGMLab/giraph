@@ -33,6 +33,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import static org.apache.giraph.nutch.utils.NutchUtil.reverseHost;
 
@@ -111,7 +112,7 @@ public class Nutch2HostOutputFormat
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
       // get the byte representation of current vertex ID.
       String reversedUrl = reverseHost(vertex.getId().toString());
-      byte[] rowBytes = reversedUrl.getBytes();
+      byte[] rowBytes = reversedUrl.getBytes(Charset.forName("UTF-8"));
       // create a new Put operation with vertex value in it.
       Put put = new Put(rowBytes);
 
