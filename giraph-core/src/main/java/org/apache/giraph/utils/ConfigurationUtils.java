@@ -38,6 +38,8 @@ import org.apache.giraph.graph.Language;
 import org.apache.giraph.io.EdgeInputFormat;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexOutputFormat;
+import org.apache.giraph.io.filters.EdgeInputFilter;
+import org.apache.giraph.io.filters.VertexInputFilter;
 import org.apache.giraph.io.formats.GiraphFileInputFormat;
 import org.apache.giraph.job.GiraphConfigurationValidator;
 import org.apache.giraph.jython.JythonUtils;
@@ -97,6 +99,8 @@ public final class ConfigurationUtils {
     OPTIONS.addOption("w", "workers", true, "Number of workers");
     OPTIONS.addOption("vif", "vertexInputFormat", true, "Vertex input format");
     OPTIONS.addOption("eif", "edgeInputFormat", true, "Edge input format");
+    OPTIONS.addOption("vifl", "vertexInputFilter", true, "Vertex Input Filter");
+    OPTIONS.addOption("eifl", "edgeInputFilter", true, "Edge Input Filter");
     OPTIONS.addOption("of", "outputFormat", true, "Vertex output format");
     OPTIONS.addOption("vip", "vertexInputPath", true, "Vertex input path");
     OPTIONS.addOption("eip", "edgeInputPath", true, "Edge input path");
@@ -335,6 +339,18 @@ public final class ConfigurationUtils {
           (Class<? extends VertexValueFactory>) Class
               .forName(cmd.getOptionValue("vvf")));
     }
+    if (cmd.hasOption("vifl")) {
+      conf.setVertexInputFilterClass(
+          (Class<? extends VertexInputFilter>) Class
+              .forName(cmd.getOptionValue("vifl")));
+
+    }
+    if (cmd.hasOption("eifl")) {
+      conf.setEdgeInputFilterClass(
+              (Class<? extends EdgeInputFilter>) Class
+                      .forName(cmd.getOptionValue("eifl")));
+
+    }
     if (cmd.hasOption("ca")) {
       for (String caOptionValue : cmd.getOptionValues("ca")) {
         for (String paramValue :
@@ -376,6 +392,8 @@ public final class ConfigurationUtils {
         }
       }
     }
+
+
     // YARN-ONLY OPTIONS
     if (cmd.hasOption("yj")) {
       conf.setYarnLibJars(cmd.getOptionValue("yj"));
