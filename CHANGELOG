@@ -1,6 +1,25 @@
 Giraph Change Log
 
 Release 1.1.0 - unreleased
+  GIRAPH-512: JavaDoc warnings (tdn120 via nitay)
+
+  GIRAPH-736: Bring back FindBugs (nitay)
+
+  GIRAPH-735: DiskBackedPartitionStore throws NPE due to uninitialized OutEdges
+  (claudio)
+
+  GIRAPH-734: DiskBackedPartitionStore attempting to release a lock it doesn't own
+  (cmuchinsky via claudio)
+
+  GIRAPH-739: Discrepancy among numeric constants corresponding to frequency of 
+  writing in TextAggregatorWriter (korlando via claudio)
+
+  GIRAPH-740: ArrayListWritable object is not cleared in readFields()
+  (korlando via claudio)
+
+  GIRAPH-692: Add Bracha Toueg Deadlock Detection in the examples 
+  (aarmax00 via claudio)
+
   GIRAPH-717: HiveJythonRunner with support for pure Jython value types (nitay)
 
   GIRAPH-722: ProgressableUtils.waitForever is not calling progress (majakabiljo)
