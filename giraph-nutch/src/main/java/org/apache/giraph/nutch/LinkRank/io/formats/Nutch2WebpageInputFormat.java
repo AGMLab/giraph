@@ -94,7 +94,7 @@ public class Nutch2WebpageInputFormat extends
     /**
      * Constant vertex value.
      */
-    static final DoubleWritable vertexValue = new DoubleWritable(1.0d);
+    private static final DoubleWritable vertexValue = new DoubleWritable(1.0d);
 
     /**
      * VertexReader for LinkRank
