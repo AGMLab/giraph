@@ -113,12 +113,14 @@ public class Nutch2HostOutputFormat
       // get the byte representation of current vertex ID.
       String reversedUrl = reverseHost(vertex.getId().toString());
       byte[] rowBytes = reversedUrl.getBytes(Charset.forName("UTF-8"));
+
       // create a new Put operation with vertex value in it.
       Put put = new Put(rowBytes);
 
       // prepare value.
       DoubleWritable valueWritable = vertex.getValue();
       double value = valueWritable.get();
+
       String valueStr = Double.toString(value);
       LOG.info("========== " + reversedUrl + " => " + valueStr);
       byte[] valueBytes = Bytes.toBytes(value);

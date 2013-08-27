@@ -17,8 +17,7 @@
  */
 package org.apache.giraph.nutch.LinkRank.io.formats;
 
-import com.google.common.collect.Lists;
-
+import com.google.common.collect.Sets;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
@@ -37,8 +36,8 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NavigableMap;
+import java.util.Set;
 
 /**
  *  HBase Input Format for LinkRank.
@@ -91,6 +90,11 @@ public class Nutch2WebpageInputFormat extends
      *                       - ...
      */
     private static final byte[] OUTLINK_FAMILY = Bytes.toBytes("ol");
+
+    /**
+     * Constant vertex value.
+     */
+    static final DoubleWritable vertexValue = new DoubleWritable(1.0d);
 
     /**
      * VertexReader for LinkRank
@@ -154,32 +158,45 @@ public class Nutch2WebpageInputFormat extends
 
       /**
        * Get ol family map from the row.
-       * This will be a Map<SourceURL, TargetURL> for representing outlinks.
+       * Map returns:
+       * Key: target1.com  Value:"Click here"
+       *
+       * We will convert this to {target1.com, target2.com, ... }
        */
       NavigableMap<byte[], byte[]> outlinkMap =
               row.getFamilyMap(OUTLINK_FAMILY);
 
-      double score = 1.0d;
       // Create Writables for source URL and score value.
       Text vertexId = new Text(source);
-      DoubleWritable vertexValue = new DoubleWritable(score);
 
       // Create edge list by looking at the outlinkMap.
       // Our edges are of form <TargetURL, Weight> = <Text, NullWritable>
-      List<Edge<Text, NullWritable>> edges = Lists.newLinkedList();
+      Set<String> targetUrlSet = Sets.newHashSet();
+      Set<Edge<Text, NullWritable>> edges = Sets.newHashSet();
 
-      // Iterate over outlinkMap.
+      /**
+       * Iterate over outlinkMap, add outlink urls to a set.
+       **/
       Iterator it = outlinkMap.entrySet().iterator();
       while (it.hasNext()) {
         // Extract targetURL (key), Weight (value) from the key, value pair.
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
-        // Convert targetURL into Text format and add to edges list.
-        String target = Bytes.toString((byte[]) pair.getKey());
 
-        if (!NutchUtil.isValidURL(target)) {
+        // Convert targetURL into Text format and add to edges list.
+        String target = Bytes.toString((byte[]) pair.getKey())
+                .trim().split("#")[0];
+
+        if (!NutchUtil.isValidURL(target) ||
+                target.equalsIgnoreCase(source)) {
           continue;
         }
+        targetUrlSet.add(target);
+      }
 
+      /**
+       * Now convert the url string set to edge set.
+       */
+      for (String target : targetUrlSet) {
         Text edgeId = new Text(target);
         edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
       }

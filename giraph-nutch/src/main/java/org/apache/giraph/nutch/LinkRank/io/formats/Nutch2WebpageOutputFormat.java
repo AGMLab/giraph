@@ -112,12 +112,14 @@ public class Nutch2WebpageOutputFormat
       // get the byte representation of current vertex ID.
       byte[] rowBytes = reverseUrl(vertex.getId().toString())
               .getBytes(Charset.forName("UTF-8"));
+
       // create a new Put operation with vertex value in it.
       Put put = new Put(rowBytes);
 
       // prepare value.
       DoubleWritable valueWritable = vertex.getValue();
       double value = valueWritable.get();
+
       String valueStr = Double.toString(value);
       byte[] valueBytes = Bytes.toBytes(value);
 

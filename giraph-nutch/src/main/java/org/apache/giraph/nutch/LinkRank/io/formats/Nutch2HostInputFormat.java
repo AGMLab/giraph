@@ -18,6 +18,7 @@
 package org.apache.giraph.nutch.LinkRank.io.formats;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Set;
 
 /**
  *  HBase Input Format for HostRank.
@@ -92,6 +94,11 @@ public class Nutch2HostInputFormat extends
     private static final byte[] OUTLINK_FAMILY = Bytes.toBytes("ol");
 
     /**
+     * Constant vertex value.
+     */
+    static final DoubleWritable vertexValue = new DoubleWritable(1.0d);
+
+    /**
      * VertexReader for LinkRank
      * @param split InputSplit
      * @param context Context
@@ -137,7 +144,10 @@ public class Nutch2HostInputFormat extends
 
       /**
        * Get ol family map from the row.
-       * This will be a Map<SourceURL, TargetURL> for representing outlinks.
+       * Map returns:
+       * Key: target1.com  Value:18
+       *
+       * We will convert this to {target1.com, target2.com, ... }
        */
       NavigableMap<byte[], byte[]> outlinkMap =
               row.getFamilyMap(OUTLINK_FAMILY);
@@ -146,29 +156,41 @@ public class Nutch2HostInputFormat extends
       //byte[] scoreByteValue = row.getValue(SCORE_FAMILY, SCORE_FAMILY);
       //Double score = Bytes.toDouble(scoreByteValue);
 
-      double score = 1.0d;
       // Create Writables for source URL and score value.
       Text vertexId = new Text(source);
       LOG.info("source=================" + source);
-      DoubleWritable vertexValue = new DoubleWritable(score);
 
       // Create edge list by looking at the outlinkMap.
       // Our edges are of form <TargetURL, Weight> = <Text, NullWritable>
+      Set<String> targetHostSet = Sets.newHashSet();
       List<Edge<Text, NullWritable>> edges = Lists.newLinkedList();
 
-      // Iterate over outlinkMap.
+      /**
+       * Iterate over outlinkMap, add outlink urls to a set.
+       **/
       Iterator it = outlinkMap.entrySet().iterator();
       while (it.hasNext()) {
         // Extract targetURL (key), Weight (value) from the key, value pair.
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
+
         // Convert targetURL into Text format and add to edges list.
-        String target = Bytes.toString((byte[]) pair.getKey());
+        String target = Bytes.toString((byte[]) pair.getKey()).trim();
+
         // If target is valid, add it to edges.
         LOG.info("target============" + target);
-        if (NutchUtil.isValidURL("http://" + target)) {
-          Text edgeId = new Text(target);
-          edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
+        if (!NutchUtil.isValidURL("http://" + target) ||
+                target.equalsIgnoreCase(source)) {
+          continue;
         }
+        targetHostSet.add(target);
+      }
+
+      /**
+       * Now convert the url string set to edge set.
+       */
+      for (String target : targetHostSet) {
+        Text edgeId = new Text(target);
+        edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
       }
 
       /** With the edge list, initialize vertex with

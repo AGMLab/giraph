@@ -94,7 +94,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     dampingFactor = getConf().getFloat(
             LinkRankVertex.DAMPING_FACTOR, 0.85f);
     removeDuplicates = getConf().getBoolean(
-            LinkRankVertex.REMOVE_DUPLICATES, true);
+            LinkRankVertex.REMOVE_DUPLICATES, false);
     superStep = getSuperstep();
 
     // Start computation
@@ -202,9 +202,11 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       DoubleWritable message = new DoubleWritable(
               vertex.getValue().get() / edgeCount
       );
-      sendMessageToAllEdges(vertex, message);
+
       if (edgeCount == 0) {
         aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
+      } else {
+        sendMessageToAllEdges(vertex, message);
       }
     } else {
       vertex.voteToHalt();
@@ -217,8 +219,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    * @return score to give each individual node
    */
   public Double getDanglingContribution() {
-    DoubleWritable d = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
-    Double danglingSum = d.get();
+    DoubleWritable danWritable = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
+    Double danglingSum = danWritable.get();
     Double contribution = danglingSum / getTotalNumVertices();
     return contribution;
   }
@@ -231,7 +233,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   public void removeDuplicateLinks(Vertex<Text, DoubleWritable,
           NullWritable> vertex) {
-    String sourceUrl = Bytes.toString(vertex.getId().getBytes()).trim();
+    String sourceUrl = vertex.getId().toString().trim();
     String targetUrl;
     Set<String> urls = new HashSet<String>();
 
