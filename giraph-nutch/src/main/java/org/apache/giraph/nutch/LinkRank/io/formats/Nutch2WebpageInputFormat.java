@@ -183,8 +183,7 @@ public class Nutch2WebpageInputFormat extends
         NavigableMap.Entry pair = (NavigableMap.Entry) it.next();
 
         // Convert targetURL into Text format and add to edges list.
-        String target = Bytes.toString((byte[]) pair.getKey())
-                .trim().split("#")[0];
+        String target = Bytes.toString((byte[]) pair.getKey()).trim();
 
         if (!NutchUtil.isValidURL(target) ||
                 target.equalsIgnoreCase(source)) {

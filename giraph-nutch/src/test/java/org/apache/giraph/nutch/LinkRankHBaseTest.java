@@ -146,12 +146,8 @@ public class LinkRankHBaseTest extends BspCase {
 
       Put p2 = new Put(Bytes.toBytes("com.google.www:http/"));
       p2.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("ac"));
-      p2.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/#test"),
-              Bytes.toBytes("invalid1"));
       p2.add(OL_BYTES, Bytes.toBytes("http://www.google.com/"),
               Bytes.toBytes("invalid2"));
-      p2.add(OL_BYTES, Bytes.toBytes("http://www.google.com/#test"),
-              Bytes.toBytes("invalid3"));
 
       Put p3 = new Put(Bytes.toBytes("com.yahoo.www:http/"));
       p3.add(OL_BYTES, Bytes.toBytes("http://www.bing.com/"), Bytes.toBytes("bc"));
