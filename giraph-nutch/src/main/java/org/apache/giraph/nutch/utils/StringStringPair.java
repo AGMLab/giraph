@@ -27,6 +27,13 @@ public class StringStringPair {
   /** Second element. */
   private String second;
 
+  /**
+   * Emtpy constructor.
+   */
+  public StringStringPair() {
+
+  }
+
   /** Constructor.
    *
    * @param fst First element

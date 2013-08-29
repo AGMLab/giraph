@@ -55,10 +55,17 @@ public class LinkRankEdgeInputFormat extends
    */
   public class TextNullTextEdgeReader extends
           TextEdgeReaderFromEachLineProcessed<StringStringPair> {
+    /**
+     * Current StringString pair for re-use
+     */
+    protected StringStringPair currentPair = new StringStringPair();
+
     @Override
     protected StringStringPair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
-      return new StringStringPair(tokens[0], tokens[1]);
+      currentPair.setFirst(tokens[0]);
+      currentPair.setSecond(tokens[1]);
+      return currentPair;
     }
 
     @Override
