@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
  * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
  */
 public class LinkRankComputationTest {
-  private static final Logger LOG = Logger.getLogger(LinkRankVertex.class);
+  private static final Logger LOG = Logger.getLogger(LinkRankComputationTest.class);
   private static final double DELTA = 1e-3;
 
   @Test

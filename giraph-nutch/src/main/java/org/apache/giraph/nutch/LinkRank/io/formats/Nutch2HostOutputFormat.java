@@ -108,7 +108,6 @@ public class Nutch2HostOutputFormat
     public void writeVertex(
       Vertex<Text, DoubleWritable, NullWritable> vertex)
       throws IOException, InterruptedException {
-      LOG.info("================ *** ===============");
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
       // get the byte representation of current vertex ID.
       String reversedUrl = reverseHost(vertex.getId().toString());
@@ -122,7 +121,6 @@ public class Nutch2HostOutputFormat
       double value = valueWritable.get();
 
       String valueStr = Double.toString(value);
-      LOG.info("========== " + reversedUrl + " => " + valueStr);
       byte[] valueBytes = Bytes.toBytes(value);
 
       // write the vertex, score pair.

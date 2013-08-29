@@ -19,26 +19,45 @@
 package org.apache.giraph.nutch.LinkRank;
 
 import org.apache.giraph.aggregators.DoubleSumAggregator;
-import org.apache.giraph.master.DefaultMasterCompute;
+import org.apache.giraph.master.MasterCompute;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * Master compute associated with {@link LinkRankComputation}.
  * It registers required aggregators.
  */
 public class LinkRankVertexMasterCompute extends
-        DefaultMasterCompute {
+        MasterCompute {
+  @Override
+  public void compute() {
+
+  }
+
   @Override
   public void initialize() throws InstantiationException,
           IllegalAccessException {
     registerPersistentAggregator(
-            LinkRankVertex.SUM_OF_LOGS, DoubleSumAggregator.class);
+            LinkRankComputation.SUM_OF_LOGS, DoubleSumAggregator.class);
     registerPersistentAggregator(
-            LinkRankVertex.SUM_OF_DEVS, DoubleSumAggregator.class);
+            LinkRankComputation.SUM_OF_DEVS, DoubleSumAggregator.class);
     registerPersistentAggregator(
-            LinkRankVertex.AVG_OF_LOGS, DoubleSumAggregator.class);
+            LinkRankComputation.AVG_OF_LOGS, DoubleSumAggregator.class);
     registerPersistentAggregator(
-            LinkRankVertex.STDEV, DoubleSumAggregator.class);
+            LinkRankComputation.STDEV, DoubleSumAggregator.class);
 
-    registerAggregator(LinkRankVertex.DANGLING_AGG, DoubleSumAggregator.class);
+    registerAggregator(LinkRankComputation.DANGLING_AGG,
+            DoubleSumAggregator.class);
+  }
+
+  @Override
+  public void write(DataOutput dataOutput) throws IOException {
+
+  }
+
+  @Override
+  public void readFields(DataInput dataInput) throws IOException {
+
   }
 }

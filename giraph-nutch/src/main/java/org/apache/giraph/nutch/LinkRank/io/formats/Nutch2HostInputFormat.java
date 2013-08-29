@@ -158,7 +158,6 @@ public class Nutch2HostInputFormat extends
 
       // Create Writables for source URL and score value.
       Text vertexId = new Text(source);
-      LOG.info("source=================" + source);
 
       // Create edge list by looking at the outlinkMap.
       // Our edges are of form <TargetURL, Weight> = <Text, NullWritable>
@@ -177,7 +176,6 @@ public class Nutch2HostInputFormat extends
         String target = Bytes.toString((byte[]) pair.getKey()).trim();
 
         // If target is valid, add it to edges.
-        LOG.info("target============" + target);
         if (!NutchUtil.isValidURL("http://" + target) ||
                 target.equalsIgnoreCase(source)) {
           continue;

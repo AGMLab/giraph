@@ -39,53 +39,6 @@ import org.apache.hadoop.io.Text;
 )
 public class LinkRankVertex extends DefaultVertex<Text, DoubleWritable,
         NullWritable> {
-  /**
-   * Number of supersteps this vertex will be involved in.
-   */
-  public static final String SUPERSTEP_COUNT =
-          "giraph.linkRank.superstepCount";
 
-  /**
-   * Damping factor, by default 0.85.
-   */
-  public static final String DAMPING_FACTOR =
-          "giraph.linkRank.dampingFactor";
-
-  /**
-   * Dangling score aggregator.
-   */
-  protected static final String DANGLING_AGG = "dangling";
-
-  /**
-   * Sum of log(vertex.value)
-   */
-  protected static final String SUM_OF_LOGS = "sumoflogs";
-
-  /**
-   * Average of log scores.
-   */
-  protected static final String AVG_OF_LOGS = "avgoflogs";
-
-  /**
-  * Sum of deviation of log scores from logs' mean.
-  */
-  protected static final String SUM_OF_DEVS = "sumofdevs";
-
-  /**
-  * Standard deviation
-  */
-  protected static final String STDEV = "stdev";
-
-
-  /**
-   * Scale of the score. If set to 10, score will be in range [0, 10].
-   */
-  protected static final String SCALE = "giraph.linkRank.scale";
-
-  /**
-   * Whether to attempt duplicate links or not.
-   */
-  protected static final String REMOVE_DUPLICATES =
-          "giraph.linkRank.removeDuplicates";
 
 }

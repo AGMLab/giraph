@@ -44,7 +44,7 @@ public class LinkRankVertexWorkerContext extends
     throws InstantiationException, IllegalAccessException {
     // add additional 3 steps for normalization.
     maxSteps = getContext().getConfiguration().
-            getLong(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
+            getLong(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
   }
 
   @Override
@@ -66,21 +66,23 @@ public class LinkRankVertexWorkerContext extends
        * Divide this sum by total number of vertices and aggragate in
        * AVG_OF_LOGS.
        */
-      DoubleWritable logsum = getAggregatedValue(LinkRankVertex.SUM_OF_LOGS);
+      DoubleWritable logsum =
+              getAggregatedValue(LinkRankComputation.SUM_OF_LOGS);
       DoubleWritable avg = new DoubleWritable(
               logsum.get() / getTotalNumVertices());
 
-      aggregate(LinkRankVertex.AVG_OF_LOGS, avg);
+      aggregate(LinkRankComputation.AVG_OF_LOGS, avg);
 
     } else if (superstep == maxSteps - 1) {
       /**
        * Calculate standart deviation with deviation sums SUM_OF_DEVS.
        * Aggregate result to STDEV.
        */
-      DoubleWritable devSum = getAggregatedValue(LinkRankVertex.SUM_OF_DEVS);
+      DoubleWritable devSum =
+              getAggregatedValue(LinkRankComputation.SUM_OF_DEVS);
       double ratio = devSum.get() / getTotalNumVertices();
       DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
-      aggregate(LinkRankVertex.STDEV, stdev);
+      aggregate(LinkRankComputation.STDEV, stdev);
     }
   }
 }

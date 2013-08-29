@@ -43,6 +43,55 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
         NullWritable, DoubleWritable> {
 
   /**
+   * Number of supersteps this vertex will be involved in.
+   */
+  public static final String SUPERSTEP_COUNT =
+          "giraph.linkRank.superstepCount";
+
+  /**
+   * Damping factor, by default 0.85.
+   */
+  public static final String DAMPING_FACTOR =
+          "giraph.linkRank.dampingFactor";
+
+  /**
+   * Dangling score aggregator.
+   */
+  public static final String DANGLING_AGG = "dangling";
+
+  /**
+   * Sum of log(vertex.value)
+   */
+  public static final String SUM_OF_LOGS = "sumoflogs";
+
+  /**
+   * Average of log scores.
+   */
+  public static final String AVG_OF_LOGS = "avgoflogs";
+
+  /**
+   * Sum of deviation of log scores from logs' mean.
+   */
+  public static final String SUM_OF_DEVS = "sumofdevs";
+
+  /**
+   * Standard deviation
+   */
+  public static final String STDEV = "stdev";
+
+
+  /**
+   * Scale of the score. If set to 10, score will be in range [0, 10].
+   */
+  public static final String SCALE = "giraph.linkRank.scale";
+
+  /**
+   * Whether to attempt duplicate links or not.
+   */
+  public static final String REMOVE_DUPLICATES =
+          "giraph.linkRank.removeDuplicates";
+
+  /**
    * Logger.
    */
   private static final Logger LOG = Logger.getLogger(LinkRankComputation.class);
@@ -74,6 +123,37 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   private boolean removeDuplicates;
 
+  /**
+   * Aggregated value: Average of log values of the nodes.
+   */
+  private DoubleWritable logAvg;
+
+  /**
+   * Aggregated value: Standard deviation.
+   */
+  private DoubleWritable stdev;
+
+  /**
+   * Dangling edge score contribution for each vertex
+   * in the current superstep.
+   */
+  private Double currentDanglingContribution;
+
+  @Override
+  public void preSuperstep() {
+    // Read configuration
+    maxSteps = getConf().getInt(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
+    scale = getConf().getInt(LinkRankComputation.SCALE, 10);
+    dampingFactor = getConf().getFloat(
+            LinkRankComputation.DAMPING_FACTOR, 0.85f);
+    removeDuplicates = getConf().getBoolean(
+            LinkRankComputation.REMOVE_DUPLICATES, false);
+    superStep = getSuperstep();
+
+    logAvg = getAggregatedValue(LinkRankComputation.AVG_OF_LOGS);
+    stdev = getAggregatedValue(LinkRankComputation.STDEV);
+    currentDanglingContribution = getDanglingContribution();
+  }
 
   /**
    * We will be receiving messages from our neighbors and process them
@@ -87,16 +167,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   public void compute(Vertex<Text, DoubleWritable, NullWritable> vertex,
                       Iterable<DoubleWritable> messages)
     throws IOException {
-    // Read configuration
-    maxSteps = getConf().getInt(LinkRankVertex.SUPERSTEP_COUNT, 10) + 3;
-    scale = getConf().getInt(LinkRankVertex.SCALE, 10);
-    dampingFactor = getConf().getFloat(
-            LinkRankVertex.DAMPING_FACTOR, 0.85f);
-    removeDuplicates = getConf().getBoolean(
-            LinkRankVertex.REMOVE_DUPLICATES, false);
-    superStep = getSuperstep();
 
-    // Start computation
     receiveMessages(vertex, messages);
     distributeScores(vertex);
     if (superStep >= maxSteps - 4) {
@@ -126,7 +197,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
 
       Double newValue =
         ((1f - dampingFactor) / getTotalNumVertices()) +
-                dampingFactor * (sum + getDanglingContribution());
+                dampingFactor * (sum + currentDanglingContribution);
 
       vertex.setValue(new DoubleWritable(newValue));
     }
@@ -146,7 +217,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
        * Calculate LOG(value) and aggregate to SUM_OF_LOGS.
        */
       DoubleWritable logValue = new DoubleWritable(logValueDouble);
-      aggregate(LinkRankVertex.SUM_OF_LOGS, logValue);
+      aggregate(LinkRankComputation.SUM_OF_LOGS, logValue);
     } else if (superStep == maxSteps - 2) {
       /** Pass previous superstep since WorkerContext will need SUM_OF_LOGS
        *  to be aggregated.
@@ -155,18 +226,15 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
        *  WorkerContext will use SUM_OF_DEVS to calculate stdev
        *  in maxsupersteps-1 step.
        */
-      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.AVG_OF_LOGS);
       double meanSquareError = Math.pow(logValueDouble - logAvg.get(), 2);
       DoubleWritable mseWritable = new DoubleWritable(meanSquareError);
-      aggregate(LinkRankVertex.SUM_OF_DEVS, mseWritable);
+      aggregate(LinkRankComputation.SUM_OF_DEVS, mseWritable);
     } else if (superStep == maxSteps) {
       /**
        * Pass maxsupersteps-1 step since WorkerContext will calculate stdev.
        * Use stdev and AVG_OF_LOGS to create a Normal Distribution.
        * Calculate CDF, scale it and set the new value.
        */
-      DoubleWritable logAvg = getAggregatedValue(LinkRankVertex.AVG_OF_LOGS);
-      DoubleWritable stdev = getAggregatedValue(LinkRankVertex.STDEV);
       double newValue = 1.0d;
       double stdevValue = stdev.get();
       if (stdevValue == 0.0d) {
@@ -203,7 +271,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       );
 
       if (edgeCount == 0) {
-        aggregate(LinkRankVertex.DANGLING_AGG, vertex.getValue());
+        aggregate(LinkRankComputation.DANGLING_AGG, vertex.getValue());
       } else {
         sendMessageToAllEdges(vertex, message);
       }
@@ -218,8 +286,9 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    * @return score to give each individual node
    */
   public Double getDanglingContribution() {
-    DoubleWritable dWritable = getAggregatedValue(LinkRankVertex.DANGLING_AGG);
-    Double danglingSum = dWritable.get();
+    DoubleWritable danglingWritable =
+            getAggregatedValue(LinkRankComputation.DANGLING_AGG);
+    Double danglingSum = danglingWritable.get();
     Double contribution = danglingSum / getTotalNumVertices();
     return contribution;
   }
