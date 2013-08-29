@@ -94,7 +94,7 @@ public class Nutch2WebpageInputFormat extends
     /**
      * Constant vertex value.
      */
-    private static final DoubleWritable vertexValue = new DoubleWritable(1.0d);
+    private static final DoubleWritable VERTEX_VALUE = new DoubleWritable(1.0d);
 
     /**
      * VertexReader for LinkRank
@@ -203,7 +203,7 @@ public class Nutch2WebpageInputFormat extends
       /** With the edge list, initialize vertex with
        * sourceURL, Score and EdgeList.
        */
-      vertex.initialize(vertexId, vertexValue, edges);
+      vertex.initialize(vertexId, VERTEX_VALUE, edges);
       return vertex;
     }
   }
