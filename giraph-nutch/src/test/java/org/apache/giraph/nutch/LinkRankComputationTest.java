@@ -65,7 +65,6 @@ public class LinkRankComputationTest {
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.linkRank.superstepCount", 10);
     conf.setInt("giraph.linkRank.scale", 10);
-    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
@@ -111,7 +110,6 @@ public class LinkRankComputationTest {
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.linkRank.superstepCount", 10);
     conf.setInt("giraph.linkRank.scale", 10);
-    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);
@@ -155,7 +153,6 @@ public class LinkRankComputationTest {
     conf.setEdgeInputFormatClass(LinkRankEdgeInputFormat.class);
     conf.setInt("giraph.linkRank.superstepCount", 10);
     conf.setInt("giraph.linkRank.scale", 10);
-    conf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
     conf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
     // Run internally
     Iterable<String> results = InternalVertexRunner.run(conf, vertices, edges);

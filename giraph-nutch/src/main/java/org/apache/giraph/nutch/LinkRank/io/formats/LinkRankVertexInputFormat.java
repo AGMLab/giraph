@@ -71,6 +71,11 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
           TextVertexValueReaderFromEachLineProcessed<StringDoublePair> {
 
     /**
+     * Current StringString pair for re-use
+     */
+    protected StringDoublePair currentPair = new StringDoublePair();
+
+    /**
      * Parses the line and creates Text-Double pair.
      * @param line the current line to be read
      *             URL-Score pair.
@@ -80,8 +85,9 @@ public class LinkRankVertexInputFormat<E extends NullWritable,
      */
     protected StringDoublePair preprocessLine(Text line) throws IOException {
       String[] tokens = SEPARATOR.split(line.toString());
-      return new StringDoublePair(tokens[0],
-              Double.valueOf(tokens[1]));
+      currentPair.setFirst(tokens[0]);
+      currentPair.setSecond(Double.valueOf(tokens[1]));
+      return currentPair;
     }
 
     /**

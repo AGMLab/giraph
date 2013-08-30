@@ -27,6 +27,13 @@ public class StringFloatPair {
   /** Second element. */
   private float second;
 
+  /**
+   * Empty Constructor
+   */
+  public StringFloatPair() {
+
+  }
+
   /** Constructor.
    *
    * @param fst First element

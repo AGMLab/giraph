@@ -25,7 +25,6 @@ import org.apache.giraph.edge.ByteArrayEdges;
 import org.apache.giraph.job.GiraphJob;
 import org.apache.giraph.nutch.LinkRank.LinkRankComputation;
 import org.apache.giraph.nutch.LinkRank.LinkRankVertexMasterCompute;
-import org.apache.giraph.nutch.LinkRank.LinkRankVertexWorkerContext;
 import org.apache.giraph.nutch.LinkRank.io.filters.HostRankVertexFilter;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostInputFormat;
 import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostOutputFormat;
@@ -185,7 +184,6 @@ public class HostRankHBaseTest extends BspCase {
       setupConfiguration(giraphJob);
       giraphConf.setComputationClass(LinkRankComputation.class);
       giraphConf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
-      giraphConf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
       giraphConf.setVertexInputFormatClass(Nutch2HostInputFormat.class);
       giraphConf.setVertexOutputFormatClass(Nutch2HostOutputFormat.class);

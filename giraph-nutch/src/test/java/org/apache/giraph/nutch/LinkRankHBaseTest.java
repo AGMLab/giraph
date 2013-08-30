@@ -178,7 +178,6 @@ public class LinkRankHBaseTest extends BspCase {
       setupConfiguration(giraphJob);
       giraphConf.setComputationClass(LinkRankComputation.class);
       giraphConf.setMasterComputeClass(LinkRankVertexMasterCompute.class);
-      giraphConf.setWorkerContextClass(LinkRankVertexWorkerContext.class);
       giraphConf.setOutEdgesClass(ByteArrayEdges.class);
       giraphConf.setVertexInputFormatClass(Nutch2WebpageInputFormat.class);
       giraphConf.setVertexOutputFormatClass(Nutch2WebpageOutputFormat.class);

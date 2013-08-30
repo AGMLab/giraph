@@ -27,6 +27,13 @@ public class StringDoublePair {
   /** Second element. */
   private double second;
 
+  /**
+   * Empty Constructor
+   */
+  public StringDoublePair() {
+
+  }
+
   /** Constructor.
    *
    * @param fst First element
