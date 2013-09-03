@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.LinkRank.io.formats;
+package org.apache.nutch.scoring.generic;
 
 
 import org.apache.giraph.graph.Vertex;
@@ -30,7 +30,7 @@ import java.io.IOException;
 
 /**
  * Simple VertexOutputFormat that supports
- * {@link org.apache.giraph.nutch.LinkRank.LinkRankVertex}
+ * {@link org.apache.nutch.scoring.LinkRank.LinkRankVertex}
  */
 public class LinkRankVertexOutputFormat extends
         TextVertexOutputFormat<Text, DoubleWritable, NullWritable> {
@@ -42,7 +42,7 @@ public class LinkRankVertexOutputFormat extends
 
   /**
    * Simple VertexWriter that supports
-   * {@link org.apache.giraph.nutch.LinkRank.LinkRankVertex}
+   * {@link org.apache.nutch.scoring.LinkRank.LinkRankVertex}
    */
   public class LinkRankVertexWriter extends TextVertexWriter {
     @Override

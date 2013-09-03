@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.LinkRank;
+package org.apache.nutch.scoring.LinkRank;
 
 import org.apache.giraph.aggregators.DoubleSumAggregator;
 import org.apache.giraph.master.MasterCompute;

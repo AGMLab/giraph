@@ -16,6 +16,6 @@
  * limitations under the License.
  */
 /**
- * Package of LinkRank Analysis.
+ * Package of Giraph-Nutch.
  */
-package org.apache.giraph.nutch.LinkRank.io.filters;
+package org.apache.nutch.scoring;

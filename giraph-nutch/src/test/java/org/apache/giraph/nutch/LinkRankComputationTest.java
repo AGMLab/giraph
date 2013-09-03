@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch;
+package org.apache.nutch.scoring;
 
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.edge.ByteArrayEdges;
-import org.apache.giraph.nutch.LinkRank.*;
-import org.apache.giraph.nutch.LinkRank.io.formats.LinkRankEdgeInputFormat;
-import org.apache.giraph.nutch.LinkRank.io.formats.LinkRankVertexInputFormat;
-import org.apache.giraph.nutch.LinkRank.io.formats.LinkRankVertexOutputFormat;
-import org.apache.giraph.nutch.LinkRank.io.formats.LinkRankVertexUniformInputFormat;
+import org.apache.nutch.scoring.LinkRank.*;
+import org.apache.nutch.scoring.generic.LinkRankEdgeInputFormat;
+import org.apache.nutch.scoring.generic.LinkRankVertexInputFormat;
+import org.apache.nutch.scoring.generic.LinkRankVertexOutputFormat;
+import org.apache.nutch.scoring.generic.LinkRankVertexUniformInputFormat;
 import org.apache.giraph.utils.InternalVertexRunner;
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
+ * Tests for {@link org.apache.nutch.scoring.LinkRank.LinkRankComputation}
  */
 public class LinkRankComputationTest {
   private static final Logger LOG = Logger.getLogger(LinkRankComputationTest.class);

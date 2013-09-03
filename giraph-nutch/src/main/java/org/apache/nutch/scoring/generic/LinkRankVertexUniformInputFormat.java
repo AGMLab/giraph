@@ -17,9 +17,9 @@
  */
 
 
-package org.apache.giraph.nutch.LinkRank.io.formats;
+package org.apache.nutch.scoring.generic;
 import org.apache.giraph.io.formats.TextVertexValueInputFormat;
-import org.apache.giraph.nutch.utils.StringDoublePair;
+import org.apache.nutch.scoring.LinkRank.utils.StringDoublePair;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;

@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch;
+package org.apache.nutch.scoring;
 
 
 import org.apache.giraph.BspCase;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.edge.ByteArrayEdges;
 import org.apache.giraph.job.GiraphJob;
-import org.apache.giraph.nutch.LinkRank.LinkRankComputation;
-import org.apache.giraph.nutch.LinkRank.LinkRankVertexMasterCompute;
-import org.apache.giraph.nutch.LinkRank.io.filters.HostRankVertexFilter;
-import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostInputFormat;
-import org.apache.giraph.nutch.LinkRank.io.formats.Nutch2HostOutputFormat;
+import org.apache.nutch.scoring.LinkRank.LinkRankComputation;
+import org.apache.nutch.scoring.LinkRank.LinkRankVertexMasterCompute;
+import org.apache.nutch.scoring.LinkRank.io.HostRankVertexFilter;
+import org.apache.nutch.scoring.LinkRank.io.Nutch2HostInputFormat;
+import org.apache.nutch.scoring.LinkRank.io.Nutch2HostOutputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -49,7 +49,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 /**
- * Tests for {@link org.apache.giraph.nutch.LinkRank.LinkRankComputation}
+ * Tests for {@link org.apache.nutch.scoring.LinkRank.LinkRankComputation}
  * Test case for LinkRank reading edges and vertex scores
  * from HBase, calculates new scores and updates the HBase
  * Table again.

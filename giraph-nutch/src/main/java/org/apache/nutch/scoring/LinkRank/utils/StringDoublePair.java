@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.utils;
+package org.apache.nutch.scoring.LinkRank.utils;
 
 /**
  * A pair of integers.

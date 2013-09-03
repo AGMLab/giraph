@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.giraph.nutch.LinkRank.io.formats;
+package org.apache.nutch.scoring.LinkRank.io;
 
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexWriter;
@@ -35,7 +35,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import static org.apache.giraph.nutch.utils.NutchUtil.reverseUrl;
+import static org.apache.nutch.scoring.LinkRank.utils.NutchUtil.reverseUrl;
 
 
 /**

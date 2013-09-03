@@ -18,4 +18,4 @@
 /**
  * Package of Giraph-Nutch.
  */
-package org.apache.giraph.nutch;
+package org.apache.nutch.scoring;

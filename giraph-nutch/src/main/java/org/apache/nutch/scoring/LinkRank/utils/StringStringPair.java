@@ -16,21 +16,21 @@
  * limitations under the License.
  */
 
-package org.apache.giraph.nutch.utils;
+package org.apache.nutch.scoring.LinkRank.utils;
 
 /**
- * A pair of integers.
+ * A pair of Strings.
  */
-public class StringFloatPair {
+public class StringStringPair {
   /** First element. */
   private String first;
   /** Second element. */
-  private float second;
+  private String second;
 
   /**
-   * Empty Constructor
+   * Emtpy constructor.
    */
-  public StringFloatPair() {
+  public StringStringPair() {
 
   }
 
@@ -39,7 +39,7 @@ public class StringFloatPair {
    * @param fst First element
    * @param snd Second element
    */
-  public StringFloatPair(String fst, float snd) {
+  public StringStringPair(String fst, String snd) {
     first = fst;
     second = snd;
   }
@@ -67,7 +67,7 @@ public class StringFloatPair {
    *
    * @return The second element
    */
-  public float getSecond() {
+  public String getSecond() {
     return second;
   }
 
@@ -76,7 +76,7 @@ public class StringFloatPair {
    *
    * @param second The second element
    */
-  public void setSecond(float second) {
+  public void setSecond(String second) {
     this.second = second;
   }
 }
