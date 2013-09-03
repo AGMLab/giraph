@@ -119,6 +119,7 @@ public class Nutch2HostOutputFormat
       // prepare value.
       DoubleWritable valueWritable = vertex.getValue();
       double value = valueWritable.get();
+      LOG.info(reversedUrl + "=" + value);
 
       String valueStr = Double.toString(value);
       byte[] valueBytes = Bytes.toBytes(value);

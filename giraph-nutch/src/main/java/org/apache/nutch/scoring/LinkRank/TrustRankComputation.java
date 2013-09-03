@@ -25,6 +25,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.log4j.Logger;
@@ -39,7 +40,7 @@ import java.util.Set;
  * We first remove duplicate edges and then perform pagerank calculation
  * for pre-defined steps (10).
  */
-public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
+public class TrustRankComputation extends BasicComputation<Text, DoubleWritable,
         NullWritable, DoubleWritable> {
 
   /**
@@ -79,6 +80,15 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   public static final String STDEV = "stdev";
 
+  /**
+   * Number of trusted vertices.
+   */
+  public static final String NUM_TRUSTED = "numtrusted";
+
+  /**
+   * Trusted vertices
+   */
+  public static final String TRUSTED_VERTICES = "trustedvertices";
 
   /**
    * Scale of the score. If set to 10, score will be in range [0, 10].
@@ -94,7 +104,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   /**
    * Logger.
    */
-  private static final Logger LOG = Logger.getLogger(LinkRankComputation.class);
+  private static final Logger LOG = Logger.getLogger(TrustRankComputation.class);
 
   /**
    * Maximum number of supersteps.
@@ -124,6 +134,10 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   private boolean removeDuplicates;
 
   /**
+   * Whether this vertex is trusted or not.
+   */
+  private boolean trusted = false;
+  /**
    * Aggregated value: Average of log values of the nodes.
    */
   private DoubleWritable logAvg;
@@ -142,16 +156,16 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
   @Override
   public void preSuperstep() {
     // Read configuration
-    maxSteps = getConf().getInt(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
-    scale = getConf().getInt(LinkRankComputation.SCALE, 10);
+    maxSteps = getConf().getInt(TrustRankComputation.SUPERSTEP_COUNT, 10) + 3;
+    scale = getConf().getInt(TrustRankComputation.SCALE, 10);
     dampingFactor = getConf().getFloat(
-            LinkRankComputation.DAMPING_FACTOR, 1.0f);
+            TrustRankComputation.DAMPING_FACTOR, 1.0f);
     removeDuplicates = getConf().getBoolean(
-            LinkRankComputation.REMOVE_DUPLICATES, false);
+            TrustRankComputation.REMOVE_DUPLICATES, false);
     superStep = getSuperstep();
 
-    logAvg = getAggregatedValue(LinkRankComputation.AVG_OF_LOGS);
-    stdev = getAggregatedValue(LinkRankComputation.STDEV);
+    logAvg = getAggregatedValue(TrustRankComputation.AVG_OF_LOGS);
+    stdev = getAggregatedValue(TrustRankComputation.STDEV);
     currentDanglingContribution = getDanglingContribution();
   }
 
@@ -161,7 +175,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    *
    * @param vertex   Vertex object for computation.
    * @param messages LinkRank score messages
-   * @throws IOException
+   * @throws java.io.IOException
    */
   @Override
   public void compute(Vertex<Text, DoubleWritable, NullWritable> vertex,
@@ -189,12 +203,26 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       if (removeDuplicates) {
         removeDuplicateLinks(vertex);
       }
+      if (Math.abs(vertex.getValue().get() - 1.0d) < 1e-3){
+        aggregate(TrustRankComputation.TRUSTED_VERTICES, new Text(";" + vertex.getId()));
+        aggregate(TrustRankComputation.NUM_TRUSTED, new IntWritable(1));
+      }
+
+
     } else if (1 <= superStep && superStep <= maxSteps - 4) {
       // find the score sum received from our neighbors.
       for (DoubleWritable message : messages) {
         sum += message.get();
       }
 
+      HashSet<String> trusteds = new HashSet<String>();
+      for (String element : getAggregatedValue(TrustRankComputation.TRUSTED_VERTICES).toString().split(";")){
+        trusteds.add(element);
+      }
+
+      if (!trusteds.contains(vertex.getId())){
+        currentDanglingContribution = 0.0d;
+      }
       Double newValue =
         ((1f - dampingFactor) / getTotalNumVertices()) +
                 dampingFactor * (sum + currentDanglingContribution);
@@ -219,7 +247,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
        * Calculate LOG(value) and aggregate to SUM_OF_LOGS.
        */
       DoubleWritable logValue = new DoubleWritable(logValueDouble);
-      aggregate(LinkRankComputation.SUM_OF_LOGS, logValue);
+      aggregate(TrustRankComputation.SUM_OF_LOGS, logValue);
     } else if (superStep == maxSteps - 2) {
       /** Pass previous superstep since WorkerContext will need SUM_OF_LOGS
        *  to be aggregated.
@@ -230,7 +258,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
        */
       double meanSquareError = Math.pow(logValueDouble - logAvg.get(), 2);
       DoubleWritable mseWritable = new DoubleWritable(meanSquareError);
-      aggregate(LinkRankComputation.SUM_OF_DEVS, mseWritable);
+      aggregate(TrustRankComputation.SUM_OF_DEVS, mseWritable);
     } else if (superStep == maxSteps) {
       /**
        * Pass maxsupersteps-1 step since WorkerContext will calculate stdev.
@@ -273,7 +301,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       );
 
       if (edgeCount == 0) {
-        aggregate(LinkRankComputation.DANGLING_AGG, vertex.getValue());
+        aggregate(TrustRankComputation.DANGLING_AGG, vertex.getValue());
       } else {
         sendMessageToAllEdges(vertex, message);
       }
@@ -289,9 +317,10 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
    */
   public Double getDanglingContribution() {
     DoubleWritable danglingWritable =
-            getAggregatedValue(LinkRankComputation.DANGLING_AGG);
+            getAggregatedValue(TrustRankComputation.DANGLING_AGG);
     Double danglingSum = danglingWritable.get();
-    Double contribution = danglingSum / getTotalNumVertices();
+    double d = Double.parseDouble(getAggregatedValue(TrustRankComputation.NUM_TRUSTED).toString());
+    Double contribution = danglingSum / d;
     return contribution;
   }
 
