@@ -159,7 +159,7 @@ public class Nutch2HostTrustInputFormat extends
        */
       NavigableMap<byte[], byte[]> mtdtMap =
               row.getFamilyMap(METADATA_FAMILY);
-      if (mtdtMap.containsKey(TRUST_FLAG)){
+      if (mtdtMap.containsKey(TRUST_FLAG)) {
         LOG.info("Contains trust flag");
         Integer iValue = 0;
         String value = Bytes.toString(mtdtMap.get(TRUST_FLAG));

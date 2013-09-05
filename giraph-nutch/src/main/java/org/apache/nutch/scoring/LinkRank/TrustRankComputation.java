@@ -104,7 +104,8 @@ public class TrustRankComputation extends BasicComputation<Text, DoubleWritable,
   /**
    * Logger.
    */
-  private static final Logger LOG = Logger.getLogger(TrustRankComputation.class);
+  private static final Logger LOG =
+          Logger.getLogger(TrustRankComputation.class);
 
   /**
    * Maximum number of supersteps.
@@ -203,8 +204,9 @@ public class TrustRankComputation extends BasicComputation<Text, DoubleWritable,
       if (removeDuplicates) {
         removeDuplicateLinks(vertex);
       }
-      if (Math.abs(vertex.getValue().get() - 1.0d) < 1e-3){
-        aggregate(TrustRankComputation.TRUSTED_VERTICES, new Text(";" + vertex.getId()));
+      if (Math.abs(vertex.getValue().get() - 1.0d) < 1e-3) {
+        aggregate(TrustRankComputation.TRUSTED_VERTICES,
+                new Text(";" + vertex.getId()));
         aggregate(TrustRankComputation.NUM_TRUSTED, new IntWritable(1));
       }
 
@@ -216,11 +218,12 @@ public class TrustRankComputation extends BasicComputation<Text, DoubleWritable,
       }
 
       HashSet<String> trusteds = new HashSet<String>();
-      for (String element : getAggregatedValue(TrustRankComputation.TRUSTED_VERTICES).toString().split(";")){
+      for (String element : getAggregatedValue(
+              TrustRankComputation.TRUSTED_VERTICES).toString().split(";")) {
         trusteds.add(element);
       }
 
-      if (!trusteds.contains(vertex.getId())){
+      if (!trusteds.contains(vertex.getId())) {
         currentDanglingContribution = 0.0d;
       }
       Double newValue =
@@ -319,7 +322,8 @@ public class TrustRankComputation extends BasicComputation<Text, DoubleWritable,
     DoubleWritable danglingWritable =
             getAggregatedValue(TrustRankComputation.DANGLING_AGG);
     Double danglingSum = danglingWritable.get();
-    double d = Double.parseDouble(getAggregatedValue(TrustRankComputation.NUM_TRUSTED).toString());
+    double d = Double.parseDouble(
+            getAggregatedValue(TrustRankComputation.NUM_TRUSTED).toString());
     Double contribution = danglingSum / d;
     return contribution;
   }

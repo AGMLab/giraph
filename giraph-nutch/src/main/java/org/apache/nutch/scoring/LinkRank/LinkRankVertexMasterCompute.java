@@ -31,43 +31,42 @@ import java.io.IOException;
  * It registers required aggregators.
  */
 public class LinkRankVertexMasterCompute extends
-        MasterCompute {
+  MasterCompute {
   @Override
   public void compute() {
-      // add additional 3 steps for normalization.
-      long maxSteps = getContext().getConfiguration().
-              getLong(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
-      long superstep = getSuperstep();
-      if (superstep == maxSteps - 2) {
-          /**
-           * We should have log values of the scores aggregated in SUM_OF_LOGS.
-           * Divide this sum by total number of vertices and aggragate in
-           * AVG_OF_LOGS.
-           */
-          DoubleWritable logsum =
-                  getAggregatedValue(LinkRankComputation.SUM_OF_LOGS);
-          DoubleWritable avg = new DoubleWritable(
-                  logsum.get() / getTotalNumVertices());
+    // add additional 3 steps for normalization.
+    long maxSteps = getContext().getConfiguration().
+            getLong(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
+    long superstep = getSuperstep();
+    if (superstep == maxSteps - 2) {
+        /**
+         * We should have log values of the scores aggregated in SUM_OF_LOGS.
+         * Divide this sum by total number of vertices and aggragate in
+         * AVG_OF_LOGS.
+         */
+      DoubleWritable logsum =
+              getAggregatedValue(LinkRankComputation.SUM_OF_LOGS);
+      DoubleWritable avg = new DoubleWritable(
+              logsum.get() / getTotalNumVertices());
 
-          setAggregatedValue(LinkRankComputation.AVG_OF_LOGS, avg);
+      setAggregatedValue(LinkRankComputation.AVG_OF_LOGS, avg);
 
-      } else if (superstep == maxSteps) {
-          /**
-           * Calculate standart deviation with deviation sums SUM_OF_DEVS.
-           * Aggregate result to STDEV.
-           */
-          DoubleWritable devSum =
-                  getAggregatedValue(LinkRankComputation.SUM_OF_DEVS);
-          double ratio = devSum.get() / getTotalNumVertices();
-          DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
-          setAggregatedValue(LinkRankComputation.STDEV, stdev);
-      }
-
+    } else if (superstep == maxSteps) {
+      /**
+       * Calculate standart deviation with deviation sums SUM_OF_DEVS.
+       * Aggregate result to STDEV.
+       */
+      DoubleWritable devSum =
+              getAggregatedValue(LinkRankComputation.SUM_OF_DEVS);
+      double ratio = devSum.get() / getTotalNumVertices();
+      DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
+      setAggregatedValue(LinkRankComputation.STDEV, stdev);
+    }
   }
 
   @Override
   public void initialize() throws InstantiationException,
-          IllegalAccessException {
+    IllegalAccessException {
     registerPersistentAggregator(
             LinkRankComputation.SUM_OF_LOGS, DoubleSumAggregator.class);
     registerPersistentAggregator(

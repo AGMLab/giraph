@@ -216,7 +216,7 @@ public class TrustRankHBaseTest extends BspCase {
       giraphConf.setInt("giraph.linkRank.scale", 10);
       giraphConf.set("giraph.linkRank.family", "mtdt");
       giraphConf.set("giraph.linkRank.qualifier", "_tr_");
-      giraphConf.setFloat("giraph.linkRank.dampingFactor", 0.85f);
+      giraphConf.setFloat("giraph.linkRank.dampingFactor", 0.20f);
       giraphConf.setVertexInputFilterClass(HostRankVertexFilter.class);
       assertTrue(giraphJob.run(true));
 

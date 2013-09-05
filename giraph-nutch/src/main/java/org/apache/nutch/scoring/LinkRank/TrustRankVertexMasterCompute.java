@@ -29,7 +29,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * Master compute associated with {@link org.apache.nutch.scoring.LinkRank.TrustRankComputation}.
+ * Master compute associated with
+ * {@link org.apache.nutch.scoring.LinkRank.TrustRankComputation}.
  * It registers required aggregators.
  */
 public class TrustRankVertexMasterCompute extends
@@ -37,33 +38,33 @@ public class TrustRankVertexMasterCompute extends
   @Override
   public void compute() {
       // add additional 3 steps for normalization.
-      long maxSteps = getContext().getConfiguration().
+    long maxSteps = getContext().getConfiguration().
               getLong(TrustRankComputation.SUPERSTEP_COUNT, 10) + 3;
-      long superstep = getSuperstep();
-      if (superstep == maxSteps - 2) {
-          /**
-           * We should have log values of the scores aggregated in SUM_OF_LOGS.
-           * Divide this sum by total number of vertices and aggragate in
-           * AVG_OF_LOGS.
-           */
-          DoubleWritable logsum =
-                  getAggregatedValue(TrustRankComputation.SUM_OF_LOGS);
-          DoubleWritable avg = new DoubleWritable(
-                  logsum.get() / getTotalNumVertices());
+    long superstep = getSuperstep();
+    if (superstep == maxSteps - 2) {
+      /**
+       * We should have log values of the scores aggregated in SUM_OF_LOGS.
+       * Divide this sum by total number of vertices and aggragate in
+       * AVG_OF_LOGS.
+       */
+      DoubleWritable logsum =
+              getAggregatedValue(TrustRankComputation.SUM_OF_LOGS);
+      DoubleWritable avg = new DoubleWritable(
+              logsum.get() / getTotalNumVertices());
 
-          setAggregatedValue(TrustRankComputation.AVG_OF_LOGS, avg);
+      setAggregatedValue(TrustRankComputation.AVG_OF_LOGS, avg);
 
-      } else if (superstep == maxSteps) {
-          /**
-           * Calculate standart deviation with deviation sums SUM_OF_DEVS.
-           * Aggregate result to STDEV.
-           */
-          DoubleWritable devSum =
-                  getAggregatedValue(TrustRankComputation.SUM_OF_DEVS);
-          double ratio = devSum.get() / getTotalNumVertices();
-          DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
-          setAggregatedValue(TrustRankComputation.STDEV, stdev);
-      }
+    } else if (superstep == maxSteps) {
+      /**
+       * Calculate standart deviation with deviation sums SUM_OF_DEVS.
+       * Aggregate result to STDEV.
+       */
+      DoubleWritable devSum =
+              getAggregatedValue(TrustRankComputation.SUM_OF_DEVS);
+      double ratio = devSum.get() / getTotalNumVertices();
+      DoubleWritable stdev = new DoubleWritable(Math.sqrt(ratio));
+      setAggregatedValue(TrustRankComputation.STDEV, stdev);
+    }
 
   }
 
