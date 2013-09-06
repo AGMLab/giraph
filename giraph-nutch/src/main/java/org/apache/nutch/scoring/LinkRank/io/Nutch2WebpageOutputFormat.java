@@ -76,7 +76,7 @@ public class Nutch2WebpageOutputFormat
     /**
      * Score family "s"
      */
-    private static byte[] SCORE_FAMILY = Bytes.toBytes("mtdt");
+    private static byte[] METADATA_FAMILY = Bytes.toBytes("mtdt");
     /**
      * Score qualifier "pagerank". Calculated scores will be written here.
      */
@@ -93,7 +93,7 @@ public class Nutch2WebpageOutputFormat
       super(context);
       Configuration conf = context.getConfiguration();
       String fStr = conf.get("giraph.linkRank.family", "mtdt");
-      SCORE_FAMILY = Bytes.toBytes(fStr);
+      METADATA_FAMILY = Bytes.toBytes(fStr);
 
       String qStr = conf.get("giraph.linkRank.qualifier", "_lr_");
       LINKRANK_QUALIFIER = Bytes.toBytes(qStr);
@@ -110,11 +110,11 @@ public class Nutch2WebpageOutputFormat
       throws IOException, InterruptedException {
       RecordWriter<ImmutableBytesWritable, Writable> writer = getRecordWriter();
       // get the byte representation of current vertex ID.
-      byte[] rowBytes = reverseUrl(vertex.getId().toString())
+      byte[] keyBytes = reverseUrl(vertex.getId().toString())
               .getBytes(Charset.forName("UTF-8"));
 
       // create a new Put operation with vertex value in it.
-      Put put = new Put(rowBytes);
+      Put put = new Put(keyBytes);
 
       // prepare value.
       DoubleWritable valueWritable = vertex.getValue();
@@ -125,8 +125,8 @@ public class Nutch2WebpageOutputFormat
 
       // write the vertex, score pair.
       if (valueStr.length() > 0) {
-        put.add(SCORE_FAMILY, LINKRANK_QUALIFIER, valueBytes);
-        writer.write(new ImmutableBytesWritable(rowBytes), put);
+        put.add(METADATA_FAMILY, LINKRANK_QUALIFIER, valueBytes);
+        writer.write(new ImmutableBytesWritable(keyBytes), put);
       }
     }
   }

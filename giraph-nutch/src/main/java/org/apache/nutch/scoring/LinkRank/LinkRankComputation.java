@@ -145,7 +145,7 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
     maxSteps = getConf().getInt(LinkRankComputation.SUPERSTEP_COUNT, 10) + 3;
     scale = getConf().getInt(LinkRankComputation.SCALE, 10);
     dampingFactor = getConf().getFloat(
-            LinkRankComputation.DAMPING_FACTOR, 1.0f);
+            LinkRankComputation.DAMPING_FACTOR, 0.85f);
     removeDuplicates = getConf().getBoolean(
             LinkRankComputation.REMOVE_DUPLICATES, false);
     superStep = getSuperstep();
@@ -246,8 +246,8 @@ public class LinkRankComputation extends BasicComputation<Text, DoubleWritable,
       NormalDistribution dist = new NormalDistributionImpl(
               logAvg.get(), stdevValue);
       try {
-        double cdf = dist.cumulativeProbability(logValueDouble);
-        newValue = cdf * scale;
+        double cumProb = dist.cumulativeProbability(logValueDouble);
+        newValue = cumProb * scale;
       } catch (MathException e) {
         e.printStackTrace();
       }

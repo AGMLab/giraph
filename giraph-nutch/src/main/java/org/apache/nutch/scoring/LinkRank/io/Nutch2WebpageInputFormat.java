@@ -166,7 +166,8 @@ public class Nutch2WebpageInputFormat extends
       NavigableMap<byte[], byte[]> outlinkMap =
               row.getFamilyMap(OUTLINK_FAMILY);
 
-      // Create Writables for source URL and score value.
+      // Create Writables for unreversed source URL.
+      // We will use unreversed URLs for source and target.
       Text vertexId = new Text(source);
 
       // Create edge list by looking at the outlinkMap.
@@ -196,8 +197,8 @@ public class Nutch2WebpageInputFormat extends
        * Now convert the url string set to edge set.
        */
       for (String target : targetUrlSet) {
-        Text edgeId = new Text(target);
-        edges.add(EdgeFactory.create(edgeId, USELESS_EDGE_VALUE));
+        Text targetId = new Text(target);
+        edges.add(EdgeFactory.create(targetId, USELESS_EDGE_VALUE));
       }
 
       /** With the edge list, initialize vertex with
